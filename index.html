@@ -327,6 +327,33 @@
       color: var(--cream); box-shadow: 0 0 8px rgba(220,20,60,0.2);
     }
 
+    /* ── Buy Multiplier ─────────────────────────────────── */
+    .buy-multiplier-btns {
+      display: flex; gap: 3px; margin-left: auto;
+    }
+    .buy-mult-btn {
+      padding: 3px 7px;
+      border: 1px solid rgba(130,25,35,0.5);
+      border-radius: 6px;
+      background: rgba(40,6,10,0.8);
+      color: var(--muted);
+      font-size: 0.6rem; font-weight: 800;
+      font-family: 'Nunito', sans-serif;
+      cursor: pointer;
+      transition: all 0.12s;
+      line-height: 1.4;
+    }
+    .buy-mult-btn:hover {
+      border-color: rgba(220,20,60,0.6);
+      color: var(--text);
+    }
+    .buy-mult-btn.active {
+      background: linear-gradient(135deg, rgba(130,14,26,0.96), rgba(68,7,14,0.99));
+      border-color: rgba(220,20,60,0.7);
+      color: var(--cream);
+      box-shadow: 0 0 6px rgba(220,20,60,0.25);
+    }
+
     /* ── Toast ──────────────────────────────────────────── */
     #toast-container {
       position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
@@ -626,6 +653,12 @@
     <div class="panel-title">
       <span class="panel-title-icon">🏭</span>
       <span class="panel-title-text">Buildings</span>
+      <div class="buy-multiplier-btns">
+        <button class="buy-mult-btn active" data-mult="1">1×</button>
+        <button class="buy-mult-btn" data-mult="10">10×</button>
+        <button class="buy-mult-btn" data-mult="100">100×</button>
+        <button class="buy-mult-btn" data-mult="max">Max</button>
+      </div>
     </div>
     <div class="panel-scroll" id="buildings-list"></div>
   </div>
@@ -760,6 +793,31 @@ function buildingCost(bId) {
   return Math.ceil(b.baseCost * Math.pow(1.15, state.buildings[bId]||0));
 }
 
+let buyMultiplier = 1; // 1 | 10 | 100 | 'max'
+
+function buildingCostN(bId, n) {
+  const b = BUILDINGS.find(b=>b.id===bId);
+  const cnt = state.buildings[bId]||0;
+  let total = 0;
+  for (let i = 0; i < n; i++) {
+    total += Math.ceil(b.baseCost * Math.pow(1.15, cnt + i));
+  }
+  return total;
+}
+
+function maxAffordableBuildings(bId) {
+  const b = BUILDINGS.find(b=>b.id===bId);
+  const cnt = state.buildings[bId]||0;
+  let total = 0, n = 0;
+  while (n < 10000) {
+    const next = Math.ceil(b.baseCost * Math.pow(1.15, cnt + n));
+    if (total + next > state.cola) break;
+    total += next;
+    n++;
+  }
+  return n;
+}
+
 function totalBuildingCount() {
   return Object.values(state.buildings).reduce((a,b)=>a+b, 0);
 }
@@ -858,10 +916,12 @@ function spawnFloatText(cx, cy, amount) {
 
 // ── Purchases ─────────────────────────────────────────────
 function buyBuilding(bId) {
-  const cost = buildingCost(bId);
+  const n = buyMultiplier === 'max' ? maxAffordableBuildings(bId) : buyMultiplier;
+  if (n <= 0) return;
+  const cost = buildingCostN(bId, n);
   if (state.cola < cost) return;
   state.cola -= cost;
-  state.buildings[bId] = (state.buildings[bId]||0)+1;
+  state.buildings[bId] = (state.buildings[bId]||0) + n;
   updateUI(); checkMilestones(); renderBuildings(); renderSpecialUpgrades();
 }
 
@@ -956,11 +1016,21 @@ function updateUI() {
   canWrap.classList.toggle('can-glow', cps >= 10);
 
   document.querySelectorAll('.building-card[data-id]').forEach(el=>{
-    const id   = el.dataset.id;
-    const cost = buildingCost(id);
-    el.classList.toggle('affordable', state.cola >= cost);
-    el.querySelector('.building-cost').textContent  = fmt(cost) + ' cola';
+    const id = el.dataset.id;
     el.querySelector('.building-count').textContent = state.buildings[id]||0;
+    if (buyMultiplier === 'max') {
+      const n = maxAffordableBuildings(id);
+      el.classList.toggle('affordable', n > 0);
+      el.querySelector('.building-cost').textContent = n > 0
+        ? `${fmt(buildingCostN(id, n))} cola ×${n}`
+        : `${fmt(buildingCost(id))} cola`;
+    } else {
+      const cost = buildingCostN(id, buyMultiplier);
+      el.classList.toggle('affordable', state.cola >= cost);
+      el.querySelector('.building-cost').textContent = buyMultiplier > 1
+        ? `${fmt(cost)} cola ×${buyMultiplier}`
+        : `${fmt(cost)} cola`;
+    }
   });
 
   const clickCost = getClickUpgradeCost();
@@ -1240,6 +1310,16 @@ function renderLeaderboard() {
     tbody.appendChild(tr);
   });
 }
+
+document.querySelectorAll('.buy-mult-btn').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    const raw = btn.dataset.mult;
+    buyMultiplier = raw === 'max' ? 'max' : parseInt(raw, 10);
+    document.querySelectorAll('.buy-mult-btn').forEach(b => b.classList.toggle('active', b === btn));
+    renderBuildings();
+  });
+});
 
 document.getElementById('btn-reset').addEventListener('click', resetGame);
 
