@@ -943,7 +943,7 @@ function tick() {
 // ── Click Combo ───────────────────────────────────────────
 function updateClickCombo(dt) {
   const now = Date.now();
-  const cps = clickTimestamps.filter(t => now - t <= 1000).length;
+  const cps = clickTimestamps.filter(t => now - t <= 3000).length / 3;
   const prevLevel = clickComboLevel;
 
   while (clickComboLevel > 0 && cps < CPS_LEVELS[clickComboLevel - 1].minCps) {
@@ -959,7 +959,7 @@ function updateClickCombo(dt) {
         clickComboTimer = 0;
       }
     } else {
-      clickComboTimer = 0;
+      clickComboTimer = Math.max(0, clickComboTimer - dt);
     }
   }
 
