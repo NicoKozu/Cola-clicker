@@ -1,413 +1,421 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
+  <meta name="theme-color" content="#0a0303" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥤</text></svg>" />
   <title>Cola Clicker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Righteous&display=swap" rel="stylesheet">
   <style>
-    /* ── Reset & Base ───────────────────────────────────── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --red:    #DC143C;
-      --red-d:  #9b0e2a;
-      --red-l:  #ff4d6d;
-      --bg:     #1a0a0a;
-      --bg2:    #2a1010;
-      --bg3:    #3a1818;
-      --gold:   #FFD700;
-      --gold-d: #b8960c;
-      --cream:  #FFF8DC;
-      --text:   #f0d9d9;
-      --muted:  #a07070;
-      --border: #5c1e1e;
-      --shadow: rgba(220,20,60,0.25);
-    }
-
-    html, body {
-      height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      overflow: hidden;
-      user-select: none;
-    }
-
-    /* ── Layout ─────────────────────────────────────────── */
-    #app {
-      display: grid;
-      grid-template-columns: 260px 1fr 280px;
-      grid-template-rows: 100vh;
-      height: 100vh;
-    }
-
-    .panel {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .panel-title {
-      background: linear-gradient(135deg, var(--red-d), #5a0a1a);
-      color: var(--gold);
-      font-size: 0.85rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      padding: 10px 14px;
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-
-    .panel-scroll {
-      overflow-y: auto;
-      flex: 1;
-    }
-
-    .panel-scroll::-webkit-scrollbar { width: 5px; }
-    .panel-scroll::-webkit-scrollbar-track { background: var(--bg); }
-    .panel-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-    /* ── Center panel ────────────────────────────────────── */
-    #center {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 0;
-      background: radial-gradient(ellipse at 50% 30%, #3a0a10 0%, var(--bg) 70%);
-      position: relative;
-      overflow: hidden;
-      border-left: 1px solid var(--border);
-      border-right: 1px solid var(--border);
-    }
-
-    /* ── Stats bar ───────────────────────────────────────── */
-    #stats-bar {
-      width: 100%;
-      background: linear-gradient(180deg, #2a0808, transparent);
-      padding: 14px 20px 10px;
-      text-align: center;
-      flex-shrink: 0;
-    }
-
-    #cola-count {
-      font-size: 2rem;
-      font-weight: 900;
-      color: var(--cream);
-      text-shadow: 0 0 12px var(--red);
-      line-height: 1.1;
-    }
-
-    #cola-label {
-      font-size: 0.75rem;
-      color: var(--muted);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-
-    #cps-display {
-      font-size: 0.85rem;
-      color: var(--gold);
-      margin-top: 4px;
-    }
-
-    /* ── Click area ──────────────────────────────────────── */
-    #click-zone {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      width: 100%;
-    }
-
-    #cola-btn {
-      position: relative;
-      width: 180px;
-      height: 180px;
-      cursor: pointer;
-      border: none;
-      background: none;
-      outline: none;
-      transition: transform 80ms;
+    *, *::before, *::after {
+      box-sizing: border-box; margin: 0; padding: 0;
       -webkit-tap-highlight-color: transparent;
     }
 
-    #cola-btn:active { transform: scale(0.91); }
+    :root {
+      --red:      #DC143C;
+      --red-d:    #8b0a1e;
+      --red-l:    #ff4d6d;
+      --bg:       #0a0303;
+      --bg2:      #140606;
+      --bg3:      #1c0a0a;
+      --gold:     #FFD700;
+      --cream:    #FFF8DC;
+      --text:     #eddada;
+      --muted:    #7a4a4a;
+      --border:   rgba(160,35,35,0.3);
+      --border-h: rgba(220,20,60,0.5);
+      --glass:    rgba(16,4,4,0.9);
+    }
 
-    #cola-btn .can-wrap {
-      width: 100%;
+    html {
       height: 100%;
-      filter: drop-shadow(0 0 22px rgba(220,20,60,0.7));
-      transition: filter 0.15s;
+      touch-action: manipulation;
     }
 
-    #cola-btn:hover .can-wrap {
-      filter: drop-shadow(0 0 34px rgba(220,20,60,0.95));
+    body {
+      height: 100%;
+      background: var(--bg);
+      background-image: radial-gradient(circle at 1px 1px, rgba(220,20,60,0.022) 1px, transparent 0);
+      background-size: 36px 36px;
+      color: var(--text);
+      font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
-    /* Cola Can SVG */
-    .can-body { fill: var(--red); }
-    .can-top   { fill: #c8c8c8; }
-    .can-bottom{ fill: #b0b0b0; }
-    .can-ring  { fill: #e0e0e0; }
-    .can-label-bg { fill: #b00020; }
-    .can-stripe { fill: rgba(255,255,255,0.08); }
-    .can-shine  { fill: rgba(255,255,255,0.18); }
-    .can-text   { fill: var(--cream); font-family: 'Georgia', serif; font-weight: 900; }
-    .can-wave   { fill: none; stroke: var(--cream); stroke-width: 1.5; opacity: 0.7; }
-    .can-bubble-inner { fill: rgba(255,255,255,0.15); }
+    /* ── Ambient background bubbles ─────────────────────── */
+    #bg-bubbles {
+      position: fixed; inset: 0;
+      pointer-events: none; overflow: hidden; z-index: 0;
+    }
+    #bg-bubbles span {
+      position: absolute; border-radius: 50%; bottom: -6%;
+      background: radial-gradient(circle at 35% 30%, rgba(220,20,60,0.1), rgba(180,10,30,0.02));
+      border: 1px solid rgba(220,20,60,0.07);
+      animation: ambientFloat linear infinite;
+    }
+    @keyframes ambientFloat {
+      0%   { transform: translateY(0);       opacity: 0;   }
+      8%   {                                  opacity: 0.9; }
+      90%  {                                  opacity: 0.2; }
+      100% { transform: translateY(-108vh);   opacity: 0;   }
+    }
+    #bg-bubbles span:nth-child(1)  { left:  7%; width:22px; height:22px; animation-duration:10.2s; animation-delay: 0.0s; }
+    #bg-bubbles span:nth-child(2)  { left: 17%; width:11px; height:11px; animation-duration:13.4s; animation-delay: 1.8s; }
+    #bg-bubbles span:nth-child(3)  { left: 27%; width:18px; height:18px; animation-duration: 9.1s; animation-delay: 3.5s; }
+    #bg-bubbles span:nth-child(4)  { left: 37%; width: 8px; height: 8px; animation-duration:11.7s; animation-delay: 0.8s; }
+    #bg-bubbles span:nth-child(5)  { left: 47%; width:26px; height:26px; animation-duration:14.3s; animation-delay: 5.1s; }
+    #bg-bubbles span:nth-child(6)  { left: 57%; width:14px; height:14px; animation-duration:10.8s; animation-delay: 2.3s; }
+    #bg-bubbles span:nth-child(7)  { left: 67%; width:19px; height:19px; animation-duration:12.2s; animation-delay: 4.2s; }
+    #bg-bubbles span:nth-child(8)  { left: 77%; width:10px; height:10px; animation-duration: 9.6s; animation-delay: 1.2s; }
+    #bg-bubbles span:nth-child(9)  { left: 87%; width:16px; height:16px; animation-duration:11.9s; animation-delay: 3.0s; }
+    #bg-bubbles span:nth-child(10) { left: 13%; width:28px; height:28px; animation-duration:15.1s; animation-delay: 6.4s; }
+    #bg-bubbles span:nth-child(11) { left: 52%; width:10px; height:10px; animation-duration: 8.7s; animation-delay: 0.5s; }
+    #bg-bubbles span:nth-child(12) { left: 73%; width:21px; height:21px; animation-duration:12.8s; animation-delay: 7.2s; }
 
-    /* click shockwave */
-    .shockwave {
-      position: absolute;
-      width: 10px; height: 10px;
+    /* ── Layout ─────────────────────────────────────────── */
+    #app {
+      position: relative; z-index: 1;
+      display: grid;
+      grid-template-columns: 265px 1fr 285px;
+      height: 100vh;
+    }
+
+    /* ── Panels ─────────────────────────────────────────── */
+    .panel {
+      display: flex; flex-direction: column; overflow: hidden;
+      background: var(--glass);
+      border-right: 1px solid var(--border);
+    }
+    #buildings-panel { border-right: none; border-left: 1px solid var(--border); }
+
+    .panel-title {
+      background: linear-gradient(135deg, rgba(100,12,25,0.97), rgba(45,4,10,0.99));
+      border-bottom: 1px solid var(--border-h);
+      padding: 13px 16px;
+      display: flex; align-items: center; gap: 9px;
+      flex-shrink: 0;
+    }
+    .panel-title-icon { font-size: 1rem; }
+    .panel-title-text {
+      font-family: 'Righteous', cursive;
+      font-size: 0.82rem; letter-spacing: 2.5px;
+      color: var(--gold); text-transform: uppercase;
+    }
+
+    .panel-scroll { overflow-y: auto; flex: 1; }
+    .panel-scroll::-webkit-scrollbar { width: 4px; }
+    .panel-scroll::-webkit-scrollbar-track { background: transparent; }
+    .panel-scroll::-webkit-scrollbar-thumb { background: rgba(140,30,30,0.45); border-radius: 2px; }
+
+    /* ── Center ─────────────────────────────────────────── */
+    #center {
+      display: flex; flex-direction: column; align-items: center;
+      background: radial-gradient(ellipse at 50% 22%, rgba(80,8,16,0.75), rgba(10,3,3,0.96) 65%);
+      position: relative; overflow: hidden;
+    }
+
+    #game-header {
+      width: 100%; text-align: center;
+      padding: 18px 20px 2px; flex-shrink: 0;
+    }
+    #game-title {
+      font-family: 'Righteous', cursive;
+      font-size: clamp(1.3rem, 2.2vw, 2rem);
+      letter-spacing: 6px; text-transform: uppercase; line-height: 1;
+    }
+    #game-title .t-cola    { color: var(--red);  text-shadow: 0 0 18px rgba(220,20,60,0.7); }
+    #game-title .t-clicker { color: var(--gold); text-shadow: 0 0 14px rgba(255,215,0,0.4); }
+
+    /* ── Stats bar ──────────────────────────────────────── */
+    #stats-bar {
+      width: 100%; padding: 10px 20px 4px;
+      text-align: center; flex-shrink: 0;
+    }
+    #cola-count {
+      font-family: 'Righteous', cursive;
+      font-size: clamp(2rem, 4.5vw, 3.8rem);
+      color: var(--cream);
+      text-shadow: 0 0 22px rgba(220,20,60,0.45), 0 2px 6px rgba(0,0,0,0.8);
+      line-height: 1; letter-spacing: 1px;
+    }
+    #cola-label {
+      font-size: 0.67rem; color: var(--muted);
+      letter-spacing: 2.5px; text-transform: uppercase; margin-top: 5px;
+    }
+    #cps-display {
+      font-size: 0.9rem; font-weight: 700; color: var(--gold); margin-top: 5px;
+    }
+
+    /* ── Click zone ─────────────────────────────────────── */
+    #click-zone {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      position: relative; width: 100%;
+    }
+
+    #can-platform {
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      padding-bottom: 26px;
+    }
+    #can-platform::after {
+      content: '';
+      position: absolute; bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 148px; height: 22px;
+      background: radial-gradient(ellipse at center, rgba(220,20,60,0.5) 0%, rgba(220,20,60,0.1) 55%, transparent 75%);
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(220,20,60,0.8) 0%, transparent 70%);
+      animation: platformGlow 2.5s ease-in-out infinite;
+    }
+    @keyframes platformGlow {
+      0%,100% { opacity: 0.65; transform: translateX(-50%) scaleX(1);   }
+      50%      { opacity: 1;    transform: translateX(-50%) scaleX(1.12); }
+    }
+
+    #cola-btn {
+      position: relative; width: 188px; height: 188px;
+      cursor: pointer; border: none; background: none; outline: none;
+      transition: transform 0.08s cubic-bezier(0.25,0.46,0.45,0.94);
+      touch-action: manipulation; border-radius: 50%;
+    }
+    #cola-btn:active { transform: scale(0.87); }
+
+    .can-wrap {
+      width: 100%; height: 100%;
+      filter: drop-shadow(0 10px 28px rgba(220,20,60,0.55)) drop-shadow(0 3px 10px rgba(0,0,0,0.7));
+      transition: filter 0.2s;
+    }
+    #cola-btn:hover .can-wrap {
+      filter: drop-shadow(0 10px 40px rgba(220,20,60,0.88)) drop-shadow(0 3px 10px rgba(0,0,0,0.7));
+    }
+
+    .can-text { fill: var(--cream); font-family: 'Georgia', serif; font-weight: 900; }
+    .can-wave { fill: none; stroke: var(--cream); stroke-width: 1.5; opacity: 0.65; }
+
+    /* Click effects */
+    .shockwave {
+      position: absolute; width: 10px; height: 10px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(220,20,60,0.75) 0%, transparent 65%);
       pointer-events: none;
-      transform: translate(-50%, -50%) scale(0);
+      transform: translate(-50%,-50%) scale(0);
       animation: shockwave 0.5s ease-out forwards;
     }
     @keyframes shockwave {
-      0%   { transform: translate(-50%,-50%) scale(0); opacity: 1; }
+      0%   { transform: translate(-50%,-50%) scale(0);  opacity: 1; }
       100% { transform: translate(-50%,-50%) scale(28); opacity: 0; }
     }
 
-    /* floating +1 text */
     .float-text {
       position: absolute;
-      color: var(--cream);
-      font-weight: 900;
-      font-size: 1.1rem;
+      color: var(--cream); font-weight: 900; font-size: 1.1rem;
       pointer-events: none;
-      text-shadow: 0 0 6px var(--red), 0 2px 4px rgba(0,0,0,0.8);
-      animation: floatUp 0.9s ease-out forwards;
-      white-space: nowrap;
+      font-family: 'Righteous', cursive;
+      text-shadow: 0 0 8px var(--red), 0 2px 5px rgba(0,0,0,0.8);
+      animation: floatUp 0.9s ease-out forwards; white-space: nowrap;
     }
     @keyframes floatUp {
-      0%   { transform: translateY(0)   scale(1);   opacity: 1; }
+      0%   { transform: translateY(0)    scale(1);   opacity: 1; }
       60%  { transform: translateY(-55px) scale(1.1); opacity: 1; }
       100% { transform: translateY(-90px) scale(0.8); opacity: 0; }
     }
 
-    /* bubbles */
     .bubble {
-      position: absolute;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.7), rgba(220,20,60,0.3));
+      position: absolute; border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.65), rgba(220,20,60,0.25));
       pointer-events: none;
       animation: bubbleRise linear forwards;
     }
     @keyframes bubbleRise {
-      0%   { transform: translateY(0)    scale(1);   opacity: 0.8; }
-      80%  { opacity: 0.5; }
-      100% { transform: translateY(-220px) scale(0.3); opacity: 0; }
+      0%   { transform: translateY(0);      opacity: 0.8; }
+      80%  {                                 opacity: 0.5; }
+      100% { transform: translateY(-220px); opacity: 0;   }
     }
 
-    /* ── Bottom stats strip ──────────────────────────────── */
+    /* ── Bottom stats ───────────────────────────────────── */
     #bottom-stats {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      gap: 28px;
-      padding: 10px 16px 14px;
-      background: linear-gradient(0deg, #2a0808, transparent);
-      flex-shrink: 0;
+      width: 100%; display: flex; justify-content: center;
+      padding: 8px 12px 16px;
+      background: linear-gradient(0deg, rgba(10,3,3,0.75), transparent);
+      flex-shrink: 0; gap: 0;
     }
-
     .stat-chip {
-      text-align: center;
+      flex: 1; text-align: center; padding: 8px 4px;
+      border-right: 1px solid rgba(80,20,20,0.3);
+      max-width: 110px;
     }
-    .stat-chip .val { font-size: 0.95rem; font-weight: 700; color: var(--gold); }
-    .stat-chip .lbl { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
-
-    /* ── Upgrades panel ──────────────────────────────────── */
-    .upgrade-card {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 9px 12px;
-      border-bottom: 1px solid #3a1515;
-      cursor: pointer;
-      transition: background 0.15s;
-      position: relative;
+    .stat-chip:last-child { border-right: none; }
+    .stat-chip .val {
+      font-family: 'Righteous', cursive;
+      font-size: 0.93rem; color: var(--gold); display: block; line-height: 1.2;
     }
-    .upgrade-card:hover  { background: #3a1818; }
-    .upgrade-card.bought { opacity: 0.4; cursor: default; pointer-events: none; }
-    .upgrade-card.locked { opacity: 0.35; cursor: not-allowed; }
-    .upgrade-card.locked:hover { background: transparent; }
-
-    .upgrade-icon {
-      width: 38px; height: 38px;
-      border-radius: 8px;
-      background: linear-gradient(135deg, var(--red-d), #6a0a1a);
-      border: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.3rem;
-      flex-shrink: 0;
+    .stat-chip .lbl {
+      font-size: 0.58rem; color: var(--muted); text-transform: uppercase;
+      letter-spacing: 1px; margin-top: 2px; display: block;
     }
 
-    .upgrade-info { flex: 1; min-width: 0; }
-    .upgrade-name { font-size: 0.82rem; font-weight: 700; color: var(--cream); }
-    .upgrade-desc { font-size: 0.7rem;  color: var(--muted); margin-top: 1px; line-height: 1.3; }
-    .upgrade-cost { font-size: 0.75rem; font-weight: 700; color: var(--gold); margin-top: 3px; }
-
-    .upgrade-card.affordable .upgrade-cost { color: #7fff7f; }
-    .upgrade-card.affordable { border-left: 3px solid #2a8a2a; }
-
-    /* ── Buildings panel ─────────────────────────────────── */
-    .building-card {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      border-bottom: 1px solid #3a1515;
-      cursor: pointer;
-      transition: background 0.15s;
-      position: relative;
-    }
-    .building-card:hover    { background: #3a1818; }
-    .building-card.locked   { opacity: 0.4; cursor: not-allowed; }
-    .building-card.locked:hover { background: transparent; }
-    .building-card.affordable { border-left: 3px solid #2a8a2a; }
-
-    .building-icon {
-      width: 44px; height: 44px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, var(--bg3), var(--red-d));
-      border: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.6rem;
-      flex-shrink: 0;
-      position: relative;
-    }
-
-    .building-count {
-      position: absolute;
-      bottom: -4px; right: -4px;
-      background: var(--gold);
-      color: #000;
-      font-size: 0.6rem;
-      font-weight: 900;
-      border-radius: 8px;
-      padding: 1px 4px;
-      min-width: 16px;
-      text-align: center;
-    }
-
-    .building-info { flex: 1; min-width: 0; }
-    .building-name { font-size: 0.85rem; font-weight: 700; color: var(--cream); }
-    .building-cps  { font-size: 0.7rem;  color: var(--muted); margin-top: 1px; }
-    .building-cost { font-size: 0.78rem; font-weight: 700; color: var(--gold); margin-top: 3px; }
-    .building-card.affordable .building-cost { color: #7fff7f; }
-
-    /* ── Save/Reset bar ──────────────────────────────────── */
-    #save-bar {
-      display: flex;
-      gap: 6px;
-      padding: 8px 10px;
-      background: var(--bg);
-      border-top: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-
-    .btn-small {
-      flex: 1;
-      padding: 6px 4px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--bg3);
-      color: var(--text);
-      font-size: 0.7rem;
-      cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
-      text-align: center;
-    }
-    .btn-small:hover { background: var(--red-d); border-color: var(--red); }
-
-    /* ── Notification toast ──────────────────────────────── */
-    #toast-container {
-      position: fixed;
-      top: 18px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 1000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      pointer-events: none;
-    }
-
-    .toast {
-      background: linear-gradient(135deg, #3a0810, #6a1020);
-      border: 1px solid var(--gold);
-      border-radius: 12px;
-      padding: 10px 20px;
-      color: var(--gold);
-      font-size: 0.88rem;
-      font-weight: 700;
-      text-align: center;
-      box-shadow: 0 4px 20px rgba(220,20,60,0.4);
-      animation: toastIn 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards,
-                 toastOut 0.4s ease-in 3s forwards;
-      max-width: 320px;
-    }
-    @keyframes toastIn  { from { opacity:0; transform:scale(0.7) translateY(-10px); } to { opacity:1; transform:scale(1) translateY(0); } }
-    @keyframes toastOut { from { opacity:1; } to { opacity:0; transform:scale(0.8) translateY(-8px); } }
-
-    /* ── Milestone banner ────────────────────────────────── */
-    #milestone-banner {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: linear-gradient(135deg, var(--red-d), #3a0010);
-      border: 2px solid var(--gold);
-      border-radius: 16px;
-      padding: 14px 28px;
-      text-align: center;
-      z-index: 900;
-      pointer-events: none;
-      transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1), opacity 0.5s;
-      opacity: 0;
-      min-width: 280px;
-    }
-    #milestone-banner.show {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
-    }
-    #milestone-title { font-size: 1.1rem; font-weight: 900; color: var(--gold); }
-    #milestone-sub   { font-size: 0.8rem;  color: var(--cream); margin-top: 4px; }
-
-    /* ── Responsive ──────────────────────────────────────── */
-    @media (max-width: 860px) {
-      #app { grid-template-columns: 200px 1fr 220px; }
-    }
-    @media (max-width: 640px) {
-      html, body { overflow: auto; }
-      #app { grid-template-columns: 1fr; grid-template-rows: auto; height: auto; }
-      #center { min-height: 420px; }
-      .panel { max-height: 300px; }
-    }
-
-    /* ── Prestige glow when lots of CPS ─────────────────── */
     @keyframes canPulse {
-      0%, 100% { filter: drop-shadow(0 0 18px rgba(220,20,60,0.6)); }
-      50%       { filter: drop-shadow(0 0 38px rgba(220,20,60,0.9)) drop-shadow(0 0 60px rgba(255,215,0,0.3)); }
+      0%,100% { filter: drop-shadow(0 10px 28px rgba(220,20,60,0.55)) drop-shadow(0 3px 10px rgba(0,0,0,0.7)); }
+      50%      { filter: drop-shadow(0 10px 45px rgba(220,20,60,0.9)) drop-shadow(0 0 55px rgba(255,215,0,0.28)) drop-shadow(0 3px 10px rgba(0,0,0,0.7)); }
     }
     .can-glow { animation: canPulse 2s ease-in-out infinite; }
+
+    /* ── Upgrade cards ──────────────────────────────────── */
+    .upgrade-card {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(45,10,10,0.7);
+      cursor: pointer; transition: background 0.12s;
+      border-left: 3px solid transparent;
+    }
+    .upgrade-card:hover:not(.locked):not(.bought) { background: rgba(38,8,8,0.75); }
+    .upgrade-card.affordable { border-left-color: #1a8c1a; }
+    .upgrade-card.bought  { opacity: 0.28; cursor: default; pointer-events: none; }
+    .upgrade-card.locked  { opacity: 0.27; cursor: not-allowed; }
+
+    .upgrade-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: linear-gradient(135deg, rgba(88,10,20,0.9), rgba(48,4,10,0.96));
+      border: 1px solid rgba(130,25,35,0.5);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; flex-shrink: 0;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .upgrade-info { flex: 1; min-width: 0; }
+    .upgrade-name { font-size: 0.82rem; font-weight: 800; color: var(--cream); }
+    .upgrade-desc { font-size: 0.67rem; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+    .upgrade-cost { font-size: 0.74rem; font-weight: 700; color: var(--gold); margin-top: 3px; }
+    .upgrade-card.affordable .upgrade-cost { color: #55cc55; }
+
+    /* ── Building cards ─────────────────────────────────── */
+    .building-card {
+      display: flex; align-items: center; gap: 11px;
+      padding: 11px 14px;
+      border-bottom: 1px solid rgba(45,10,10,0.7);
+      cursor: pointer; transition: background 0.12s;
+      border-left: 3px solid transparent;
+    }
+    .building-card:hover:not(.locked) { background: rgba(38,8,8,0.75); }
+    .building-card.affordable  { border-left-color: #1a8c1a; }
+    .building-card.locked { opacity: 0.35; cursor: not-allowed; }
+
+    .building-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: linear-gradient(135deg, rgba(58,10,16,0.9), rgba(32,4,8,0.96));
+      border: 1px solid rgba(120,22,32,0.5);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.55rem; flex-shrink: 0; position: relative;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .building-count {
+      position: absolute; bottom: -5px; right: -5px;
+      background: var(--gold); color: #0a0202;
+      font-size: 0.58rem; font-weight: 900; font-family: 'Nunito', sans-serif;
+      border-radius: 8px; padding: 1px 5px; min-width: 18px; text-align: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.6);
+    }
+    .building-info { flex: 1; min-width: 0; }
+    .building-name { font-size: 0.87rem; font-weight: 800; color: var(--cream); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .building-cps  { font-size: 0.67rem; color: var(--muted); margin-top: 2px; }
+    .building-cost { font-size: 0.78rem; font-weight: 700; color: var(--gold); margin-top: 4px; }
+    .building-card.affordable .building-cost { color: #55cc55; }
+
+    /* ── Save bar ───────────────────────────────────────── */
+    #save-bar {
+      display: flex; gap: 6px; padding: 10px 12px;
+      background: rgba(8,2,2,0.88);
+      border-top: 1px solid rgba(80,20,20,0.4);
+      flex-shrink: 0;
+    }
+    .btn-small {
+      flex: 1; padding: 8px 4px;
+      border: 1px solid rgba(130,25,35,0.45);
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(62,10,16,0.88), rgba(32,5,8,0.92));
+      color: var(--text); font-size: 0.67rem; font-weight: 700;
+      font-family: 'Nunito', sans-serif; cursor: pointer;
+      transition: all 0.14s; text-align: center;
+    }
+    .btn-small:hover {
+      background: linear-gradient(135deg, rgba(130,14,26,0.96), rgba(68,7,14,0.99));
+      border-color: rgba(220,20,60,0.55);
+      color: var(--cream); box-shadow: 0 0 8px rgba(220,20,60,0.2);
+    }
+
+    /* ── Toast ──────────────────────────────────────────── */
+    #toast-container {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+      z-index: 1000; display: flex; flex-direction: column;
+      align-items: center; gap: 8px; pointer-events: none;
+    }
+    .toast {
+      background: linear-gradient(135deg, rgba(42,6,12,0.97), rgba(72,10,20,0.97));
+      border: 1px solid rgba(255,215,0,0.5);
+      border-radius: 14px; padding: 11px 22px;
+      color: var(--cream); font-size: 0.86rem; font-weight: 700;
+      text-align: center;
+      box-shadow: 0 8px 28px rgba(220,20,60,0.22), 0 2px 8px rgba(0,0,0,0.5);
+      animation: toastIn 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards,
+                 toastOut 0.4s ease-in 3s forwards;
+      max-width: 300px;
+    }
+    @keyframes toastIn  { from { opacity:0; transform:scale(0.7) translateY(-8px); } to { opacity:1; transform:scale(1) translateY(0); } }
+    @keyframes toastOut { from { opacity:1; } to { opacity:0; transform:scale(0.85) translateY(-6px); } }
+
+    /* ── Milestone banner ───────────────────────────────── */
+    #milestone-banner {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: linear-gradient(135deg, rgba(98,10,22,0.98), rgba(48,4,10,0.99));
+      border: 2px solid var(--gold); border-radius: 20px;
+      padding: 16px 32px; text-align: center; z-index: 900;
+      pointer-events: none; opacity: 0; min-width: 256px;
+      transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1), opacity 0.5s;
+      box-shadow: 0 0 40px rgba(255,215,0,0.14), 0 8px 32px rgba(0,0,0,0.7);
+    }
+    #milestone-banner.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    #milestone-title {
+      font-family: 'Righteous', cursive;
+      font-size: 1.15rem; color: var(--gold);
+      text-shadow: 0 0 12px rgba(255,215,0,0.5); letter-spacing: 1px;
+    }
+    #milestone-sub { font-size: 0.78rem; color: rgba(255,248,220,0.75); margin-top: 6px; }
+
+    /* ── Responsive ─────────────────────────────────────── */
+    @media (max-width: 920px) {
+      #app { grid-template-columns: 215px 1fr 235px; }
+    }
+    @media (max-width: 680px) {
+      html, body { overflow-y: auto; height: auto; }
+      #app { display: flex; flex-direction: column; min-height: 100vh; height: auto; }
+      #center { min-height: 440px; order: 1; }
+      #buildings-panel { order: 2; max-height: 320px; border-left: none; border-top: 1px solid var(--border); }
+      #upgrades-panel  { order: 3; max-height: 300px; border-right: none; border-top: 1px solid var(--border); }
+    }
   </style>
 </head>
 <body>
+
+<div id="bg-bubbles">
+  <span></span><span></span><span></span>
+  <span></span><span></span><span></span>
+  <span></span><span></span><span></span>
+  <span></span><span></span><span></span>
+</div>
+
 <div id="app">
 
-  <!-- ── LEFT: Upgrades ─────────────────────────────────── -->
+  <!-- LEFT: Upgrades -->
   <div class="panel" id="upgrades-panel">
-    <div class="panel-title">⚗ Upgrades</div>
+    <div class="panel-title">
+      <span class="panel-title-icon">⚗</span>
+      <span class="panel-title-text">Upgrades</span>
+    </div>
     <div class="panel-scroll" id="upgrades-list"></div>
     <div id="save-bar">
       <button class="btn-small" id="btn-save">💾 Save</button>
@@ -416,124 +424,110 @@
     </div>
   </div>
 
-  <!-- ── CENTER: Clicker ───────────────────────────────────── -->
+  <!-- CENTER -->
   <div id="center">
+    <div id="game-header">
+      <div id="game-title">
+        <span class="t-cola">Cola</span>&nbsp;<span class="t-clicker">Clicker</span>
+      </div>
+    </div>
+
     <div id="stats-bar">
-      <div id="cola-count">0</div>
+      <div id="cola-count">0 🥤</div>
       <div id="cola-label">cola collected</div>
       <div id="cps-display">0 cola/sec</div>
     </div>
 
     <div id="click-zone">
-      <button id="cola-btn" aria-label="Click for cola">
-        <div class="can-wrap">
-          <svg viewBox="0 0 160 220" xmlns="http://www.w3.org/2000/svg" width="160" height="220">
-            <!-- Can body -->
-            <defs>
-              <linearGradient id="canGrad" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%"   stop-color="#8b0a1e"/>
-                <stop offset="20%"  stop-color="#DC143C"/>
-                <stop offset="50%"  stop-color="#ff3a5a"/>
-                <stop offset="80%"  stop-color="#DC143C"/>
-                <stop offset="100%" stop-color="#7a0818"/>
-              </linearGradient>
-              <linearGradient id="topGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%"   stop-color="#e8e8e8"/>
-                <stop offset="100%" stop-color="#a0a0a0"/>
-              </linearGradient>
-              <linearGradient id="bottomGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%"   stop-color="#b0b0b0"/>
-                <stop offset="100%" stop-color="#888888"/>
-              </linearGradient>
-              <clipPath id="canClip">
-                <rect x="22" y="28" width="116" height="166" rx="6"/>
-              </clipPath>
-            </defs>
-
-            <!-- Bottom rim -->
-            <ellipse cx="80" cy="192" rx="52" ry="10" fill="url(#bottomGrad)"/>
-
-            <!-- Main can body -->
-            <rect x="28" y="30" width="104" height="162" rx="8" fill="url(#canGrad)"/>
-
-            <!-- Side shine strips (clipped) -->
-            <g clip-path="url(#canClip)">
-              <rect x="28" y="30" width="14" height="162" fill="rgba(0,0,0,0.25)"/>
-              <rect x="118" y="30" width="14" height="162" fill="rgba(0,0,0,0.2)"/>
-              <rect x="48" y="30" width="6" height="162" fill="rgba(255,255,255,0.12)"/>
-              <rect x="106" y="30" width="4" height="162" fill="rgba(255,255,255,0.06)"/>
-              <!-- Label band -->
-              <rect x="28" y="70" width="104" height="86" fill="rgba(0,0,0,0.18)"/>
-              <!-- Diagonal highlight -->
-              <polygon points="28,30 52,30 28,90" fill="rgba(255,255,255,0.1)"/>
-            </g>
-
-            <!-- Label ring borders -->
-            <line x1="28" y1="70"  x2="132" y2="70"  stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
-            <line x1="28" y1="156" x2="132" y2="156" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
-
-            <!-- Cola logo text -->
-            <text x="80" y="108" text-anchor="middle" class="can-text" font-size="22" letter-spacing="1">Cola</text>
-            <text x="80" y="132" text-anchor="middle" class="can-text" font-size="11" opacity="0.85">CLICKER</text>
-
-            <!-- Decorative wave lines -->
-            <path d="M38 148 Q55 143 72 148 Q89 153 106 148 Q118 144 126 148" class="can-wave"/>
-            <path d="M38 78 Q55 73 72 78 Q89 83 106 78 Q118 74 126 78" class="can-wave"/>
-
-            <!-- Bubbles on can -->
-            <circle cx="58" cy="118" r="3.5" fill="rgba(255,255,255,0.15)"/>
-            <circle cx="103" cy="95"  r="2.5" fill="rgba(255,255,255,0.12)"/>
-            <circle cx="70"  cy="140" r="2"   fill="rgba(255,255,255,0.10)"/>
-            <circle cx="95"  cy="125" r="4"   fill="rgba(255,255,255,0.08)"/>
-
-            <!-- Top section -->
-            <ellipse cx="80" cy="32" rx="52" ry="9" fill="#c0c0c0"/>
-            <ellipse cx="80" cy="29" rx="46" ry="7" fill="url(#topGrad)"/>
-            <ellipse cx="80" cy="28" rx="42" ry="5" fill="#d8d8d8"/>
-
-            <!-- Pull tab ring -->
-            <ellipse cx="80" cy="26" rx="18" ry="4" fill="#b8b8b8" stroke="#909090" stroke-width="0.5"/>
-            <ellipse cx="80" cy="26" rx="12" ry="2.5" fill="#cccccc"/>
-            <!-- Tab -->
-            <rect x="72" y="17" width="16" height="10" rx="3" fill="#c8c8c8" stroke="#aaaaaa" stroke-width="0.5"/>
-            <ellipse cx="80" cy="22" rx="5" ry="2" fill="#b0b0b0"/>
-
-            <!-- Top edge shine -->
-            <ellipse cx="80" cy="28" rx="30" ry="3" fill="rgba(255,255,255,0.25)"/>
-          </svg>
-        </div>
-      </button>
+      <div id="can-platform">
+        <button id="cola-btn" aria-label="Click for cola">
+          <div class="can-wrap">
+            <svg viewBox="0 0 160 220" xmlns="http://www.w3.org/2000/svg" width="160" height="220">
+              <defs>
+                <linearGradient id="canGrad" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%"   stop-color="#8b0a1e"/>
+                  <stop offset="20%"  stop-color="#DC143C"/>
+                  <stop offset="50%"  stop-color="#ff3a5a"/>
+                  <stop offset="80%"  stop-color="#DC143C"/>
+                  <stop offset="100%" stop-color="#7a0818"/>
+                </linearGradient>
+                <linearGradient id="topGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"   stop-color="#e8e8e8"/>
+                  <stop offset="100%" stop-color="#a0a0a0"/>
+                </linearGradient>
+                <linearGradient id="bottomGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"   stop-color="#b0b0b0"/>
+                  <stop offset="100%" stop-color="#888888"/>
+                </linearGradient>
+                <clipPath id="canClip">
+                  <rect x="22" y="28" width="116" height="166" rx="6"/>
+                </clipPath>
+              </defs>
+              <ellipse cx="80" cy="192" rx="52" ry="10" fill="url(#bottomGrad)"/>
+              <rect x="28" y="30" width="104" height="162" rx="8" fill="url(#canGrad)"/>
+              <g clip-path="url(#canClip)">
+                <rect x="28"  y="30" width="14" height="162" fill="rgba(0,0,0,0.25)"/>
+                <rect x="118" y="30" width="14" height="162" fill="rgba(0,0,0,0.2)"/>
+                <rect x="48"  y="30" width="6"  height="162" fill="rgba(255,255,255,0.12)"/>
+                <rect x="106" y="30" width="4"  height="162" fill="rgba(255,255,255,0.06)"/>
+                <rect x="28"  y="70" width="104" height="86" fill="rgba(0,0,0,0.18)"/>
+                <polygon points="28,30 52,30 28,90" fill="rgba(255,255,255,0.1)"/>
+              </g>
+              <line x1="28" y1="70"  x2="132" y2="70"  stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+              <line x1="28" y1="156" x2="132" y2="156" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+              <text x="80" y="108" text-anchor="middle" class="can-text" font-size="22" letter-spacing="1">Cola</text>
+              <text x="80" y="132" text-anchor="middle" class="can-text" font-size="11" opacity="0.85">CLICKER</text>
+              <path d="M38 148 Q55 143 72 148 Q89 153 106 148 Q118 144 126 148" class="can-wave"/>
+              <path d="M38 78 Q55 73 72 78 Q89 83 106 78 Q118 74 126 78"  class="can-wave"/>
+              <circle cx="58" cy="118" r="3.5" fill="rgba(255,255,255,0.15)"/>
+              <circle cx="103" cy="95"  r="2.5" fill="rgba(255,255,255,0.12)"/>
+              <circle cx="70"  cy="140" r="2"   fill="rgba(255,255,255,0.10)"/>
+              <circle cx="95"  cy="125" r="4"   fill="rgba(255,255,255,0.08)"/>
+              <ellipse cx="80" cy="32" rx="52" ry="9" fill="#c0c0c0"/>
+              <ellipse cx="80" cy="29" rx="46" ry="7" fill="url(#topGrad)"/>
+              <ellipse cx="80" cy="28" rx="42" ry="5" fill="#d8d8d8"/>
+              <ellipse cx="80" cy="26" rx="18" ry="4" fill="#b8b8b8" stroke="#909090" stroke-width="0.5"/>
+              <ellipse cx="80" cy="26" rx="12" ry="2.5" fill="#cccccc"/>
+              <rect x="72" y="17" width="16" height="10" rx="3" fill="#c8c8c8" stroke="#aaaaaa" stroke-width="0.5"/>
+              <ellipse cx="80" cy="22" rx="5" ry="2" fill="#b0b0b0"/>
+              <ellipse cx="80" cy="28" rx="30" ry="3" fill="rgba(255,255,255,0.25)"/>
+            </svg>
+          </div>
+        </button>
+      </div>
     </div>
 
     <div id="bottom-stats">
       <div class="stat-chip">
-        <div class="val" id="stat-total">0</div>
-        <div class="lbl">Total</div>
+        <span class="val" id="stat-total">0</span>
+        <span class="lbl">Total</span>
       </div>
       <div class="stat-chip">
-        <div class="val" id="stat-cps">0</div>
-        <div class="lbl">Per Second</div>
+        <span class="val" id="stat-cps">0</span>
+        <span class="lbl">Per Sec</span>
       </div>
       <div class="stat-chip">
-        <div class="val" id="stat-cpc">1</div>
-        <div class="lbl">Per Click</div>
+        <span class="val" id="stat-cpc">1</span>
+        <span class="lbl">Per Click</span>
       </div>
       <div class="stat-chip">
-        <div class="val" id="stat-clicks">0</div>
-        <div class="lbl">Clicks</div>
+        <span class="val" id="stat-clicks">0</span>
+        <span class="lbl">Clicks</span>
       </div>
     </div>
   </div>
 
-  <!-- ── RIGHT: Buildings ───────────────────────────────── -->
+  <!-- RIGHT: Buildings -->
   <div class="panel" id="buildings-panel">
-    <div class="panel-title">🏭 Buildings</div>
+    <div class="panel-title">
+      <span class="panel-title-icon">🏭</span>
+      <span class="panel-title-text">Buildings</span>
+    </div>
     <div class="panel-scroll" id="buildings-list"></div>
   </div>
 
 </div>
 
-<!-- Toast & Milestone -->
 <div id="toast-container"></div>
 <div id="milestone-banner">
   <div id="milestone-title"></div>
@@ -542,10 +536,9 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════
-   COLA CLICKER — Core Game Logic
+   COLA CLICKER — Game Logic
    ═══════════════════════════════════════════════════════════ */
 
-// ── Number formatting ──────────────────────────────────────
 function fmt(n) {
   if (n < 1e3)  return parseFloat(n.toFixed(1)).toString();
   if (n < 1e6)  return (n/1e3).toFixed(2)  + 'K';
@@ -556,464 +549,218 @@ function fmt(n) {
   return (n/1e18).toFixed(2) + 'Qi';
 }
 
-// ── Buildings definition ──────────────────────────────────
 const BUILDINGS = [
-  {
-    id: 'vending',
-    name: 'Vending Machine',
-    emoji: '🥤',
-    baseCost: 15,
-    baseCps: 0.1,
-    desc: 'A trusty vending machine, dispensing cold cola around the clock.',
-  },
-  {
-    id: 'factory',
-    name: 'Cola Factory',
-    emoji: '🏭',
-    baseCost: 100,
-    baseCps: 0.5,
-    desc: 'A small factory churning out bottles by the crate.',
-  },
-  {
-    id: 'plantation',
-    name: 'Cola Plantation',
-    emoji: '🌿',
-    baseCost: 500,
-    baseCps: 2,
-    desc: 'Vast fields of kola nut trees — the secret ingredient.',
-  },
-  {
-    id: 'bottling',
-    name: 'Bottling Plant',
-    emoji: '🍾',
-    baseCost: 3000,
-    baseCps: 10,
-    desc: 'Automated bottling lines running 24/7.',
-  },
-  {
-    id: 'empire',
-    name: 'Cola Empire',
-    emoji: '👑',
-    baseCost: 20000,
-    baseCps: 50,
-    desc: 'A global beverage empire. Cola flows like water.',
-  },
+  { id:'vending',    name:'Vending Machine', emoji:'🥤', baseCost:15,    baseCps:0.1,  desc:'A trusty vending machine dispensing cold cola around the clock.' },
+  { id:'factory',    name:'Cola Factory',    emoji:'🏭', baseCost:100,   baseCps:0.5,  desc:'A small factory churning out bottles by the crate.' },
+  { id:'plantation', name:'Cola Plantation', emoji:'🌿', baseCost:500,   baseCps:2,    desc:'Vast fields of kola nut trees — the secret ingredient.' },
+  { id:'bottling',   name:'Bottling Plant',  emoji:'🍾', baseCost:3000,  baseCps:10,   desc:'Automated bottling lines running 24/7.' },
+  { id:'empire',     name:'Cola Empire',     emoji:'👑', baseCost:20000, baseCps:50,   desc:'A global beverage empire. Cola flows like water.' },
 ];
 
-// ── Upgrades definition ────────────────────────────────────
-// type: 'click' → multiplies colasPerClick
-// type: 'building' → multiplies a specific building CPS
-// type: 'global' → multiplies all CPS
 const UPGRADES = [
-  // Click upgrades
-  {
-    id: 'u_better_recipe',
-    name: 'Better Recipe',
-    emoji: '📋',
-    cost: 50,
-    desc: 'A secret tweak — double the cola per click.',
-    type: 'click', mult: 2,
-    unlock: s => s.totalClicks >= 10,
-  },
-  {
-    id: 'u_power_grip',
-    name: 'Power Grip',
-    emoji: '💪',
-    cost: 500,
-    desc: 'Squeeze harder! ×2 cola per click.',
-    type: 'click', mult: 2,
-    unlock: s => s.totalClicks >= 100,
-  },
-  {
-    id: 'u_diamond_fingers',
-    name: 'Diamond Fingers',
-    emoji: '💎',
-    cost: 5000,
-    desc: 'Your clicks are legendary. ×3 cola per click.',
-    type: 'click', mult: 3,
-    unlock: s => s.totalClicks >= 500,
-  },
-  {
-    id: 'u_turbo_click',
-    name: 'Turbo Click',
-    emoji: '⚡',
-    cost: 50000,
-    desc: 'Supersonic clicking power. ×5 cola per click.',
-    type: 'click', mult: 5,
-    unlock: s => s.totalClicks >= 2000,
-  },
-
-  // Vending Machine upgrades
-  {
-    id: 'u_fizz_boost',
-    name: 'Fizz Boost',
-    emoji: '🫧',
-    cost: 100,
-    desc: 'Carbonation overload! Vending machines ×2.',
-    type: 'building', target: 'vending', mult: 2,
-    unlock: s => s.buildings.vending >= 1,
-  },
-  {
-    id: 'u_ice_cold',
-    name: 'Ice Cold',
-    emoji: '🧊',
-    cost: 800,
-    desc: 'Extra-chilled cola sells itself. Vending machines ×2.',
-    type: 'building', target: 'vending', mult: 2,
-    unlock: s => s.buildings.vending >= 5,
-  },
-  {
-    id: 'u_vending_pro',
-    name: 'Vending Pro',
-    emoji: '🤖',
-    cost: 6000,
-    desc: 'AI-powered vending machines. ×3 output.',
-    type: 'building', target: 'vending', mult: 3,
-    unlock: s => s.buildings.vending >= 15,
-  },
-
-  // Factory upgrades
-  {
-    id: 'u_assembly_line',
-    name: 'Assembly Line',
-    emoji: '⚙️',
-    cost: 800,
-    desc: 'Faster conveyor belts! Cola factories ×2.',
-    type: 'building', target: 'factory', mult: 2,
-    unlock: s => s.buildings.factory >= 1,
-  },
-  {
-    id: 'u_quality_control',
-    name: 'Quality Control',
-    emoji: '🔬',
-    cost: 5000,
-    desc: 'Zero waste, more cola. Factories ×2.',
-    type: 'building', target: 'factory', mult: 2,
-    unlock: s => s.buildings.factory >= 5,
-  },
-  {
-    id: 'u_mega_factory',
-    name: 'Mega Factory',
-    emoji: '🏗️',
-    cost: 40000,
-    desc: 'A factory so big you can see it from orbit. ×3.',
-    type: 'building', target: 'factory', mult: 3,
-    unlock: s => s.buildings.factory >= 15,
-  },
-
-  // Plantation upgrades
-  {
-    id: 'u_fertilizer',
-    name: 'Secret Fertilizer',
-    emoji: '🌱',
-    cost: 4000,
-    desc: 'Proprietary soil blend doubles kola yield. ×2.',
-    type: 'building', target: 'plantation', mult: 2,
-    unlock: s => s.buildings.plantation >= 1,
-  },
-  {
-    id: 'u_irrigation',
-    name: 'Smart Irrigation',
-    emoji: '💧',
-    cost: 25000,
-    desc: 'Precision watering for peak kola production. ×2.',
-    type: 'building', target: 'plantation', mult: 2,
-    unlock: s => s.buildings.plantation >= 5,
-  },
-
-  // Bottling Plant upgrades
-  {
-    id: 'u_speed_caps',
-    name: 'Speed Cappers',
-    emoji: '🔩',
-    cost: 25000,
-    desc: 'Faster capping machines. Bottling plants ×2.',
-    type: 'building', target: 'bottling', mult: 2,
-    unlock: s => s.buildings.bottling >= 1,
-  },
-  {
-    id: 'u_glass_tech',
-    name: 'Glass Tech',
-    emoji: '🔭',
-    cost: 150000,
-    desc: 'Lighter, stronger bottles. Bottling plants ×3.',
-    type: 'building', target: 'bottling', mult: 3,
-    unlock: s => s.buildings.bottling >= 5,
-  },
-
-  // Empire upgrades
-  {
-    id: 'u_global_brand',
-    name: 'Global Brand',
-    emoji: '🌍',
-    cost: 200000,
-    desc: 'Everyone recognizes the Cola Empire. ×2.',
-    type: 'building', target: 'empire', mult: 2,
-    unlock: s => s.buildings.empire >= 1,
-  },
-  {
-    id: 'u_monopoly',
-    name: 'Cola Monopoly',
-    emoji: '♟️',
-    cost: 1500000,
-    desc: 'You OWN cola. Empire production ×3.',
-    type: 'building', target: 'empire', mult: 3,
-    unlock: s => s.buildings.empire >= 5,
-  },
-
-  // Global upgrades
-  {
-    id: 'u_secret_formula',
-    name: 'Secret Formula',
-    emoji: '🧪',
-    cost: 10000,
-    desc: 'The legendary formula. ALL production ×1.5.',
-    type: 'global', mult: 1.5,
-    unlock: s => s.totalCola >= 1000,
-  },
-  {
-    id: 'u_caramel_color',
-    name: 'Caramel Color',
-    emoji: '🍯',
-    cost: 80000,
-    desc: 'That perfect brown hue boosts demand. ALL ×1.5.',
-    type: 'global', mult: 1.5,
-    unlock: s => s.totalCola >= 50000,
-  },
-  {
-    id: 'u_cola_science',
-    name: 'Cola Science',
-    emoji: '🔭',
-    cost: 500000,
-    desc: 'Applied carbonation physics. ALL production ×2.',
-    type: 'global', mult: 2,
-    unlock: s => s.totalCola >= 500000,
-  },
-  {
-    id: 'u_divine_recipe',
-    name: 'Divine Recipe',
-    emoji: '✨',
-    cost: 5000000,
-    desc: 'Transcendent cola. ALL production ×3.',
-    type: 'global', mult: 3,
-    unlock: s => s.totalCola >= 5000000,
-  },
+  { id:'u_better_recipe',  name:'Better Recipe',    emoji:'📋', cost:50,      desc:'A secret tweak — double the cola per click.',          type:'click',    mult:2, unlock:s=>s.totalClicks>=10 },
+  { id:'u_power_grip',     name:'Power Grip',        emoji:'💪', cost:500,     desc:'Squeeze harder! ×2 cola per click.',                   type:'click',    mult:2, unlock:s=>s.totalClicks>=100 },
+  { id:'u_diamond_fingers',name:'Diamond Fingers',   emoji:'💎', cost:5000,    desc:'Your clicks are legendary. ×3 cola per click.',        type:'click',    mult:3, unlock:s=>s.totalClicks>=500 },
+  { id:'u_turbo_click',    name:'Turbo Click',       emoji:'⚡', cost:50000,   desc:'Supersonic clicking power. ×5 cola per click.',        type:'click',    mult:5, unlock:s=>s.totalClicks>=2000 },
+  { id:'u_fizz_boost',     name:'Fizz Boost',        emoji:'🫧', cost:100,     desc:'Carbonation overload! Vending machines ×2.',           type:'building', target:'vending',    mult:2, unlock:s=>s.buildings.vending>=1 },
+  { id:'u_ice_cold',       name:'Ice Cold',           emoji:'🧊', cost:800,     desc:'Extra-chilled cola sells itself. Vending machines ×2.',type:'building', target:'vending',    mult:2, unlock:s=>s.buildings.vending>=5 },
+  { id:'u_vending_pro',    name:'Vending Pro',        emoji:'🤖', cost:6000,    desc:'AI-powered vending machines. ×3 output.',              type:'building', target:'vending',    mult:3, unlock:s=>s.buildings.vending>=15 },
+  { id:'u_assembly_line',  name:'Assembly Line',      emoji:'⚙️', cost:800,     desc:'Faster conveyor belts! Cola factories ×2.',            type:'building', target:'factory',    mult:2, unlock:s=>s.buildings.factory>=1 },
+  { id:'u_quality_control',name:'Quality Control',    emoji:'🔬', cost:5000,    desc:'Zero waste, more cola. Factories ×2.',                 type:'building', target:'factory',    mult:2, unlock:s=>s.buildings.factory>=5 },
+  { id:'u_mega_factory',   name:'Mega Factory',       emoji:'🏗️', cost:40000,   desc:'A factory visible from orbit. ×3.',                    type:'building', target:'factory',    mult:3, unlock:s=>s.buildings.factory>=15 },
+  { id:'u_fertilizer',     name:'Secret Fertilizer',  emoji:'🌱', cost:4000,    desc:'Proprietary soil blend doubles kola yield. ×2.',       type:'building', target:'plantation', mult:2, unlock:s=>s.buildings.plantation>=1 },
+  { id:'u_irrigation',     name:'Smart Irrigation',   emoji:'💧', cost:25000,   desc:'Precision watering for peak kola production. ×2.',     type:'building', target:'plantation', mult:2, unlock:s=>s.buildings.plantation>=5 },
+  { id:'u_speed_caps',     name:'Speed Cappers',       emoji:'🔩', cost:25000,   desc:'Faster capping machines. Bottling plants ×2.',         type:'building', target:'bottling',   mult:2, unlock:s=>s.buildings.bottling>=1 },
+  { id:'u_glass_tech',     name:'Glass Tech',          emoji:'🔭', cost:150000,  desc:'Lighter, stronger bottles. Bottling plants ×3.',       type:'building', target:'bottling',   mult:3, unlock:s=>s.buildings.bottling>=5 },
+  { id:'u_global_brand',   name:'Global Brand',        emoji:'🌍', cost:200000,  desc:'Everyone recognizes the Cola Empire. ×2.',             type:'building', target:'empire',     mult:2, unlock:s=>s.buildings.empire>=1 },
+  { id:'u_monopoly',       name:'Cola Monopoly',       emoji:'♟️', cost:1500000, desc:'You OWN cola. Empire production ×3.',                  type:'building', target:'empire',     mult:3, unlock:s=>s.buildings.empire>=5 },
+  { id:'u_secret_formula', name:'Secret Formula',      emoji:'🧪', cost:10000,   desc:'The legendary formula. ALL production ×1.5.',          type:'global',   mult:1.5, unlock:s=>s.totalCola>=1000 },
+  { id:'u_caramel_color',  name:'Caramel Color',       emoji:'🍯', cost:80000,   desc:'That perfect brown hue boosts demand. ALL ×1.5.',      type:'global',   mult:1.5, unlock:s=>s.totalCola>=50000 },
+  { id:'u_cola_science',   name:'Cola Science',        emoji:'🔭', cost:500000,  desc:'Applied carbonation physics. ALL production ×2.',      type:'global',   mult:2,   unlock:s=>s.totalCola>=500000 },
+  { id:'u_divine_recipe',  name:'Divine Recipe',       emoji:'✨', cost:5000000, desc:'Transcendent cola. ALL production ×3.',                type:'global',   mult:3,   unlock:s=>s.totalCola>=5000000 },
 ];
 
-// ── Milestones ─────────────────────────────────────────────
 const MILESTONES = [
-  { id: 'm1',    threshold: 100,         title: '🥤 First Sip!',          sub: 'You collected 100 cola!' },
-  { id: 'm2',    threshold: 1000,        title: '🎉 Cola Enthusiast',      sub: 'Reached 1,000 cola!' },
-  { id: 'm3',    threshold: 10000,       title: '🏭 Cola Industrialist',   sub: '10,000 cola produced!' },
-  { id: 'm4',    threshold: 1e6,         title: '💰 Cola Millionaire',     sub: 'A million cola!' },
-  { id: 'm5',    threshold: 1e9,         title: '🌍 Cola Billionaire',     sub: 'One BILLION cola!' },
-  { id: 'm6',    threshold: 1e12,        title: '🚀 Cola Trillionaire',    sub: 'A trillion cola! Unreal.' },
-  { id: 'm_c1',  threshold: null, type: 'clicks', val: 100,   title: '👆 Click Happy',    sub: '100 total clicks!' },
-  { id: 'm_c2',  threshold: null, type: 'clicks', val: 1000,  title: '🤜 Click Warrior',  sub: '1,000 clicks! Impressive.' },
-  { id: 'm_c3',  threshold: null, type: 'clicks', val: 10000, title: '⚡ Click Legend',   sub: '10,000 clicks! Your finger is a weapon.' },
-  { id: 'm_b1',  threshold: null, type: 'buildings', val: 1,   title: '🛒 First Building', sub: 'Bought your first producer!' },
-  { id: 'm_b2',  threshold: null, type: 'buildings', val: 10,  title: '🏘️ Small Empire',   sub: '10 buildings owned!' },
-  { id: 'm_b3',  threshold: null, type: 'buildings', val: 50,  title: '🏙️ Cola City',       sub: '50 buildings owned!' },
-  { id: 'm_b4',  threshold: null, type: 'buildings', val: 100, title: '🌆 Megalopolis',     sub: '100 buildings! You are unstoppable.' },
+  { id:'m1',   threshold:100,   title:'🥤 First Sip!',         sub:'You collected 100 cola!' },
+  { id:'m2',   threshold:1000,  title:'🎉 Cola Enthusiast',    sub:'Reached 1,000 cola!' },
+  { id:'m3',   threshold:10000, title:'🏭 Cola Industrialist', sub:'10,000 cola produced!' },
+  { id:'m4',   threshold:1e6,   title:'💰 Cola Millionaire',   sub:'A million cola!' },
+  { id:'m5',   threshold:1e9,   title:'🌍 Cola Billionaire',   sub:'One BILLION cola!' },
+  { id:'m6',   threshold:1e12,  title:'🚀 Cola Trillionaire',  sub:'A trillion cola! Unreal.' },
+  { id:'m_c1', type:'clicks',   val:100,   title:'👆 Click Happy',   sub:'100 total clicks!' },
+  { id:'m_c2', type:'clicks',   val:1000,  title:'🤜 Click Warrior', sub:'1,000 clicks! Impressive.' },
+  { id:'m_c3', type:'clicks',   val:10000, title:'⚡ Click Legend',  sub:'10,000 clicks! Your finger is a weapon.' },
+  { id:'m_b1', type:'buildings',val:1,   title:'🛒 First Building',sub:'Bought your first producer!' },
+  { id:'m_b2', type:'buildings',val:10,  title:'🏘️ Small Empire',  sub:'10 buildings owned!' },
+  { id:'m_b3', type:'buildings',val:50,  title:'🏙️ Cola City',     sub:'50 buildings owned!' },
+  { id:'m_b4', type:'buildings',val:100, title:'🌆 Megalopolis',   sub:'100 buildings! You are unstoppable.' },
 ];
 
-// ── Game state ─────────────────────────────────────────────
 let state = {
-  cola:          0,
-  totalCola:     0,
-  totalClicks:   0,
-  buildings: {
-    vending: 0, factory: 0, plantation: 0, bottling: 0, empire: 0,
-  },
-  upgrades:      {},  // id → true if bought
-  milestones:    {},  // id → true if triggered
+  cola:0, totalCola:0, totalClicks:0,
+  buildings:{ vending:0, factory:0, plantation:0, bottling:0, empire:0 },
+  upgrades:{}, milestones:{},
 };
 
-// ── Derived stats ──────────────────────────────────────────
 function getBuildingCps(bId) {
-  const b   = BUILDINGS.find(b => b.id === bId);
-  const cnt = state.buildings[bId] || 0;
+  const b = BUILDINGS.find(b=>b.id===bId);
+  const cnt = state.buildings[bId]||0;
   if (!cnt) return 0;
   let mult = 1;
-  UPGRADES.forEach(u => {
-    if (state.upgrades[u.id] && u.type === 'building' && u.target === bId) mult *= u.mult;
+  UPGRADES.forEach(u=>{
+    if (state.upgrades[u.id] && u.type==='building' && u.target===bId) mult*=u.mult;
   });
-  // global mult
-  UPGRADES.forEach(u => {
-    if (state.upgrades[u.id] && u.type === 'global') mult *= u.mult;
+  UPGRADES.forEach(u=>{
+    if (state.upgrades[u.id] && u.type==='global') mult*=u.mult;
   });
   return b.baseCps * cnt * mult;
 }
 
 function getTotalCps() {
-  return BUILDINGS.reduce((sum, b) => sum + getBuildingCps(b.id), 0);
+  return BUILDINGS.reduce((s,b)=>s+getBuildingCps(b.id), 0);
 }
 
 function getColasPerClick() {
   let cpc = 1;
-  UPGRADES.forEach(u => {
-    if (state.upgrades[u.id] && u.type === 'click') cpc *= u.mult;
-  });
-  // 10% of CPS also adds to click
-  const bonus = getTotalCps() * 0.1;
-  return cpc + bonus;
+  UPGRADES.forEach(u=>{ if (state.upgrades[u.id] && u.type==='click') cpc*=u.mult; });
+  return cpc + getTotalCps()*0.1;
 }
 
 function buildingCost(bId) {
-  const b = BUILDINGS.find(b => b.id === bId);
-  const n = state.buildings[bId] || 0;
-  return Math.ceil(b.baseCost * Math.pow(1.15, n));
+  const b = BUILDINGS.find(b=>b.id===bId);
+  return Math.ceil(b.baseCost * Math.pow(1.15, state.buildings[bId]||0));
 }
 
 function totalBuildingCount() {
-  return Object.values(state.buildings).reduce((a, b) => a + b, 0);
+  return Object.values(state.buildings).reduce((a,b)=>a+b, 0);
 }
 
-// ── Tick ───────────────────────────────────────────────────
+// ── Tick ─────────────────────────────────────────────────
 let lastTick = Date.now();
 let tickAcc  = 0;
 
 function tick() {
-  const now  = Date.now();
-  const dt   = Math.min((now - lastTick) / 1000, 1); // cap at 1s delta
-  lastTick   = now;
+  const now = Date.now();
+  const dt  = Math.min((now - lastTick)/1000, 1);
+  lastTick  = now;
 
-  const cps  = getTotalCps();
-  const gain = cps * dt;
-
+  const gain = getTotalCps() * dt;
   state.cola      += gain;
   state.totalCola += gain;
 
   tickAcc += dt;
-  if (tickAcc >= 0.1) {
-    tickAcc = 0;
-    updateUI();
-  }
+  if (tickAcc >= 0.1) { tickAcc = 0; updateUI(); }
 
   checkMilestones();
   requestAnimationFrame(tick);
 }
 
-// ── Click handler ──────────────────────────────────────────
+// ── Click handler ─────────────────────────────────────────
 const colaBtn   = document.getElementById('cola-btn');
 const clickZone = document.getElementById('click-zone');
 
-colaBtn.addEventListener('click', e => {
+function doClick(clientX, clientY) {
   const cpc = getColasPerClick();
   state.cola        += cpc;
   state.totalCola   += cpc;
   state.totalClicks += 1;
-
-  spawnBubbles(e);
-  spawnFloatText(e, cpc);
-  spawnShockwave(e);
+  spawnBubbles(clientX, clientY);
+  spawnFloatText(clientX, clientY, cpc);
+  spawnShockwave(clientX, clientY);
   checkMilestones();
   updateUI();
-});
+}
 
-function spawnShockwave(e) {
-  const rect = colaBtn.getBoundingClientRect();
-  const cx   = rect.left + rect.width  / 2;
-  const cy   = rect.top  + rect.height / 2;
-  const el   = document.createElement('div');
+colaBtn.addEventListener('click', e => { doClick(e.clientX, e.clientY); });
+
+// Prevent double-tap zoom and handle touch explicitly
+colaBtn.addEventListener('touchend', e => {
+  e.preventDefault();
+  const t = e.changedTouches[0];
+  doClick(t.clientX, t.clientY);
+}, { passive: false });
+
+function spawnShockwave(cx, cy) {
+  const el = document.createElement('div');
   el.className = 'shockwave';
   el.style.left = cx + 'px';
   el.style.top  = cy + 'px';
   document.body.appendChild(el);
-  el.addEventListener('animationend', () => el.remove());
+  el.addEventListener('animationend', ()=>el.remove());
 }
 
-function spawnBubbles(e) {
-  const count = 4 + Math.floor(Math.random() * 5);
+function spawnBubbles(cx, cy) {
+  const count = 4 + Math.floor(Math.random()*5);
   const rect  = clickZone.getBoundingClientRect();
-  const cx    = e.clientX - rect.left;
-  const cy    = e.clientY - rect.top;
-
-  for (let i = 0; i < count; i++) {
-    const el  = document.createElement('div');
+  const lx    = cx - rect.left;
+  const ly    = cy - rect.top;
+  for (let i=0; i<count; i++) {
+    const el   = document.createElement('div');
     el.className = 'bubble';
-    const size    = 5 + Math.random() * 12;
-    const offsetX = (Math.random() - 0.5) * 80;
-    const dur     = 0.7 + Math.random() * 0.8;
-    el.style.cssText = `
-      width:${size}px; height:${size}px;
-      left:${cx + offsetX - size/2}px;
-      top:${cy - size/2}px;
-      animation-duration:${dur}s;
-    `;
+    const size   = 5 + Math.random()*12;
+    const ox     = (Math.random()-0.5)*80;
+    const dur    = 0.7 + Math.random()*0.8;
+    el.style.cssText = `width:${size}px;height:${size}px;left:${lx+ox-size/2}px;top:${ly-size/2}px;animation-duration:${dur}s;`;
     clickZone.appendChild(el);
-    el.addEventListener('animationend', () => el.remove());
+    el.addEventListener('animationend', ()=>el.remove());
   }
 }
 
-function spawnFloatText(e, amount) {
+function spawnFloatText(cx, cy, amount) {
   const rect = clickZone.getBoundingClientRect();
-  const x    = e.clientX - rect.left;
-  const y    = e.clientY - rect.top;
   const el   = document.createElement('div');
   el.className = 'float-text';
   el.textContent = '+' + fmt(amount);
-  el.style.left = (x + (Math.random() - 0.5) * 30) + 'px';
-  el.style.top  = y + 'px';
+  el.style.left = (cx - rect.left + (Math.random()-0.5)*30) + 'px';
+  el.style.top  = (cy - rect.top) + 'px';
   clickZone.appendChild(el);
-  el.addEventListener('animationend', () => el.remove());
+  el.addEventListener('animationend', ()=>el.remove());
 }
 
-// ── Purchases ──────────────────────────────────────────────
+// ── Purchases ─────────────────────────────────────────────
 function buyBuilding(bId) {
   const cost = buildingCost(bId);
   if (state.cola < cost) return;
   state.cola -= cost;
-  state.buildings[bId] = (state.buildings[bId] || 0) + 1;
-  updateUI();
-  checkMilestones();
-  renderBuildings();
-  renderUpgrades();
+  state.buildings[bId] = (state.buildings[bId]||0)+1;
+  updateUI(); checkMilestones(); renderBuildings(); renderUpgrades();
 }
 
 function buyUpgrade(uid) {
-  const u = UPGRADES.find(u => u.id === uid);
-  if (!u || state.upgrades[uid]) return;
-  if (state.cola < u.cost) return;
+  const u = UPGRADES.find(u=>u.id===uid);
+  if (!u || state.upgrades[uid] || state.cola < u.cost) return;
   state.cola -= u.cost;
   state.upgrades[uid] = true;
-  showToast(`✨ ${u.name} purchased!`);
-  updateUI();
-  renderUpgrades();
-  renderBuildings();
+  showToast('✨ ' + u.name + ' purchased!');
+  updateUI(); renderUpgrades(); renderBuildings();
 }
 
-// ── Rendering ──────────────────────────────────────────────
+// ── Rendering ─────────────────────────────────────────────
 function updateUI() {
   const cps = getTotalCps();
   const cpc = getColasPerClick();
 
-  document.getElementById('cola-count').textContent = fmt(Math.floor(state.cola)) + ' 🥤';
+  document.getElementById('cola-count').textContent  = fmt(Math.floor(state.cola)) + ' 🥤';
   document.getElementById('cps-display').textContent = fmt(cps) + ' cola/sec';
-
   document.getElementById('stat-total').textContent  = fmt(Math.floor(state.totalCola));
   document.getElementById('stat-cps').textContent    = fmt(cps);
   document.getElementById('stat-cpc').textContent    = fmt(cpc);
   document.getElementById('stat-clicks').textContent = fmt(state.totalClicks);
 
-  // Glow can if CPS is decent
   const canWrap = document.querySelector('.can-wrap');
-  if (cps >= 10) canWrap.classList.add('can-glow');
-  else           canWrap.classList.remove('can-glow');
+  canWrap.classList.toggle('can-glow', cps >= 10);
 
-  // Update affordability highlights (cheap re-render)
-  document.querySelectorAll('.building-card[data-id]').forEach(el => {
+  document.querySelectorAll('.building-card[data-id]').forEach(el=>{
     const id   = el.dataset.id;
     const cost = buildingCost(id);
     el.classList.toggle('affordable', state.cola >= cost);
-    el.querySelector('.building-cost').textContent = fmt(cost) + ' cola';
-    const cnt = state.buildings[id] || 0;
-    el.querySelector('.building-count').textContent = cnt;
+    el.querySelector('.building-cost').textContent  = fmt(cost) + ' cola';
+    el.querySelector('.building-count').textContent = state.buildings[id]||0;
   });
 
-  document.querySelectorAll('.upgrade-card[data-id]').forEach(el => {
+  document.querySelectorAll('.upgrade-card[data-id]').forEach(el=>{
     const uid = el.dataset.id;
-    const u   = UPGRADES.find(u => u.id === uid);
+    const u   = UPGRADES.find(u=>u.id===uid);
     if (!u || state.upgrades[uid]) return;
     el.classList.toggle('affordable', state.cola >= u.cost);
     el.classList.toggle('locked', !u.unlock(state));
@@ -1023,28 +770,21 @@ function updateUI() {
 function renderBuildings() {
   const list = document.getElementById('buildings-list');
   list.innerHTML = '';
-  BUILDINGS.forEach(b => {
+  BUILDINGS.forEach(b=>{
     const cost = buildingCost(b.id);
-    const cnt  = state.buildings[b.id] || 0;
+    const cnt  = state.buildings[b.id]||0;
     const cps  = getBuildingCps(b.id);
-    const aff  = state.cola >= cost;
-
     const card = document.createElement('div');
-    card.className = 'building-card' + (aff ? ' affordable' : '');
+    card.className = 'building-card' + (state.cola>=cost?' affordable':'');
     card.dataset.id = b.id;
-
     card.innerHTML = `
-      <div class="building-icon">
-        ${b.emoji}
-        <span class="building-count">${cnt}</span>
-      </div>
+      <div class="building-icon">${b.emoji}<span class="building-count">${cnt}</span></div>
       <div class="building-info">
         <div class="building-name">${b.name}</div>
-        <div class="building-cps">${fmt(b.baseCps * (cnt ? 1 : 1))}/s each · ${fmt(cps)}/s total</div>
+        <div class="building-cps">${fmt(b.baseCps)}/s each · ${fmt(cps)}/s total</div>
         <div class="building-cost">${fmt(cost)} cola</div>
-      </div>
-    `;
-    card.addEventListener('click', () => buyBuilding(b.id));
+      </div>`;
+    card.addEventListener('click', ()=>buyBuilding(b.id));
     list.appendChild(card);
   });
 }
@@ -1052,48 +792,39 @@ function renderBuildings() {
 function renderUpgrades() {
   const list = document.getElementById('upgrades-list');
   list.innerHTML = '';
+  const available = UPGRADES.filter(u=>!state.upgrades[u.id] &&  u.unlock(state));
+  const locked    = UPGRADES.filter(u=>!state.upgrades[u.id] && !u.unlock(state));
+  const bought    = UPGRADES.filter(u=> state.upgrades[u.id]);
 
-  // Sort: available unlocked first, then locked, then bought
-  const available = UPGRADES.filter(u => !state.upgrades[u.id] && u.unlock(state));
-  const locked    = UPGRADES.filter(u => !state.upgrades[u.id] && !u.unlock(state));
-  const bought    = UPGRADES.filter(u =>  state.upgrades[u.id]);
-
-  [...available, ...locked, ...bought].forEach(u => {
+  [...available, ...locked, ...bought].forEach(u=>{
     const isBought = !!state.upgrades[u.id];
     const isLocked = !u.unlock(state) && !isBought;
     const aff      = state.cola >= u.cost && !isBought && !isLocked;
-
-    const card = document.createElement('div');
-    card.className = 'upgrade-card' +
-                     (isBought ? ' bought' : '') +
-                     (isLocked ? ' locked' : '') +
-                     (aff      ? ' affordable' : '');
+    const card     = document.createElement('div');
+    card.className = 'upgrade-card'+(isBought?' bought':'')+(isLocked?' locked':'')+(aff?' affordable':'');
     card.dataset.id = u.id;
-
     card.innerHTML = `
-      <div class="upgrade-icon">${isBought ? '✅' : (isLocked ? '🔒' : u.emoji)}</div>
+      <div class="upgrade-icon">${isBought?'✅':isLocked?'🔒':u.emoji}</div>
       <div class="upgrade-info">
         <div class="upgrade-name">${u.name}</div>
         <div class="upgrade-desc">${u.desc}</div>
-        <div class="upgrade-cost">${isBought ? 'Purchased' : fmt(u.cost) + ' cola'}</div>
-      </div>
-    `;
-    if (!isBought && !isLocked) card.addEventListener('click', () => buyUpgrade(u.id));
+        <div class="upgrade-cost">${isBought?'Purchased':fmt(u.cost)+' cola'}</div>
+      </div>`;
+    if (!isBought && !isLocked) card.addEventListener('click', ()=>buyUpgrade(u.id));
     list.appendChild(card);
   });
 }
 
-// ── Milestones ─────────────────────────────────────────────
-let milestoneQueue = [];
-let milestoneShowing = false;
+// ── Milestones ────────────────────────────────────────────
+let milestoneQueue = [], milestoneShowing = false;
 
 function checkMilestones() {
-  MILESTONES.forEach(m => {
+  MILESTONES.forEach(m=>{
     if (state.milestones[m.id]) return;
     let triggered = false;
-    if (!m.type && state.totalCola >= m.threshold) triggered = true;
-    if (m.type === 'clicks'    && state.totalClicks         >= m.val) triggered = true;
-    if (m.type === 'buildings' && totalBuildingCount()      >= m.val) triggered = true;
+    if (!m.type                       && state.totalCola    >= m.threshold) triggered = true;
+    if (m.type==='clicks'             && state.totalClicks  >= m.val)       triggered = true;
+    if (m.type==='buildings'          && totalBuildingCount()>= m.val)       triggered = true;
     if (triggered) {
       state.milestones[m.id] = true;
       milestoneQueue.push(m);
@@ -1104,42 +835,34 @@ function checkMilestones() {
 }
 
 function drainMilestoneQueue() {
-  if (milestoneShowing || milestoneQueue.length === 0) return;
-  const m       = milestoneQueue.shift();
+  if (milestoneShowing || milestoneQueue.length===0) return;
   milestoneShowing = true;
-  const banner  = document.getElementById('milestone-banner');
+  const m      = milestoneQueue.shift();
+  const banner = document.getElementById('milestone-banner');
   document.getElementById('milestone-title').textContent = m.title;
   document.getElementById('milestone-sub').textContent   = m.sub;
   banner.classList.add('show');
-  setTimeout(() => {
+  setTimeout(()=>{
     banner.classList.remove('show');
-    setTimeout(() => {
-      milestoneShowing = false;
-      drainMilestoneQueue();
-    }, 600);
+    setTimeout(()=>{ milestoneShowing=false; drainMilestoneQueue(); }, 600);
   }, 3200);
 }
 
-// ── Toast ──────────────────────────────────────────────────
+// ── Toast ─────────────────────────────────────────────────
 function showToast(msg) {
-  const container = document.getElementById('toast-container');
   const el = document.createElement('div');
-  el.className   = 'toast';
+  el.className = 'toast';
   el.textContent = msg;
-  container.appendChild(el);
-  setTimeout(() => el.remove(), 3800);
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(()=>el.remove(), 3800);
 }
 
-// ── Save / Load ────────────────────────────────────────────
+// ── Save / Load ───────────────────────────────────────────
 const SAVE_KEY = 'cola_clicker_v1';
 
 function saveGame() {
-  try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
-    showToast('💾 Game saved!');
-  } catch (e) {
-    showToast('⚠️ Could not save!');
-  }
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); showToast('💾 Game saved!'); }
+  catch(e) { showToast('⚠️ Could not save!'); }
 }
 
 function loadGame() {
@@ -1147,89 +870,63 @@ function loadGame() {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) { showToast('📭 No save found.'); return; }
     const saved = JSON.parse(raw);
-    // Merge carefully to handle new keys in newer versions
     state.cola        = saved.cola        || 0;
     state.totalCola   = saved.totalCola   || 0;
     state.totalClicks = saved.totalClicks || 0;
-    BUILDINGS.forEach(b => {
-      state.buildings[b.id] = saved.buildings?.[b.id] || 0;
-    });
-    UPGRADES.forEach(u => {
-      if (saved.upgrades?.[u.id]) state.upgrades[u.id] = true;
-    });
-    MILESTONES.forEach(m => {
-      if (saved.milestones?.[m.id]) state.milestones[m.id] = true;
-    });
+    BUILDINGS.forEach(b=>{ state.buildings[b.id] = saved.buildings?.[b.id]||0; });
+    UPGRADES.forEach(u=>{ if (saved.upgrades?.[u.id]) state.upgrades[u.id]=true; });
+    MILESTONES.forEach(m=>{ if (saved.milestones?.[m.id]) state.milestones[m.id]=true; });
     showToast('📂 Game loaded!');
-    renderBuildings();
-    renderUpgrades();
-    updateUI();
-  } catch (e) {
-    showToast('⚠️ Load failed.');
-  }
+    renderBuildings(); renderUpgrades(); updateUI();
+  } catch(e) { showToast('⚠️ Load failed.'); }
 }
 
 function resetGame() {
   if (!confirm('Reset ALL progress? This cannot be undone!')) return;
   localStorage.removeItem(SAVE_KEY);
   state = {
-    cola: 0, totalCola: 0, totalClicks: 0,
-    buildings: { vending:0, factory:0, plantation:0, bottling:0, empire:0 },
-    upgrades: {}, milestones: {},
+    cola:0, totalCola:0, totalClicks:0,
+    buildings:{vending:0,factory:0,plantation:0,bottling:0,empire:0},
+    upgrades:{}, milestones:{},
   };
-  renderBuildings();
-  renderUpgrades();
-  updateUI();
+  renderBuildings(); renderUpgrades(); updateUI();
   showToast('🗑 Game reset!');
 }
 
-// Auto-save every 30 seconds
-let autoSaveTimer = 0;
 function autoSave() {
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch(e) {}
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch(e){}
 }
 setInterval(autoSave, 30000);
 
-// ── Offline progress ──────────────────────────────────────
+// ── Offline gains ─────────────────────────────────────────
 function applyOfflineGains() {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return;
     const saved = JSON.parse(raw);
-    const ts = saved._ts;
-    if (!ts) return;
-    const elapsed = Math.max(0, Math.min((Date.now() - ts) / 1000, 86400)); // cap at 24h
+    if (!saved._ts) return;
+    const elapsed = Math.max(0, Math.min((Date.now()-saved._ts)/1000, 86400));
     if (elapsed < 10) return;
-    const offCps = getTotalCps(); // use current cps after loading
-    const gain   = offCps * elapsed * 0.5; // 50% offline efficiency
+    const gain = getTotalCps() * elapsed * 0.5;
     if (gain > 0) {
       state.cola      += gain;
       state.totalCola += gain;
-      showToast(`💤 Offline: +${fmt(gain)} cola (${Math.floor(elapsed)}s away)`);
+      showToast('💤 Offline: +' + fmt(gain) + ' cola (' + Math.floor(elapsed) + 's away)');
     }
-  } catch(e) {}
+  } catch(e){}
 }
 
-// Attach save buttons
-document.getElementById('btn-save').addEventListener('click',  saveGame);
-document.getElementById('btn-load').addEventListener('click',  loadGame);
+document.getElementById('btn-save').addEventListener('click', saveGame);
+document.getElementById('btn-load').addEventListener('click', loadGame);
 document.getElementById('btn-reset').addEventListener('click', resetGame);
 
-// ── Keyboard shortcut ──────────────────────────────────────
-document.addEventListener('keydown', e => {
-  if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
-    e.preventDefault();
-    saveGame();
-  }
-  if (e.key === ' ') {
-    e.preventDefault();
-    colaBtn.click();
-  }
+document.addEventListener('keydown', e=>{
+  if (e.key==='s' && (e.ctrlKey||e.metaKey)) { e.preventDefault(); saveGame(); }
+  if (e.key===' ') { e.preventDefault(); doClick(window.innerWidth/2, window.innerHeight/2); }
 });
 
-// ── Init ───────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────
 (function init() {
-  // Try to load existing save silently
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (raw) {
@@ -1237,17 +934,11 @@ document.addEventListener('keydown', e => {
       state.cola        = saved.cola        || 0;
       state.totalCola   = saved.totalCola   || 0;
       state.totalClicks = saved.totalClicks || 0;
-      BUILDINGS.forEach(b => {
-        state.buildings[b.id] = saved.buildings?.[b.id] || 0;
-      });
-      UPGRADES.forEach(u => {
-        if (saved.upgrades?.[u.id]) state.upgrades[u.id] = true;
-      });
-      MILESTONES.forEach(m => {
-        if (saved.milestones?.[m.id]) state.milestones[m.id] = true;
-      });
+      BUILDINGS.forEach(b=>{ state.buildings[b.id] = saved.buildings?.[b.id]||0; });
+      UPGRADES.forEach(u=>{ if (saved.upgrades?.[u.id]) state.upgrades[u.id]=true; });
+      MILESTONES.forEach(m=>{ if (saved.milestones?.[m.id]) state.milestones[m.id]=true; });
     }
-  } catch(e) {}
+  } catch(e){}
 
   renderBuildings();
   renderUpgrades();
@@ -1256,22 +947,14 @@ document.addEventListener('keydown', e => {
   lastTick = Date.now();
   requestAnimationFrame(tick);
 
-  // Save timestamp periodically so we know when user left
-  setInterval(() => {
+  setInterval(()=>{
     try {
-      const raw = localStorage.getItem(SAVE_KEY);
-      if (raw) {
-        const obj = JSON.parse(raw);
-        obj._ts = Date.now();
-        obj.cola      = state.cola;
-        obj.totalCola = state.totalCola;
-        localStorage.setItem(SAVE_KEY, JSON.stringify(obj));
-      } else {
-        const obj = JSON.parse(JSON.stringify(state));
-        obj._ts = Date.now();
-        localStorage.setItem(SAVE_KEY, JSON.stringify(obj));
-      }
-    } catch(e) {}
+      const base = JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');
+      base._ts      = Date.now();
+      base.cola      = state.cola;
+      base.totalCola = state.totalCola;
+      localStorage.setItem(SAVE_KEY, JSON.stringify(Object.assign(base, state)));
+    } catch(e){}
   }, 5000);
 })();
 </script>
