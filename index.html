@@ -1427,7 +1427,7 @@ function applyOfflineGains() {
 
 // ── Prestige ──────────────────────────────────────────────
 function getPrestigeThreshold() {
-  return 1e12 * (state.fizzTokens + 1);
+  return 1e12 * Math.sqrt(state.fizzTokens + 1);
 }
 
 function fmtPrestigePct(pct) {
@@ -1552,7 +1552,7 @@ function doPrestige() {
   if (state.totalCola < threshold) return;
   const earned = calcFizzTokensEarned();
   const newTotal = state.fizzTokens + earned;
-  const nextThreshold = 1e12 * (state.fizzTokens + earned + 1);
+  const nextThreshold = 1e12 * Math.sqrt(state.fizzTokens + earned + 1);
   if (!confirm(
     'Prestige durchführen?\n\n' +
     'Du erhältst ' + earned + ' Fizz Token(s).\n' +
