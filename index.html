@@ -47,6 +47,7 @@
       overflow: hidden;
       user-select: none;
       -webkit-user-select: none;
+      cursor: pointer;
     }
 
     /* ── Ambient background bubbles ─────────────────────── */
@@ -92,6 +93,7 @@
       display: flex; flex-direction: column; overflow: hidden;
       background: var(--glass);
       border-right: 1px solid var(--border);
+      cursor: default;
     }
     #buildings-panel { border-right: none; border-left: 1px solid var(--border); }
 
@@ -157,7 +159,6 @@
     #click-zone {
       flex: 1; display: flex; align-items: center; justify-content: center;
       position: relative; width: 100%;
-      cursor: pointer;
     }
 
     #can-platform {
@@ -184,23 +185,20 @@
       width: clamp(200px, 20vw, 270px);
       aspect-ratio: 160 / 220;
       border: none; background: none; outline: none;
-      transition: transform 0.08s cubic-bezier(0.25,0.46,0.45,0.94);
+      transition: transform 0.09s cubic-bezier(0.25,0.46,0.45,0.94);
       pointer-events: none;
     }
-
-    /* Press & hover driven by the click-zone parent */
-    #click-zone:active   #cola-btn { transform: scale(0.87); }
-    #click-zone:hover    #cola-btn { transform: scale(1.03); }
-    #click-zone:active   #cola-btn { transform: scale(0.87); }
+    #cola-btn.pressed { transform: scale(0.87); }
 
     .can-wrap {
       width: 100%; height: 100%;
       filter: drop-shadow(0 10px 28px rgba(220,20,60,0.55)) drop-shadow(0 3px 10px rgba(0,0,0,0.7));
       transition: filter 0.2s;
     }
-    #click-zone:hover .can-wrap {
-      filter: drop-shadow(0 10px 40px rgba(220,20,60,0.88)) drop-shadow(0 3px 10px rgba(0,0,0,0.7));
-    }
+    .panel:hover .can-wrap { /* intentionally empty — don't glow on panel hover */ }
+
+    /* Cursor overrides inside panels so interactive items still look clickable */
+    .building-card:not(.locked), .upgrade-card:not(.locked):not(.bought), .btn-small { cursor: pointer; }
 
     .can-text { fill: var(--cream); font-family: 'Georgia', serif; font-weight: 900; }
     .can-wave { fill: none; stroke: var(--cream); stroke-width: 1.5; opacity: 0.65; }
@@ -219,12 +217,13 @@
     }
 
     .float-text {
-      position: absolute;
+      position: fixed;
       color: var(--cream); font-weight: 900; font-size: 1.1rem;
       pointer-events: none;
       font-family: 'Righteous', cursive;
       text-shadow: 0 0 8px var(--red), 0 2px 5px rgba(0,0,0,0.8);
       animation: floatUp 0.9s ease-out forwards; white-space: nowrap;
+      z-index: 9999;
     }
     @keyframes floatUp {
       0%   { transform: translateY(0)    scale(1);   opacity: 1; }
@@ -233,10 +232,11 @@
     }
 
     .bubble {
-      position: absolute; border-radius: 50%;
+      position: fixed; border-radius: 50%;
       background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.65), rgba(220,20,60,0.25));
       pointer-events: none;
       animation: bubbleRise linear forwards;
+      z-index: 9998;
     }
     @keyframes bubbleRise {
       0%   { transform: translateY(0);      opacity: 0.8; }
@@ -666,7 +666,13 @@ function tick() {
 const colaBtn   = document.getElementById('cola-btn');
 const clickZone = document.getElementById('click-zone');
 
+let pressTimer = null;
 function doClick(clientX, clientY) {
+  // Animate the can regardless of where on screen the click happened
+  colaBtn.classList.add('pressed');
+  clearTimeout(pressTimer);
+  pressTimer = setTimeout(() => colaBtn.classList.remove('pressed'), 110);
+
   const cpc = getColasPerClick();
   state.cola        += cpc;
   state.totalCola   += cpc;
@@ -678,13 +684,17 @@ function doClick(clientX, clientY) {
   updateUI();
 }
 
-clickZone.addEventListener('click', e => { doClick(e.clientX, e.clientY); });
+// Whole screen is clickable — ignore clicks inside panels
+document.addEventListener('click', e => {
+  if (!e.target.closest('.panel')) doClick(e.clientX, e.clientY);
+});
 
-// Prevent double-tap zoom and handle touch explicitly
-clickZone.addEventListener('touchend', e => {
-  e.preventDefault();
-  const t = e.changedTouches[0];
-  doClick(t.clientX, t.clientY);
+document.addEventListener('touchend', e => {
+  if (!e.target.closest('.panel')) {
+    e.preventDefault();
+    const t = e.changedTouches[0];
+    doClick(t.clientX, t.clientY);
+  }
 }, { passive: false });
 
 function spawnShockwave(cx, cy) {
@@ -698,29 +708,25 @@ function spawnShockwave(cx, cy) {
 
 function spawnBubbles(cx, cy) {
   const count = 4 + Math.floor(Math.random()*5);
-  const rect  = clickZone.getBoundingClientRect();
-  const lx    = cx - rect.left;
-  const ly    = cy - rect.top;
   for (let i=0; i<count; i++) {
-    const el   = document.createElement('div');
+    const el  = document.createElement('div');
     el.className = 'bubble';
-    const size   = 5 + Math.random()*12;
-    const ox     = (Math.random()-0.5)*80;
-    const dur    = 0.7 + Math.random()*0.8;
-    el.style.cssText = `width:${size}px;height:${size}px;left:${lx+ox-size/2}px;top:${ly-size/2}px;animation-duration:${dur}s;`;
-    clickZone.appendChild(el);
+    const size = 5 + Math.random()*12;
+    const ox   = (Math.random()-0.5)*80;
+    const dur  = 0.7 + Math.random()*0.8;
+    el.style.cssText = `width:${size}px;height:${size}px;left:${cx+ox-size/2}px;top:${cy-size/2}px;animation-duration:${dur}s;`;
+    document.body.appendChild(el);
     el.addEventListener('animationend', ()=>el.remove());
   }
 }
 
 function spawnFloatText(cx, cy, amount) {
-  const rect = clickZone.getBoundingClientRect();
-  const el   = document.createElement('div');
+  const el = document.createElement('div');
   el.className = 'float-text';
   el.textContent = '+' + fmt(amount);
-  el.style.left = (cx - rect.left + (Math.random()-0.5)*30) + 'px';
-  el.style.top  = (cy - rect.top) + 'px';
-  clickZone.appendChild(el);
+  el.style.left = (cx + (Math.random()-0.5)*30) + 'px';
+  el.style.top  = cy + 'px';
+  document.body.appendChild(el);
   el.addEventListener('animationend', ()=>el.remove());
 }
 
@@ -929,7 +935,7 @@ document.getElementById('btn-reset').addEventListener('click', resetGame);
 
 document.addEventListener('keydown', e=>{
   if (e.key==='s' && (e.ctrlKey||e.metaKey)) { e.preventDefault(); saveGame(); }
-  if (e.key===' ') { e.preventDefault(); doClick(window.innerWidth/2, window.innerHeight/2); }
+  if (e.key===' ') { e.preventDefault(); const r=clickZone.getBoundingClientRect(); doClick(r.left+r.width/2, r.top+r.height/2); }
 });
 
 // ── Init ──────────────────────────────────────────────────
