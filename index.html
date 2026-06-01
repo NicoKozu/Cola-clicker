@@ -752,7 +752,7 @@ function getTotalCps() {
 
 function getColasPerClick() {
   const clickMult = Math.pow(2, state.clickLevel);
-  return (clickMult + getTotalCps() * 0.1) * getPrestigeMultiplier();
+  return clickMult * getPrestigeMultiplier();
 }
 
 function buildingCost(bId) {
@@ -867,7 +867,7 @@ function buyBuilding(bId) {
 
 // ── Special Upgrades ──────────────────────────────────────
 function getClickUpgradeCost() {
-  return Math.ceil(100 * Math.pow(6, state.clickLevel));
+  return Math.ceil(50 * Math.pow(6, state.clickLevel));
 }
 
 function getOfflineUpgradeCost() {
