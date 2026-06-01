@@ -692,133 +692,156 @@ let audioCtx = null;
 let soundMuted = localStorage.getItem(SOUND_KEY) === 'muted';
 
 function getAudioCtx() {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  if (audioCtx.state === 'suspended') audioCtx.resume();
+  if (!audioCtx) {
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      // iOS/Safari: unlock with a silent buffer on first creation
+      const silentBuf = audioCtx.createBuffer(1, 1, 22050);
+      const silentSrc = audioCtx.createBufferSource();
+      silentSrc.buffer = silentBuf;
+      silentSrc.connect(audioCtx.destination);
+      silentSrc.start(0);
+    } catch(e) { return null; }
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
   return audioCtx;
 }
 
 function playClick() {
   if (soundMuted) return;
-  const ctx = getAudioCtx();
-  const t = ctx.currentTime;
+  try {
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    const t = ctx.currentTime;
 
-  // Noise burst for fizz
-  const bufSize = Math.floor(ctx.sampleRate * 0.06);
-  const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
-  const data = buf.getChannelData(0);
-  for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
-  const noise = ctx.createBufferSource();
-  noise.buffer = buf;
-  const noiseGain = ctx.createGain();
-  noiseGain.gain.setValueAtTime(0.12, t);
-  noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
-  const filter = ctx.createBiquadFilter();
-  filter.type = 'bandpass';
-  filter.frequency.value = 1800;
-  filter.Q.value = 1.5;
-  noise.connect(filter);
-  filter.connect(noiseGain);
-  noiseGain.connect(ctx.destination);
-  noise.start(t);
-  noise.stop(t + 0.06);
+    const bufSize = Math.floor(ctx.sampleRate * 0.08);
+    const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+    const noise = ctx.createBufferSource();
+    noise.buffer = buf;
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.35, t);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = 1800;
+    filter.Q.value = 1.5;
+    noise.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(ctx.destination);
+    noise.start(t);
+    noise.stop(t + 0.08);
 
-  // Short "pop" tone
-  const osc = ctx.createOscillator();
-  const oscGain = ctx.createGain();
-  osc.type = 'sine';
-  osc.frequency.setValueAtTime(220, t);
-  osc.frequency.exponentialRampToValueAtTime(90, t + 0.04);
-  oscGain.gain.setValueAtTime(0.08, t);
-  oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
-  osc.connect(oscGain);
-  oscGain.connect(ctx.destination);
-  osc.start(t);
-  osc.stop(t + 0.04);
+    const osc = ctx.createOscillator();
+    const oscGain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(220, t);
+    osc.frequency.exponentialRampToValueAtTime(90, t + 0.05);
+    oscGain.gain.setValueAtTime(0.25, t);
+    oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+    osc.connect(oscGain);
+    oscGain.connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.05);
+  } catch(e) {}
 }
 
 function playBuyBuilding() {
   if (soundMuted) return;
-  const ctx = getAudioCtx();
-  const t = ctx.currentTime;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = 'sine';
-  osc.frequency.setValueAtTime(320, t);
-  osc.frequency.exponentialRampToValueAtTime(160, t + 0.18);
-  gain.gain.setValueAtTime(0.22, t);
-  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-  osc.start(t);
-  osc.stop(t + 0.18);
+  try {
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(340, t);
+    osc.frequency.exponentialRampToValueAtTime(170, t + 0.22);
+    gain.gain.setValueAtTime(0.4, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.22);
+  } catch(e) {}
 }
 
 function playBuyUpgrade() {
   if (soundMuted) return;
-  const ctx = getAudioCtx();
-  const t = ctx.currentTime;
-  [523, 659, 784].forEach((freq, i) => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0, t + i * 0.09);
-    gain.gain.linearRampToValueAtTime(0.14, t + i * 0.09 + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.09 + 0.18);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(t + i * 0.09);
-    osc.stop(t + i * 0.09 + 0.18);
-  });
+  try {
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    [523, 659, 784].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.001, t + i * 0.09);
+      gain.gain.linearRampToValueAtTime(0.3, t + i * 0.09 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.09 + 0.22);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t + i * 0.09);
+      osc.stop(t + i * 0.09 + 0.22);
+    });
+  } catch(e) {}
 }
 
 function playMilestone() {
   if (soundMuted) return;
-  const ctx = getAudioCtx();
-  const t = ctx.currentTime;
-  [523, 659, 784, 1047].forEach((freq, i) => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0, t + i * 0.13);
-    gain.gain.linearRampToValueAtTime(0.16, t + i * 0.13 + 0.04);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.13 + 0.35);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(t + i * 0.13);
-    osc.stop(t + i * 0.13 + 0.35);
-  });
+  try {
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    [523, 659, 784, 1047].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.001, t + i * 0.13);
+      gain.gain.linearRampToValueAtTime(0.3, t + i * 0.13 + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.13 + 0.4);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t + i * 0.13);
+      osc.stop(t + i * 0.13 + 0.4);
+    });
+  } catch(e) {}
 }
 
 function playPrestige() {
   if (soundMuted) return;
-  const ctx = getAudioCtx();
-  const t = ctx.currentTime;
-  const sweep = ctx.createOscillator();
-  const sweepGain = ctx.createGain();
-  sweep.type = 'sine';
-  sweep.frequency.setValueAtTime(220, t);
-  sweep.frequency.exponentialRampToValueAtTime(880, t + 0.6);
-  sweepGain.gain.setValueAtTime(0.18, t);
-  sweepGain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
-  sweep.connect(sweepGain);
-  sweepGain.connect(ctx.destination);
-  sweep.start(t);
-  sweep.stop(t + 0.6);
-  [440, 554, 659, 880].forEach((freq, i) => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0, t + 0.4 + i * 0.06);
-    gain.gain.linearRampToValueAtTime(0.12, t + 0.4 + i * 0.06 + 0.05);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4 + i * 0.06 + 0.7);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(t + 0.4 + i * 0.06);
-    osc.stop(t + 0.4 + i * 0.06 + 0.7);
-  });
+  try {
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    const sweep = ctx.createOscillator();
+    const sweepGain = ctx.createGain();
+    sweep.type = 'sine';
+    sweep.frequency.setValueAtTime(220, t);
+    sweep.frequency.exponentialRampToValueAtTime(880, t + 0.6);
+    sweepGain.gain.setValueAtTime(0.3, t);
+    sweepGain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+    sweep.connect(sweepGain);
+    sweepGain.connect(ctx.destination);
+    sweep.start(t);
+    sweep.stop(t + 0.6);
+    [440, 554, 659, 880].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.001, t + 0.4 + i * 0.06);
+      gain.gain.linearRampToValueAtTime(0.25, t + 0.4 + i * 0.06 + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4 + i * 0.06 + 0.7);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t + 0.4 + i * 0.06);
+      osc.stop(t + 0.4 + i * 0.06 + 0.7);
+    });
+  } catch(e) {}
 }
 
 function updateSoundBtn() {
