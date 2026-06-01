@@ -154,6 +154,7 @@
     #cps-display {
       font-size: 0.9rem; font-weight: 700; color: var(--gold); margin-top: 5px;
     }
+    .cps-sep { color: var(--muted); font-weight: 400; }
 
     /* ── Click zone ─────────────────────────────────────── */
     #click-zone {
@@ -586,7 +587,7 @@
     <div id="stats-bar">
       <div id="cola-count">0 🥤</div>
       <div id="cola-label">cola collected</div>
-      <div id="cps-display">0 cola/sec</div>
+      <div id="cps-display"><span id="cps-cola">0 cola/sec</span><span class="cps-sep"> · </span><span id="cps-clicks">0 clicks/sec</span></div>
     </div>
 
     <div id="prestige-bar">
@@ -886,7 +887,10 @@ const colaBtn   = document.getElementById('cola-btn');
 const clickZone = document.getElementById('click-zone');
 
 let pressTimer = null;
+const clickTimestamps = [];
+
 function doClick(clientX, clientY) {
+  clickTimestamps.push(Date.now());
   // Animate the can regardless of where on screen the click happened
   colaBtn.classList.add('pressed');
   clearTimeout(pressTimer);
@@ -1045,7 +1049,11 @@ function updateUI() {
   const cpc = getColasPerClick();
 
   document.getElementById('cola-count').textContent  = fmt(Math.floor(state.cola)) + ' 🥤';
-  document.getElementById('cps-display').textContent = fmt(cps) + ' cola/sec';
+  const now3 = Date.now();
+  while (clickTimestamps.length && now3 - clickTimestamps[0] > 3000) clickTimestamps.shift();
+  const clicksPerSec = (clickTimestamps.length / 3).toFixed(1);
+  document.getElementById('cps-cola').textContent   = fmt(cps) + ' cola/sec';
+  document.getElementById('cps-clicks').textContent = clicksPerSec + ' clicks/sec';
   document.getElementById('stat-total').textContent  = fmt(Math.floor(state.totalCola));
   document.getElementById('stat-cps').textContent    = fmt(cps);
   document.getElementById('stat-cpc').textContent    = fmt(cpc);
