@@ -790,7 +790,7 @@ function getColasPerClick() {
 
 function buildingCost(bId) {
   const b = BUILDINGS.find(b=>b.id===bId);
-  return Math.ceil(b.baseCost * Math.pow(1.15, state.buildings[bId]||0));
+  return Math.ceil(b.baseCost * Math.pow(1.10, state.buildings[bId]||0));
 }
 
 let buyMultiplier = 1; // 1 | 10 | 100 | 'max'
@@ -800,7 +800,7 @@ function buildingCostN(bId, n) {
   const cnt = state.buildings[bId]||0;
   let total = 0;
   for (let i = 0; i < n; i++) {
-    total += Math.ceil(b.baseCost * Math.pow(1.15, cnt + i));
+    total += Math.ceil(b.baseCost * Math.pow(1.10, cnt + i));
   }
   return total;
 }
@@ -810,7 +810,7 @@ function maxAffordableBuildings(bId) {
   const cnt = state.buildings[bId]||0;
   let total = 0, n = 0;
   while (n < 10000) {
-    const next = Math.ceil(b.baseCost * Math.pow(1.15, cnt + n));
+    const next = Math.ceil(b.baseCost * Math.pow(1.10, cnt + n));
     if (total + next > state.cola) break;
     total += next;
     n++;
