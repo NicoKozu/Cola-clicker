@@ -692,7 +692,9 @@ const BUILDINGS = [
   { id:'bottling',   name:'Bottling Plant',  emoji:'🍾', baseCost:3000,  baseCps:10,   desc:'Automated bottling lines running 24/7.' },
   { id:'empire',     name:'Cola Empire',     emoji:'👑', baseCost:20000,   baseCps:50,   desc:'A global beverage empire. Cola flows like water.' },
   { id:'lab',        name:'Cola Research Lab',emoji:'🧬', baseCost:150000,  baseCps:250,  desc:'Cutting-edge carbonation science at industrial scale.' },
-  { id:'satellite',  name:'Cola Satellite',   emoji:'🛰️', baseCost:1200000, baseCps:1200, desc:'Beaming cola recipes to every corner of the planet, 24/7.' },
+  { id:'satellite',  name:'Cola Satellite',   emoji:'🛰️', baseCost:1200000,  baseCps:1200,  desc:'Beaming cola recipes to every corner of the planet, 24/7.' },
+  { id:'dimension',  name:'Cola Dimension',   emoji:'🌀', baseCost:10000000, baseCps:6500,  desc:'A parallel dimension entirely filled with cola. Laws of physics: optional.' },
+  { id:'multiverse', name:'Cola Multiverse',  emoji:'🌌', baseCost:100000000,baseCps:32000, desc:'Infinite universes, infinite cola. Production beyond comprehension.' },
 ];
 
 const UPGRADES = [
@@ -719,8 +721,23 @@ const UPGRADES = [
   { id:'u_quantum_fizz',  name:'Quantum Fizz',         emoji:'⚛️', cost:800000,   desc:'Quantenverschränkte Cola-Moleküle. Labs ×2.',           type:'building', target:'lab',       mult:2, unlock:s=>s.buildings.lab>=1 },
   { id:'u_orbital_tanks', name:'Orbital Tanks',        emoji:'🛸', cost:5000000,  desc:'Weltraumtanks für maximale Lagerung. Labs ×3.',         type:'building', target:'lab',       mult:3, unlock:s=>s.buildings.lab>=5 },
   { id:'u_global_signal', name:'Global Signal',        emoji:'📡', cost:8000000,  desc:'Weltweites Broadcast-Netz. Satelliten ×2.',            type:'building', target:'satellite', mult:2, unlock:s=>s.buildings.satellite>=1 },
-  { id:'u_dark_matter',   name:'Dark Matter Cola',     emoji:'🌑', cost:50000000, desc:'Sie trotzt der Physik. ALLE Produktion ×2.',           type:'global',   mult:2,   unlock:s=>s.totalCola>=50000000 },
-  { id:'u_fizz_singular', name:'Fizz Singularity',     emoji:'🌀', cost:500000000,desc:'Das Universum IST Cola. ALLE Produktion ×3.',          type:'global',   mult:3,   unlock:s=>s.totalCola>=500000000 },
+  { id:'u_dark_matter',   name:'Dark Matter Cola',     emoji:'🌑', cost:50000000,    desc:'Sie trotzt der Physik. ALLE Produktion ×2.',            type:'global',   mult:2,   unlock:s=>s.totalCola>=50000000 },
+  { id:'u_fizz_singular', name:'Fizz Singularity',     emoji:'🌀', cost:500000000,   desc:'Das Universum IST Cola. ALLE Produktion ×3.',           type:'global',   mult:3,   unlock:s=>s.totalCola>=500000000 },
+  // Tier 4 building upgrades (high quantity milestones)
+  { id:'u_vending_net',   name:'Vending Network',      emoji:'🕸️', cost:6000000,     desc:'Vernetzte Automaten im Turbo. Vending ×2.',             type:'building', target:'vending',   mult:2, unlock:s=>s.buildings.vending>=50 },
+  { id:'u_factory_grid',  name:'Factory Megagrid',     emoji:'⚡', cost:60000000,    desc:'Superleitende Fabriknetze. Factories ×2.',              type:'building', target:'factory',   mult:2, unlock:s=>s.buildings.factory>=50 },
+  { id:'u_plant_super',   name:'Superplantage',        emoji:'🌳', cost:300000000,   desc:'Genetisch perfekte Kolanüsse. Plantations ×2.',         type:'building', target:'plantation',mult:2, unlock:s=>s.buildings.plantation>=50 },
+  { id:'u_lab_expand',    name:'Lab-Expansion',        emoji:'🔬', cost:500000000,   desc:'Weltweit vernetzte Forschungslabore. Labs ×2.',         type:'building', target:'lab',       mult:2, unlock:s=>s.buildings.lab>=25 },
+  { id:'u_sat_constellat',name:'Sat-Konstellation',   emoji:'🛰️', cost:3000000000,  desc:'Globales Satellitennetz für Echtzeit-Cola. Satellites ×2.',type:'building',target:'satellite', mult:2, unlock:s=>s.buildings.satellite>=20 },
+  // Dimension & Multiverse upgrades
+  { id:'u_dim_rift',      name:'Dimensions-Riss',      emoji:'🌀', cost:25000000,    desc:'Riss in die Cola-Dimension. Dimensions ×2.',            type:'building', target:'dimension', mult:2, unlock:s=>s.buildings.dimension>=1 },
+  { id:'u_dim_storm',     name:'Dimensionssturm',      emoji:'🌪️', cost:250000000,   desc:'Cola-Sturm aus parallelen Welten. Dimensions ×3.',      type:'building', target:'dimension', mult:3, unlock:s=>s.buildings.dimension>=5 },
+  { id:'u_multi_link',    name:'Multiversum-Link',     emoji:'🌌', cost:300000000,   desc:'Verbindung zu unendlichen Welten. Multiverse ×2.',      type:'building', target:'multiverse',mult:2, unlock:s=>s.buildings.multiverse>=1 },
+  { id:'u_multi_cascade', name:'Multiversum-Kaskade',  emoji:'💫', cost:3000000000,  desc:'Cola aus tausend Universen gleichzeitig. Multiverse ×3.',type:'building',target:'multiverse',mult:3, unlock:s=>s.buildings.multiverse>=5 },
+  // Late-game global multipliers (the key to reaching 1T in time)
+  { id:'u_cola_ferment',  name:'Cola-Fermentierung',   emoji:'🫙', cost:800000000,   desc:'Quantenfermentierung verdoppelt alles. ALLE ×2.',        type:'global',   mult:2, unlock:s=>s.totalCola>=1e9 },
+  { id:'u_cosmic_cola',   name:'Cosmic Cola',          emoji:'🌠', cost:8000000000,  desc:'Kosmische Energie speist die Produktion. ALLE ×3.',     type:'global',   mult:3, unlock:s=>s.totalCola>=1e10 },
+  { id:'u_cola_infinity', name:'Cola-Infinity-Engine', emoji:'♾️', cost:80000000000, desc:'Unendlicher Cola-Strom. ALLE Produktion ×5.',           type:'global',   mult:5, unlock:s=>s.totalCola>=1e11 },
 ];
 
 const MILESTONES = [
@@ -745,7 +762,7 @@ const MILESTONES = [
 
 let state = {
   cola:0, totalCola:0, totalClicks:0,
-  buildings:{ vending:0, factory:0, plantation:0, bottling:0, empire:0, lab:0, satellite:0 },
+  buildings:{ vending:0, factory:0, plantation:0, bottling:0, empire:0, lab:0, satellite:0, dimension:0, multiverse:0 },
   upgrades:{}, milestones:{},
   fizzTokens:0, totalPrestiges:0, runStartTime:Date.now(),
   lifetimeCola:0, lifetimeClicks:0,
@@ -1053,7 +1070,7 @@ function resetGame() {
   localStorage.removeItem(SAVE_KEY);
   state = {
     cola:0, totalCola:0, totalClicks:0,
-    buildings:{vending:0,factory:0,plantation:0,bottling:0,empire:0,lab:0,satellite:0},
+    buildings:{vending:0,factory:0,plantation:0,bottling:0,empire:0,lab:0,satellite:0,dimension:0,multiverse:0},
     upgrades:{}, milestones:{},
     fizzTokens:0, totalPrestiges:0, runStartTime:Date.now(),
     lifetimeCola:0, lifetimeClicks:0,
@@ -1138,7 +1155,7 @@ function doPrestige() {
 
   state = {
     cola:0, totalCola:0, totalClicks:0,
-    buildings:{vending:0,factory:0,plantation:0,bottling:0,empire:0,lab:0,satellite:0},
+    buildings:{vending:0,factory:0,plantation:0,bottling:0,empire:0,lab:0,satellite:0,dimension:0,multiverse:0},
     upgrades:{}, milestones:{},
     fizzTokens:      newTotal,
     totalPrestiges:  runNumber,
