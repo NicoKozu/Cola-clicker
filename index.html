@@ -870,11 +870,15 @@ const CPS_LEVELS = [
 ];
 
 const FIZZ_UPGRADES = [
-  { id:'fizz_boost',     name:'Fizz-Verstärker',     emoji:'🔥', type:'repeatable', baseCost:10,     costScale:2.0,  maxLevel:Infinity, effectPerLevel:0.10, effectType:'cps',   desc:'Erhöht alle Cola-Produktion dauerhaft.' },
-  { id:'click_infusion', name:'Klick-Infusion',       emoji:'👆', type:'repeatable', baseCost:25,     costScale:2.5,  maxLevel:Infinity, effectPerLevel:0.10, effectType:'click', desc:'Verstärkt jeden Klick dauerhaft.' },
-  { id:'milestone_1k',   name:'Fizz-Meilenstein I',   emoji:'💎', type:'milestone',  cost:1000,                      maxLevel:1,         bonus:0.20,          effectType:'all',   desc:'Ein mächtiger Produktionsschub für alle Zeit.' },
-  { id:'milestone_10k',  name:'Fizz-Meilenstein II',  emoji:'🏆', type:'milestone',  cost:10000,                     maxLevel:1,         bonus:0.20,          effectType:'all',   desc:'Der Produktionsfluss verdoppelt seine Kraft.' },
-  { id:'milestone_100k', name:'Fizz-Meilenstein III', emoji:'🌌', type:'milestone',  cost:100000,                    maxLevel:1,         bonus:0.20,          effectType:'all',   desc:'Kosmische Energie treibt deine Cola-Produktion an.' },
+  { id:'fizz_boost',      name:'Fizz-Verstärker',      emoji:'🔥', type:'repeatable', baseCost:10,          costScale:2.0,  maxLevel:Infinity, effectPerLevel:0.10, effectType:'cps',   desc:'Erhöht alle Cola-Produktion dauerhaft.' },
+  { id:'click_infusion',  name:'Klick-Infusion',        emoji:'👆', type:'repeatable', baseCost:25,          costScale:2.5,  maxLevel:Infinity, effectPerLevel:0.10, effectType:'click', desc:'Verstärkt jeden Klick dauerhaft.' },
+  { id:'milestone_1k',    name:'Fizz-Meilenstein I',    emoji:'💎', type:'milestone',  cost:1000,            maxLevel:1,     bonus:1.0, effectType:'all', desc:'Ein mächtiger Produktionsschub für alle Zeit.' },
+  { id:'milestone_10k',   name:'Fizz-Meilenstein II',   emoji:'🏆', type:'milestone',  cost:10000,           maxLevel:1,     bonus:1.0, effectType:'all', desc:'Der Produktionsfluss verdoppelt seine Kraft.' },
+  { id:'milestone_100k',  name:'Fizz-Meilenstein III',  emoji:'🌌', type:'milestone',  cost:100000,          maxLevel:1,     bonus:1.0, effectType:'all', desc:'Kosmische Energie treibt deine Cola-Produktion an.' },
+  { id:'milestone_1m',    name:'Fizz-Meilenstein IV',   emoji:'💫', type:'milestone',  cost:1000000,         maxLevel:1,     bonus:1.0, effectType:'all', desc:'Die Macht des Fizz durchdringt alle Welten.' },
+  { id:'milestone_10m',   name:'Fizz-Meilenstein V',    emoji:'⚡', type:'milestone',  cost:10000000,        maxLevel:1,     bonus:1.0, effectType:'all', desc:'Du bist ein Cola-Gott geworden.' },
+  { id:'milestone_100m',  name:'Fizz-Meilenstein VI',   emoji:'🌠', type:'milestone',  cost:100000000,       maxLevel:1,     bonus:1.0, effectType:'all', desc:'Jenseits des Universums fließt dein Cola.' },
+  { id:'milestone_1b',    name:'Fizz-Meilenstein VII',  emoji:'👑', type:'milestone',  cost:1000000000,      maxLevel:1,     bonus:1.0, effectType:'all', desc:'Unendlichkeit selbst neigt sich vor dir.' },
 ];
 
 let state = {
@@ -885,7 +889,7 @@ let state = {
   clickLevel:0, offlineLevel:0,
   fizzTokens:0, totalPrestiges:0, runStartTime:Date.now(),
   lifetimeCola:0, lifetimeClicks:0,
-  fizzUpgrades:{ fizz_boost:0, click_infusion:0, milestone_1k:0, milestone_10k:0, milestone_100k:0 },
+  fizzUpgrades:{ fizz_boost:0, click_infusion:0, milestone_1k:0, milestone_10k:0, milestone_100k:0, milestone_1m:0, milestone_10m:0, milestone_100m:0, milestone_1b:0 },
 };
 
 function getBuildingCps(bId) {
@@ -1390,7 +1394,7 @@ function resetGame() {
     clickLevel:0, offlineLevel:0,
     fizzTokens:0, totalPrestiges:0, runStartTime:Date.now(),
     lifetimeCola:0, lifetimeClicks:0,
-    fizzUpgrades:{ fizz_boost:0, click_infusion:0, milestone_1k:0, milestone_10k:0, milestone_100k:0 },
+    fizzUpgrades:{ fizz_boost:0, click_infusion:0, milestone_1k:0, milestone_10k:0, milestone_100k:0, milestone_1m:0, milestone_10m:0, milestone_100m:0, milestone_1b:0 },
   };
   renderBuildings(); renderSpecialUpgrades(); updateUI();
   showToast('🗑 Game reset!');
@@ -1446,12 +1450,11 @@ function getPrestigeMultiplier() {
 }
 
 function getFizzUpgradeMultiplier() {
-  const u = state.fizzUpgrades;
-  const cpsBoost = 1 + (u.fizz_boost || 0) * 0.10;
-  const m1 = (u.milestone_1k  || 0) >= 1 ? 1.20 : 1;
-  const m2 = (u.milestone_10k || 0) >= 1 ? 1.20 : 1;
-  const m3 = (u.milestone_100k|| 0) >= 1 ? 1.20 : 1;
-  return cpsBoost * m1 * m2 * m3;
+  const cpsBoost = 1 + (state.fizzUpgrades.fizz_boost || 0) * 0.10;
+  const milestoneMult = FIZZ_UPGRADES
+    .filter(u => u.type === 'milestone')
+    .reduce((acc, u) => acc * ((state.fizzUpgrades[u.id] || 0) >= 1 ? 1 + u.bonus : 1), 1);
+  return cpsBoost * milestoneMult;
 }
 
 function getFizzClickMultiplier() {
