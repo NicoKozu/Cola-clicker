@@ -891,6 +891,7 @@ function buildingCost(bId) {
 let buyMultiplier = 1; // 1 | 10 | 100 | 'max'
 let clickComboLevel = 0;
 let clickComboTimer = 0;
+let clickComboDecayTimer = 0;
 
 function buildingCostN(bId, n) {
   const b = BUILDINGS.find(b=>b.id===bId);
@@ -946,17 +947,26 @@ function updateClickCombo(dt) {
   const cps = clickTimestamps.filter(t => now - t <= 3000).length / 3;
   const prevLevel = clickComboLevel;
 
-  while (clickComboLevel > 0 && cps < CPS_LEVELS[clickComboLevel - 1].minCps) {
-    clickComboLevel--;
-    clickComboTimer = 0;
+  // Decay: 5s below maintenance threshold → lose one level
+  if (clickComboLevel > 0 && cps < CPS_LEVELS[clickComboLevel - 1].minCps) {
+    clickComboDecayTimer += dt;
+    if (clickComboDecayTimer >= 5) {
+      clickComboLevel--;
+      clickComboDecayTimer = 0;
+      clickComboTimer = 0;
+    }
+  } else {
+    clickComboDecayTimer = 0;
   }
 
+  // Advance: 5s above threshold → gain one level
   if (clickComboLevel < CPS_LEVELS.length) {
     if (cps >= CPS_LEVELS[clickComboLevel].minCps) {
-      clickComboTimer += dt;
+      clickComboTimer = Math.min(5, clickComboTimer + dt);
       if (clickComboTimer >= 5) {
         clickComboLevel++;
         clickComboTimer = 0;
+        clickComboDecayTimer = 0;
       }
     } else {
       clickComboTimer = Math.max(0, clickComboTimer - dt);
@@ -994,7 +1004,15 @@ function updateComboDisplay() {
   }
 
   const barColors = ['#ff9a00', '#FFD700', '#c77dff', '#00f5ff'];
-  if (clickComboLevel < CPS_LEVELS.length) {
+  if (clickComboDecayTimer > 0 && clickComboLevel > 0) {
+    // Decay: bar fills up showing time until level drop
+    const pct    = (clickComboDecayTimer / 5) * 100;
+    const needed = CPS_LEVELS[clickComboLevel - 1].minCps;
+    bar.style.width      = pct + '%';
+    bar.style.background = '#4488ff';
+    hint.textContent     = (5 - clickComboDecayTimer).toFixed(1) + 's bis Verlust · ' + needed + '/s halten!';
+  } else if (clickComboLevel < CPS_LEVELS.length) {
+    // Advance: bar fills up toward next level
     const pct  = (clickComboTimer / 5) * 100;
     const next = CPS_LEVELS[clickComboLevel];
     bar.style.width      = pct + '%';
