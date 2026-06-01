@@ -550,6 +550,45 @@
     .su-desc  { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
     .su-cost  { font-size: 0.85rem; font-weight: 700; color: var(--red-l); margin-top: 6px; }
     .special-upgrade-card.affordable .su-cost { color: var(--gold); }
+
+    /* ── Click Combo ─────────────────────────────────────── */
+    #combo-display {
+      width: 100%; padding: 2px 20px 6px;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      flex-shrink: 0;
+    }
+    #combo-badge {
+      font-family: 'Righteous', cursive;
+      font-size: 1rem; letter-spacing: 2px;
+      padding: 3px 16px; border-radius: 20px;
+      border: 1px solid transparent;
+      transition: color 0.3s, background 0.3s, border-color 0.3s, text-shadow 0.3s;
+    }
+    .combo-lv0 { color: var(--muted); border-color: rgba(120,60,60,0.4); background: rgba(120,60,60,0.05); }
+    .combo-lv1 { color: #ff9a00; border-color: rgba(255,154,0,0.45); background: rgba(255,154,0,0.08); text-shadow: 0 0 10px rgba(255,154,0,0.5); }
+    .combo-lv2 { color: var(--gold); border-color: rgba(255,215,0,0.5); background: rgba(255,215,0,0.1); text-shadow: 0 0 10px rgba(255,215,0,0.5); }
+    .combo-lv3 { color: #c77dff; border-color: rgba(199,125,255,0.5); background: rgba(199,125,255,0.08); text-shadow: 0 0 12px rgba(199,125,255,0.6); }
+    .combo-lv4 { border-color: rgba(0,245,255,0.5); background: rgba(0,245,255,0.06); animation: comboRainbow 1.2s linear infinite; }
+    @keyframes comboRainbow {
+      0%   { color:#ff6b6b; text-shadow:0 0 14px rgba(255,107,107,0.8); }
+      25%  { color:#ffd700; text-shadow:0 0 14px rgba(255,215,0,0.8); }
+      50%  { color:#00ffaa; text-shadow:0 0 14px rgba(0,255,170,0.8); }
+      75%  { color:#00f5ff; text-shadow:0 0 14px rgba(0,245,255,0.8); }
+      100% { color:#ff6b6b; text-shadow:0 0 14px rgba(255,107,107,0.8); }
+    }
+    #combo-progress-wrap {
+      width: 70%; height: 4px; border-radius: 2px;
+      background: rgba(40,6,10,0.85);
+      border: 1px solid rgba(80,20,20,0.4);
+      overflow: hidden;
+    }
+    #combo-progress-bar {
+      height: 100%; width: 0%; border-radius: 2px;
+      transition: width 0.15s linear;
+    }
+    #combo-hint {
+      font-size: 0.6rem; color: var(--muted); letter-spacing: 0.8px;
+    }
   </style>
 </head>
 <body>
@@ -588,6 +627,14 @@
       <div id="cola-count">0 🥤</div>
       <div id="cola-label">cola collected</div>
       <div id="cps-display"><span id="cps-cola">0 cola/sec</span><span class="cps-sep"> · </span><span id="cps-clicks">0 clicks/sec</span></div>
+    </div>
+
+    <div id="combo-display" style="display:none">
+      <div id="combo-badge"></div>
+      <div id="combo-progress-wrap">
+        <div id="combo-progress-bar"></div>
+      </div>
+      <div id="combo-hint"></div>
     </div>
 
     <div id="prestige-bar">
@@ -802,6 +849,13 @@ const MILESTONES = [
   { id:'m_p25', type:'prestige', val:25,   title:'🌌 Prestige-Gottheit', sub:'25 Aufstiege. Das Universum verbeugt sich.' },
 ];
 
+const CPS_LEVELS = [
+  { minCps: 5,  mult: 2, label: '🔥 ×2 COMBO',  cls: 'combo-lv1', toast: '🔥 ×2 Combo! Klick-Power verdoppelt!' },
+  { minCps: 10, mult: 3, label: '⚡ ×3 INFERNO', cls: 'combo-lv2', toast: '⚡ ×3 Inferno! Dreifache Klick-Power!' },
+  { minCps: 15, mult: 4, label: '💥 ×4 ULTRA',   cls: 'combo-lv3', toast: '💥 ×4 Ultra! Vierfache Klick-Power!' },
+  { minCps: 20, mult: 5, label: '🌌 ×5 GODMODE', cls: 'combo-lv4', toast: '🌌 ×5 GODMODE! Fünffache Klick-Power!' },
+];
+
 let state = {
   cola:0, totalCola:0, totalClicks:0,
   buildings:{ vending:0, factory:0, plantation:0, bottling:0, empire:0, lab:0, satellite:0,
@@ -824,8 +878,9 @@ function getTotalCps() {
 }
 
 function getColasPerClick() {
-  const clickMult = Math.pow(2, state.clickLevel);
-  return clickMult * getPrestigeMultiplier();
+  const clickMult  = Math.pow(2, state.clickLevel);
+  const comboMult  = clickComboLevel > 0 ? CPS_LEVELS[clickComboLevel - 1].mult : 1;
+  return clickMult * getPrestigeMultiplier() * comboMult;
 }
 
 function buildingCost(bId) {
@@ -834,6 +889,8 @@ function buildingCost(bId) {
 }
 
 let buyMultiplier = 1; // 1 | 10 | 100 | 'max'
+let clickComboLevel = 0;
+let clickComboTimer = 0;
 
 function buildingCostN(bId, n) {
   const b = BUILDINGS.find(b=>b.id===bId);
@@ -875,11 +932,79 @@ function tick() {
   state.cola      += gain;
   state.totalCola += gain;
 
+  updateClickCombo(dt);
   tickAcc += dt;
   if (tickAcc >= 0.1) { tickAcc = 0; updateUI(); }
 
   checkMilestones();
   requestAnimationFrame(tick);
+}
+
+// ── Click Combo ───────────────────────────────────────────
+function updateClickCombo(dt) {
+  const now = Date.now();
+  const cps = clickTimestamps.filter(t => now - t <= 1000).length;
+  const prevLevel = clickComboLevel;
+
+  while (clickComboLevel > 0 && cps < CPS_LEVELS[clickComboLevel - 1].minCps) {
+    clickComboLevel--;
+    clickComboTimer = 0;
+  }
+
+  if (clickComboLevel < CPS_LEVELS.length) {
+    if (cps >= CPS_LEVELS[clickComboLevel].minCps) {
+      clickComboTimer += dt;
+      if (clickComboTimer >= 5) {
+        clickComboLevel++;
+        clickComboTimer = 0;
+      }
+    } else {
+      clickComboTimer = 0;
+    }
+  }
+
+  if (clickComboLevel !== prevLevel) {
+    if (clickComboLevel > prevLevel) {
+      showToast(CPS_LEVELS[clickComboLevel - 1].toast);
+    } else {
+      showToast('❄️ Combo verloren! Schneller klicken!');
+    }
+  }
+}
+
+function updateComboDisplay() {
+  const comboEl = document.getElementById('combo-display');
+  if (clickComboLevel === 0 && clickComboTimer === 0) {
+    comboEl.style.display = 'none';
+    return;
+  }
+  comboEl.style.display = 'flex';
+
+  const badge = document.getElementById('combo-badge');
+  const bar   = document.getElementById('combo-progress-bar');
+  const hint  = document.getElementById('combo-hint');
+
+  if (clickComboLevel > 0) {
+    const lvl     = CPS_LEVELS[clickComboLevel - 1];
+    badge.textContent = lvl.label;
+    badge.className   = lvl.cls;
+  } else {
+    badge.textContent = '🔥 ×2 aufheizen...';
+    badge.className   = 'combo-lv0';
+  }
+
+  const barColors = ['#ff9a00', '#FFD700', '#c77dff', '#00f5ff'];
+  if (clickComboLevel < CPS_LEVELS.length) {
+    const pct  = (clickComboTimer / 5) * 100;
+    const next = CPS_LEVELS[clickComboLevel];
+    bar.style.width      = pct + '%';
+    bar.style.background = barColors[clickComboLevel];
+    hint.textContent     = (5 - clickComboTimer).toFixed(1) + 's → ×' + next.mult;
+  } else {
+    bar.style.width      = '100%';
+    bar.style.background = barColors[3];
+    hint.textContent     = 'MAX LEVEL!';
+  }
 }
 
 // ── Click handler ─────────────────────────────────────────
@@ -1088,6 +1213,7 @@ function updateUI() {
 
   updatePrestigeUI();
   updatePrestigeProgress();
+  updateComboDisplay();
 }
 
 function renderBuildings() {
