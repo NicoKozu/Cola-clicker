@@ -870,7 +870,7 @@ const CPS_LEVELS = [
 ];
 
 const FIZZ_UPGRADES = [
-  { id:'fizz_boost',      name:'Fizz-Verstärker',      emoji:'🔥', type:'repeatable', baseCost:10,          costScale:2.0,  maxLevel:Infinity, effectPerLevel:0.10, effectType:'cps',   desc:'Erhöht alle Cola-Produktion dauerhaft.' },
+  { id:'fizz_boost',      name:'Fizz-Verstärker',      emoji:'🔥', type:'repeatable', baseCost:100,         costScale:10.0, maxLevel:Infinity, effectPerLevel:2.0,  effectType:'cps',   desc:'Verdoppelt alle Cola-Produktion dauerhaft.' },
   { id:'click_infusion',  name:'Klick-Infusion',        emoji:'👆', type:'repeatable', baseCost:25,          costScale:2.5,  maxLevel:Infinity, effectPerLevel:0.10, effectType:'click', desc:'Verstärkt jeden Klick dauerhaft.' },
   { id:'milestone_1k',    name:'Fizz-Meilenstein I',    emoji:'💎', type:'milestone',  cost:1000,            maxLevel:1,     bonus:1.0, effectType:'all', desc:'Ein mächtiger Produktionsschub für alle Zeit.' },
   { id:'milestone_10k',   name:'Fizz-Meilenstein II',   emoji:'🏆', type:'milestone',  cost:10000,           maxLevel:1,     bonus:1.0, effectType:'all', desc:'Der Produktionsfluss verdoppelt seine Kraft.' },
@@ -1450,7 +1450,7 @@ function getPrestigeMultiplier() {
 }
 
 function getFizzUpgradeMultiplier() {
-  const cpsBoost = 1 + (state.fizzUpgrades.fizz_boost || 0) * 0.10;
+  const cpsBoost = Math.pow(2, state.fizzUpgrades.fizz_boost || 0);
   const milestoneMult = FIZZ_UPGRADES
     .filter(u => u.type === 'milestone')
     .reduce((acc, u) => acc * ((state.fizzUpgrades[u.id] || 0) >= 1 ? 1 + u.bonus : 1), 1);
@@ -1497,9 +1497,15 @@ function renderFizzUpgrades() {
 
     let levelLine, costLine;
     if (u.type === 'repeatable') {
-      const curPct  = (level * u.effectPerLevel * 100).toFixed(0);
-      const nextPct = ((level + 1) * u.effectPerLevel * 100).toFixed(0);
-      levelLine = 'Lv.' + level + ' — jetzt: +' + curPct + '% · nächste: +' + nextPct + '%';
+      if (u.id === 'fizz_boost') {
+        const curMult  = Math.pow(2, level);
+        const nextMult = Math.pow(2, level + 1);
+        levelLine = 'Lv.' + level + ' — jetzt: ×' + fmt(curMult) + ' · nächste: ×' + fmt(nextMult);
+      } else {
+        const curPct  = (level * u.effectPerLevel * 100).toFixed(0);
+        const nextPct = ((level + 1) * u.effectPerLevel * 100).toFixed(0);
+        levelLine = 'Lv.' + level + ' — jetzt: +' + curPct + '% · nächste: +' + nextPct + '%';
+      }
       costLine  = '🔥 ' + fmt(cost) + ' Fizz';
     } else {
       levelLine = isOwned ? '✓ Aktiv — +20% Gesamtproduktion' : '+20% Gesamtproduktion (einmalig)';
