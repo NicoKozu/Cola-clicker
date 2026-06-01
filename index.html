@@ -550,6 +550,19 @@
     .su-desc  { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
     .su-cost  { font-size: 0.85rem; font-weight: 700; color: var(--red-l); margin-top: 6px; }
     .special-upgrade-card.affordable .su-cost { color: var(--gold); }
+    .su-cost-fizz { color: #ff9a00; }
+    .special-upgrade-card.affordable .su-cost-fizz { color: var(--gold); }
+    .fizz-section-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 16px 6px; border-top: 1px solid var(--border); margin-top: 6px;
+    }
+    .fizz-section-icon { font-size: 0.95rem; }
+    .fizz-section-title {
+      font-family: 'Righteous', cursive;
+      font-size: 0.72rem; letter-spacing: 2px; color: var(--gold); text-transform: uppercase;
+    }
+    .special-upgrade-card.owned { cursor: default; opacity: 0.65; }
+    .special-upgrade-card.owned:hover { transform: none; border-color: var(--border); background: rgba(30,8,8,0.8); }
 
     /* ── Click Combo ─────────────────────────────────────── */
     #combo-display {
@@ -856,6 +869,14 @@ const CPS_LEVELS = [
   { minCps: 20, mult: 5, label: '🌌 ×5 GODMODE', cls: 'combo-lv4', toast: '🌌 ×5 GODMODE! Fünffache Klick-Power!' },
 ];
 
+const FIZZ_UPGRADES = [
+  { id:'fizz_boost',     name:'Fizz-Verstärker',     emoji:'🔥', type:'repeatable', baseCost:10,     costScale:2.0,  maxLevel:Infinity, effectPerLevel:0.10, effectType:'cps',   desc:'Erhöht alle Cola-Produktion dauerhaft.' },
+  { id:'click_infusion', name:'Klick-Infusion',       emoji:'👆', type:'repeatable', baseCost:25,     costScale:2.5,  maxLevel:Infinity, effectPerLevel:0.10, effectType:'click', desc:'Verstärkt jeden Klick dauerhaft.' },
+  { id:'milestone_1k',   name:'Fizz-Meilenstein I',   emoji:'💎', type:'milestone',  cost:1000,                      maxLevel:1,         bonus:0.20,          effectType:'all',   desc:'Ein mächtiger Produktionsschub für alle Zeit.' },
+  { id:'milestone_10k',  name:'Fizz-Meilenstein II',  emoji:'🏆', type:'milestone',  cost:10000,                     maxLevel:1,         bonus:0.20,          effectType:'all',   desc:'Der Produktionsfluss verdoppelt seine Kraft.' },
+  { id:'milestone_100k', name:'Fizz-Meilenstein III', emoji:'🌌', type:'milestone',  cost:100000,                    maxLevel:1,         bonus:0.20,          effectType:'all',   desc:'Kosmische Energie treibt deine Cola-Produktion an.' },
+];
+
 let state = {
   cola:0, totalCola:0, totalClicks:0,
   buildings:{ vending:0, factory:0, plantation:0, bottling:0, empire:0, lab:0, satellite:0,
@@ -864,13 +885,14 @@ let state = {
   clickLevel:0, offlineLevel:0,
   fizzTokens:0, totalPrestiges:0, runStartTime:Date.now(),
   lifetimeCola:0, lifetimeClicks:0,
+  fizzUpgrades:{ fizz_boost:0, click_infusion:0, milestone_1k:0, milestone_10k:0, milestone_100k:0 },
 };
 
 function getBuildingCps(bId) {
   const b = BUILDINGS.find(b=>b.id===bId);
   const cnt = state.buildings[bId]||0;
   if (!cnt) return 0;
-  return b.baseCps * cnt * getPrestigeMultiplier();
+  return b.baseCps * cnt * getPrestigeMultiplier() * getFizzUpgradeMultiplier();
 }
 
 function getTotalCps() {
@@ -880,7 +902,7 @@ function getTotalCps() {
 function getColasPerClick() {
   const clickMult  = Math.pow(2, state.clickLevel);
   const comboMult  = clickComboLevel > 0 ? CPS_LEVELS[clickComboLevel - 1].mult : 1;
-  return clickMult * getPrestigeMultiplier() * comboMult;
+  return clickMult * getPrestigeMultiplier() * getFizzUpgradeMultiplier() * getFizzClickMultiplier() * comboMult;
 }
 
 function buildingCost(bId) {
@@ -1166,6 +1188,8 @@ function renderSpecialUpgrades() {
   const clickAff = state.cola >= clickCost;
   const clickCard = document.createElement('div');
   clickCard.className = 'special-upgrade-card' + (clickAff ? ' affordable' : '');
+  clickCard.dataset.type = 'cola-upgrade';
+  clickCard.dataset.idx  = '0';
   clickCard.innerHTML = `
     <div class="su-icon">🖱️</div>
     <div class="su-body">
@@ -1186,6 +1210,8 @@ function renderSpecialUpgrades() {
   const offAff   = !isMaxed && state.cola >= offCost;
   const offCard  = document.createElement('div');
   offCard.className = 'special-upgrade-card' + (offAff ? ' affordable' : '');
+  offCard.dataset.type = 'cola-upgrade';
+  offCard.dataset.idx  = '1';
   if (isMaxed) offCard.style.opacity = '0.7';
   offCard.innerHTML = `
     <div class="su-icon">💤</div>
@@ -1197,6 +1223,8 @@ function renderSpecialUpgrades() {
     </div>`;
   if (!isMaxed) offCard.addEventListener('click', buyOfflineUpgrade);
   list.appendChild(offCard);
+
+  renderFizzUpgrades();
 }
 
 function updateUI() {
@@ -1237,8 +1265,15 @@ function updateUI() {
 
   const clickCost = getClickUpgradeCost();
   const offCost   = getOfflineUpgradeCost();
-  document.querySelectorAll('.special-upgrade-card').forEach((card, i) => {
-    card.classList.toggle('affordable', state.cola >= (i === 0 ? clickCost : offCost));
+  document.querySelectorAll('.special-upgrade-card[data-type="cola-upgrade"]').forEach(card => {
+    const idx = parseInt(card.dataset.idx);
+    card.classList.toggle('affordable', state.cola >= (idx === 0 ? clickCost : offCost));
+  });
+  document.querySelectorAll('.special-upgrade-card[data-type="fizz-upgrade"]').forEach(card => {
+    const id = card.dataset.id;
+    const cost = getFizzUpgradeCost(id);
+    const owned = (state.fizzUpgrades[id] || 0) >= FIZZ_UPGRADES.find(u => u.id === id).maxLevel;
+    card.classList.toggle('affordable', !owned && state.fizzTokens >= cost);
   });
 
   updatePrestigeUI();
@@ -1336,6 +1371,9 @@ function loadGame() {
     state.lifetimeClicks = saved.lifetimeClicks || 0;
     state.clickLevel     = saved.clickLevel     || 0;
     state.offlineLevel   = saved.offlineLevel   || 0;
+    if (saved.fizzUpgrades) {
+      FIZZ_UPGRADES.forEach(u => { state.fizzUpgrades[u.id] = saved.fizzUpgrades[u.id] || 0; });
+    }
     showToast('📂 Game loaded!');
     renderBuildings(); renderSpecialUpgrades(); updateUI();
   } catch(e) { showToast('⚠️ Load failed.'); }
@@ -1352,6 +1390,7 @@ function resetGame() {
     clickLevel:0, offlineLevel:0,
     fizzTokens:0, totalPrestiges:0, runStartTime:Date.now(),
     lifetimeCola:0, lifetimeClicks:0,
+    fizzUpgrades:{ fizz_boost:0, click_infusion:0, milestone_1k:0, milestone_10k:0, milestone_100k:0 },
   };
   renderBuildings(); renderSpecialUpgrades(); updateUI();
   showToast('🗑 Game reset!');
@@ -1406,6 +1445,81 @@ function getPrestigeMultiplier() {
   return 1 + state.fizzTokens * 0.02;
 }
 
+function getFizzUpgradeMultiplier() {
+  const u = state.fizzUpgrades;
+  const cpsBoost = 1 + (u.fizz_boost || 0) * 0.10;
+  const m1 = (u.milestone_1k  || 0) >= 1 ? 1.20 : 1;
+  const m2 = (u.milestone_10k || 0) >= 1 ? 1.20 : 1;
+  const m3 = (u.milestone_100k|| 0) >= 1 ? 1.20 : 1;
+  return cpsBoost * m1 * m2 * m3;
+}
+
+function getFizzClickMultiplier() {
+  return 1 + (state.fizzUpgrades.click_infusion || 0) * 0.10;
+}
+
+function getFizzUpgradeCost(id) {
+  const u = FIZZ_UPGRADES.find(u => u.id === id);
+  const lvl = state.fizzUpgrades[id] || 0;
+  if (u.type === 'milestone') return lvl >= 1 ? Infinity : u.cost;
+  return Math.ceil(u.baseCost * Math.pow(u.costScale, lvl));
+}
+
+function buyFizzUpgrade(id) {
+  const u = FIZZ_UPGRADES.find(u => u.id === id);
+  const cost = getFizzUpgradeCost(id);
+  if (cost === Infinity || state.fizzTokens < cost) return;
+  state.fizzTokens -= cost;
+  state.fizzUpgrades[id] = (state.fizzUpgrades[id] || 0) + 1;
+  const lvl = state.fizzUpgrades[id];
+  showToast('🔥 ' + u.name + (u.type === 'repeatable' ? ' Lv.' + lvl : '') + ' freigeschaltet!');
+  renderSpecialUpgrades();
+  updateUI();
+  autoSave();
+}
+
+function renderFizzUpgrades() {
+  const list = document.getElementById('upgrades-list');
+
+  const header = document.createElement('div');
+  header.className = 'fizz-section-header';
+  header.innerHTML = '<span class="fizz-section-icon">🔥</span><span class="fizz-section-title">PRESTIGE UPGRADES</span>';
+  list.appendChild(header);
+
+  FIZZ_UPGRADES.forEach(u => {
+    const level   = state.fizzUpgrades[u.id] || 0;
+    const cost    = getFizzUpgradeCost(u.id);
+    const isOwned = level >= u.maxLevel;
+    const canAfford = !isOwned && state.fizzTokens >= cost;
+
+    let levelLine, costLine;
+    if (u.type === 'repeatable') {
+      const curPct  = (level * u.effectPerLevel * 100).toFixed(0);
+      const nextPct = ((level + 1) * u.effectPerLevel * 100).toFixed(0);
+      levelLine = 'Lv.' + level + ' — jetzt: +' + curPct + '% · nächste: +' + nextPct + '%';
+      costLine  = '🔥 ' + fmt(cost) + ' Fizz';
+    } else {
+      levelLine = isOwned ? '✓ Aktiv — +20% Gesamtproduktion' : '+20% Gesamtproduktion (einmalig)';
+      costLine  = isOwned ? '✓ Gekauft' : '🔥 ' + fmt(cost) + ' Fizz';
+    }
+
+    const card = document.createElement('div');
+    card.className = 'special-upgrade-card' + (canAfford ? ' affordable' : '') + (isOwned ? ' owned' : '');
+    card.dataset.type = 'fizz-upgrade';
+    card.dataset.id   = u.id;
+    card.innerHTML = `
+      <div class="su-icon">${u.emoji}</div>
+      <div class="su-body">
+        <div class="su-name">${u.name}</div>
+        <div class="su-level">${levelLine}</div>
+        <div class="su-desc">${u.desc}</div>
+        <div class="su-cost su-cost-fizz">${costLine}</div>
+      </div>`;
+    if (!isOwned) card.addEventListener('click', () => buyFizzUpgrade(u.id));
+    list.appendChild(card);
+  });
+}
+
 function calcFizzTokensEarned() {
   const threshold = getPrestigeThreshold();
   return Math.max(1, Math.floor(state.totalCola / threshold));
@@ -1413,7 +1527,7 @@ function calcFizzTokensEarned() {
 
 function updatePrestigeUI() {
   const tokens    = state.fizzTokens;
-  const bonusPct  = Math.round((getPrestigeMultiplier() - 1) * 100);
+  const bonusPct  = Math.round((getPrestigeMultiplier() * getFizzUpgradeMultiplier() - 1) * 100);
   const earned    = calcFizzTokensEarned();
   const threshold = getPrestigeThreshold();
   const eligible  = state.totalCola >= threshold;
@@ -1468,6 +1582,7 @@ function doPrestige() {
     runStartTime:    Date.now(),
     lifetimeCola:    state.lifetimeCola + state.totalCola,
     lifetimeClicks:  state.lifetimeClicks + state.totalClicks,
+    fizzUpgrades:    state.fizzUpgrades,
   };
 
   autoSave();
@@ -1580,6 +1695,9 @@ document.addEventListener('keydown', e=>{
       state.lifetimeClicks = saved.lifetimeClicks || 0;
       state.clickLevel     = saved.clickLevel     || 0;
       state.offlineLevel   = saved.offlineLevel   || 0;
+      if (saved.fizzUpgrades) {
+        FIZZ_UPGRADES.forEach(u => { state.fizzUpgrades[u.id] = saved.fizzUpgrades[u.id] || 0; });
+      }
     }
   } catch(e){}
 
