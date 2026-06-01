@@ -693,15 +693,7 @@ let soundMuted = localStorage.getItem(SOUND_KEY) === 'muted';
 
 function getAudioCtx() {
   if (!audioCtx) {
-    try {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      // iOS/Safari: unlock with a silent buffer on first creation
-      const silentBuf = audioCtx.createBuffer(1, 1, 22050);
-      const silentSrc = audioCtx.createBufferSource();
-      silentSrc.buffer = silentBuf;
-      silentSrc.connect(audioCtx.destination);
-      silentSrc.start(0);
-    } catch(e) { return null; }
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return null; }
   }
   if (audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
   return audioCtx;
@@ -712,7 +704,7 @@ function playClick() {
   try {
     const ctx = getAudioCtx();
     if (!ctx) return;
-    const t = ctx.currentTime;
+    const t = ctx.currentTime + 0.05;
 
     const bufSize = Math.floor(ctx.sampleRate * 0.08);
     const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
@@ -721,8 +713,8 @@ function playClick() {
     const noise = ctx.createBufferSource();
     noise.buffer = buf;
     const noiseGain = ctx.createGain();
-    noiseGain.gain.setValueAtTime(0.35, t);
-    noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+    noiseGain.gain.setValueAtTime(0.5, t);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
     const filter = ctx.createBiquadFilter();
     filter.type = 'bandpass';
     filter.frequency.value = 1800;
@@ -738,8 +730,8 @@ function playClick() {
     osc.type = 'sine';
     osc.frequency.setValueAtTime(220, t);
     osc.frequency.exponentialRampToValueAtTime(90, t + 0.05);
-    oscGain.gain.setValueAtTime(0.25, t);
-    oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+    oscGain.gain.setValueAtTime(0.4, t);
+    oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
     osc.connect(oscGain);
     oscGain.connect(ctx.destination);
     osc.start(t);
@@ -752,14 +744,14 @@ function playBuyBuilding() {
   try {
     const ctx = getAudioCtx();
     if (!ctx) return;
-    const t = ctx.currentTime;
+    const t = ctx.currentTime + 0.05;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = 'sine';
     osc.frequency.setValueAtTime(340, t);
     osc.frequency.exponentialRampToValueAtTime(170, t + 0.22);
-    gain.gain.setValueAtTime(0.4, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+    gain.gain.setValueAtTime(0.55, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.start(t);
@@ -772,7 +764,7 @@ function playBuyUpgrade() {
   try {
     const ctx = getAudioCtx();
     if (!ctx) return;
-    const t = ctx.currentTime;
+    const t = ctx.currentTime + 0.05;
     [523, 659, 784].forEach((freq, i) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -794,7 +786,7 @@ function playMilestone() {
   try {
     const ctx = getAudioCtx();
     if (!ctx) return;
-    const t = ctx.currentTime;
+    const t = ctx.currentTime + 0.05;
     [523, 659, 784, 1047].forEach((freq, i) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -816,7 +808,7 @@ function playPrestige() {
   try {
     const ctx = getAudioCtx();
     if (!ctx) return;
-    const t = ctx.currentTime;
+    const t = ctx.currentTime + 0.05;
     const sweep = ctx.createOscillator();
     const sweepGain = ctx.createGain();
     sweep.type = 'sine';
@@ -1004,14 +996,24 @@ function doClick(clientX, clientY) {
   updateUI();
 }
 
+// AudioContext must be created/resumed at top level of user gesture (iOS/Safari requirement)
+function _audioInit() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(_) {}
+  }
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
+}
+
 // Whole screen is clickable — ignore clicks inside panels, prestige bar, or modals
 document.addEventListener('click', e => {
+  _audioInit();
   if (!e.target.closest('.panel') &&
       !e.target.closest('#prestige-bar') &&
       !e.target.closest('.modal-overlay')) doClick(e.clientX, e.clientY);
 });
 
 document.addEventListener('touchend', e => {
+  _audioInit();
   if (!e.target.closest('.panel') &&
       !e.target.closest('#prestige-bar') &&
       !e.target.closest('.modal-overlay')) {
