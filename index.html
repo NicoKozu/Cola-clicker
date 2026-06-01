@@ -908,7 +908,7 @@ function maxAffordableBuildings(bId) {
   const cnt = state.buildings[bId]||0;
   let total = 0, n = 0;
   while (n < 10000) {
-    const next = Math.ceil(b.baseCost * Math.pow(1.10, cnt + n));
+    const next = Math.ceil(b.baseCost * Math.pow(1.05, cnt + n));
     if (total + next > state.cola) break;
     total += next;
     n++;
