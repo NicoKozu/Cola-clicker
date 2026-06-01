@@ -404,6 +404,92 @@
       #buildings-panel { order: 2; max-height: 320px; border-left: none; border-top: 1px solid var(--border); }
       #upgrades-panel  { order: 3; max-height: 300px; border-right: none; border-top: 1px solid var(--border); }
     }
+
+    /* ── Prestige bar ───────────────────────────────────── */
+    #prestige-bar {
+      width: 100%; padding: 4px 20px 2px;
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      flex-shrink: 0;
+    }
+    #prestige-info {
+      display: flex; gap: 14px; align-items: center;
+      font-size: 0.7rem; color: var(--muted);
+    }
+    #prestige-token-count { color: var(--gold); font-weight: 800; }
+    #prestige-bonus { color: #55cc55; font-weight: 700; }
+    #prestige-run { color: var(--muted); }
+
+    .btn-prestige {
+      padding: 8px 24px;
+      background: linear-gradient(135deg, #7a5200, #FFD700, #7a5200);
+      border: 2px solid #FFD700;
+      border-radius: 12px;
+      color: #0a0202; font-weight: 900; font-size: 0.82rem;
+      font-family: 'Righteous', cursive; cursor: pointer;
+      box-shadow: 0 0 18px rgba(255,215,0,0.45);
+      animation: prestigePulse 2s ease-in-out infinite;
+      transition: transform 0.1s;
+    }
+    .btn-prestige:hover { transform: scale(1.04); }
+    @keyframes prestigePulse {
+      0%,100% { box-shadow: 0 0 18px rgba(255,215,0,0.45); }
+      50%      { box-shadow: 0 0 36px rgba(255,215,0,0.85), 0 0 60px rgba(255,215,0,0.3); }
+    }
+
+    /* ── Modal overlay ──────────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 2000;
+      background: rgba(0,0,0,0.82);
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+    .modal-box {
+      background: linear-gradient(160deg, rgba(28,8,8,0.99), rgba(12,3,3,0.99));
+      border: 1px solid rgba(255,215,0,0.4);
+      border-radius: 20px;
+      width: min(600px, 94vw);
+      max-height: 80vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(255,215,0,0.06);
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 22px;
+      border-bottom: 1px solid rgba(255,215,0,0.2);
+    }
+    .modal-title {
+      font-family: 'Righteous', cursive;
+      font-size: 1.1rem; color: var(--gold); letter-spacing: 2px;
+    }
+    .modal-close {
+      background: none; border: 1px solid rgba(220,20,60,0.4);
+      border-radius: 8px; color: var(--muted); padding: 4px 10px;
+      cursor: pointer; font-size: 0.85rem; transition: all 0.14s;
+    }
+    .modal-close:hover { background: rgba(220,20,60,0.2); color: var(--cream); }
+    .modal-body {
+      overflow-y: auto; padding: 16px 22px; flex: 1;
+    }
+    #leaderboard-table {
+      width: 100%; border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    #leaderboard-table th {
+      color: var(--gold); font-family: 'Righteous', cursive;
+      font-size: 0.65rem; letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 8px 10px; text-align: left;
+      border-bottom: 1px solid rgba(255,215,0,0.2);
+    }
+    #leaderboard-table td {
+      padding: 10px 10px; color: var(--text);
+      border-bottom: 1px solid rgba(80,20,20,0.3);
+    }
+    #leaderboard-table tbody tr:first-child td { color: var(--gold); font-weight: 800; }
+    #leaderboard-table tr:hover td { background: rgba(38,8,8,0.5); }
+    #leaderboard-empty {
+      text-align: center; color: var(--muted);
+      font-size: 0.85rem; padding: 32px 0;
+    }
   </style>
 </head>
 <body>
@@ -428,6 +514,7 @@
       <button class="btn-small" id="btn-save">💾 Save</button>
       <button class="btn-small" id="btn-load">📂 Load</button>
       <button class="btn-small" id="btn-reset">🗑 Reset</button>
+      <button class="btn-small" id="btn-leaderboard">🏆 Scores</button>
     </div>
   </div>
 
@@ -443,6 +530,17 @@
       <div id="cola-count">0 🥤</div>
       <div id="cola-label">cola collected</div>
       <div id="cps-display">0 cola/sec</div>
+    </div>
+
+    <div id="prestige-bar">
+      <div id="prestige-info">
+        <span id="prestige-token-count">🔥 0 Fizz Tokens</span>
+        <span id="prestige-bonus">Kein Bonus</span>
+        <span id="prestige-run">Run #1</span>
+      </div>
+      <button id="btn-prestige" class="btn-prestige" style="display:none">
+        ✨ Prestige — +<span id="prestige-earn-preview">0</span> Fizz Token(s)
+      </button>
     </div>
 
     <div id="click-zone">
@@ -535,6 +633,33 @@
 
 </div>
 
+<div id="leaderboard-modal" class="modal-overlay" style="display:none">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">🏆 Beste Prestige-Runs</span>
+      <button id="btn-close-leaderboard" class="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <table id="leaderboard-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Run</th>
+            <th>Zeit</th>
+            <th>Cola verdient</th>
+            <th>Tokens</th>
+            <th>Datum</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-body"></tbody>
+      </table>
+      <div id="leaderboard-empty" style="display:none">
+        Noch keine Prestige-Runs. Erreiche 1 Billion Cola um zu prestigieren!
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="toast-container"></div>
 <div id="milestone-banner">
   <div id="milestone-title"></div>
@@ -545,6 +670,10 @@
 /* ═══════════════════════════════════════════════════════════
    COLA CLICKER — Game Logic
    ═══════════════════════════════════════════════════════════ */
+
+const PRESTIGE_THRESHOLD = 1e12;
+const LEADERBOARD_KEY    = 'cola_clicker_leaderboard';
+const LEADERBOARD_MAX    = 10;
 
 function fmt(n) {
   if (n < 1e3)  return parseFloat(n.toFixed(1)).toString();
@@ -561,7 +690,9 @@ const BUILDINGS = [
   { id:'factory',    name:'Cola Factory',    emoji:'🏭', baseCost:100,   baseCps:0.5,  desc:'A small factory churning out bottles by the crate.' },
   { id:'plantation', name:'Cola Plantation', emoji:'🌿', baseCost:500,   baseCps:2,    desc:'Vast fields of kola nut trees — the secret ingredient.' },
   { id:'bottling',   name:'Bottling Plant',  emoji:'🍾', baseCost:3000,  baseCps:10,   desc:'Automated bottling lines running 24/7.' },
-  { id:'empire',     name:'Cola Empire',     emoji:'👑', baseCost:20000, baseCps:50,   desc:'A global beverage empire. Cola flows like water.' },
+  { id:'empire',     name:'Cola Empire',     emoji:'👑', baseCost:20000,   baseCps:50,   desc:'A global beverage empire. Cola flows like water.' },
+  { id:'lab',        name:'Cola Research Lab',emoji:'🧬', baseCost:150000,  baseCps:250,  desc:'Cutting-edge carbonation science at industrial scale.' },
+  { id:'satellite',  name:'Cola Satellite',   emoji:'🛰️', baseCost:1200000, baseCps:1200, desc:'Beaming cola recipes to every corner of the planet, 24/7.' },
 ];
 
 const UPGRADES = [
@@ -584,7 +715,12 @@ const UPGRADES = [
   { id:'u_secret_formula', name:'Secret Formula',      emoji:'🧪', cost:10000,   desc:'The legendary formula. ALL production ×1.5.',          type:'global',   mult:1.5, unlock:s=>s.totalCola>=1000 },
   { id:'u_caramel_color',  name:'Caramel Color',       emoji:'🍯', cost:80000,   desc:'That perfect brown hue boosts demand. ALL ×1.5.',      type:'global',   mult:1.5, unlock:s=>s.totalCola>=50000 },
   { id:'u_cola_science',   name:'Cola Science',        emoji:'🔭', cost:500000,  desc:'Applied carbonation physics. ALL production ×2.',      type:'global',   mult:2,   unlock:s=>s.totalCola>=500000 },
-  { id:'u_divine_recipe',  name:'Divine Recipe',       emoji:'✨', cost:5000000, desc:'Transcendent cola. ALL production ×3.',                type:'global',   mult:3,   unlock:s=>s.totalCola>=5000000 },
+  { id:'u_divine_recipe',  name:'Divine Recipe',       emoji:'✨', cost:5000000,  desc:'Transcendent cola. ALL production ×3.',               type:'global',   mult:3,   unlock:s=>s.totalCola>=5000000 },
+  { id:'u_quantum_fizz',  name:'Quantum Fizz',         emoji:'⚛️', cost:800000,   desc:'Quantenverschränkte Cola-Moleküle. Labs ×2.',           type:'building', target:'lab',       mult:2, unlock:s=>s.buildings.lab>=1 },
+  { id:'u_orbital_tanks', name:'Orbital Tanks',        emoji:'🛸', cost:5000000,  desc:'Weltraumtanks für maximale Lagerung. Labs ×3.',         type:'building', target:'lab',       mult:3, unlock:s=>s.buildings.lab>=5 },
+  { id:'u_global_signal', name:'Global Signal',        emoji:'📡', cost:8000000,  desc:'Weltweites Broadcast-Netz. Satelliten ×2.',            type:'building', target:'satellite', mult:2, unlock:s=>s.buildings.satellite>=1 },
+  { id:'u_dark_matter',   name:'Dark Matter Cola',     emoji:'🌑', cost:50000000, desc:'Sie trotzt der Physik. ALLE Produktion ×2.',           type:'global',   mult:2,   unlock:s=>s.totalCola>=50000000 },
+  { id:'u_fizz_singular', name:'Fizz Singularity',     emoji:'🌀', cost:500000000,desc:'Das Universum IST Cola. ALLE Produktion ×3.',          type:'global',   mult:3,   unlock:s=>s.totalCola>=500000000 },
 ];
 
 const MILESTONES = [
@@ -600,13 +736,19 @@ const MILESTONES = [
   { id:'m_b1', type:'buildings',val:1,   title:'🛒 First Building',sub:'Bought your first producer!' },
   { id:'m_b2', type:'buildings',val:10,  title:'🏘️ Small Empire',  sub:'10 buildings owned!' },
   { id:'m_b3', type:'buildings',val:50,  title:'🏙️ Cola City',     sub:'50 buildings owned!' },
-  { id:'m_b4', type:'buildings',val:100, title:'🌆 Megalopolis',   sub:'100 buildings! You are unstoppable.' },
+  { id:'m_b4', type:'buildings', val:100, title:'🌆 Megalopolis',       sub:'100 buildings! You are unstoppable.' },
+  { id:'m_b5', type:'buildings', val:200, title:'🌏 Cola Continent',    sub:'200 Gebäude! Absolut unaufhaltsam.' },
+  { id:'m7',   threshold:1e15,            title:'🌌 Cola Quadrillionär', sub:'Eine Billiarde Cola! Unvorstellbar.' },
+  { id:'m_p1', type:'prestige',  val:1,   title:'🔥 Erster Prestige',   sub:'Du hast zum ersten Mal aufgestiegen!' },
+  { id:'m_p5', type:'prestige',  val:5,   title:'🏆 Prestige-Meister',  sub:'Fünf Aufstiege. Du BIST die Cola.' },
 ];
 
 let state = {
   cola:0, totalCola:0, totalClicks:0,
-  buildings:{ vending:0, factory:0, plantation:0, bottling:0, empire:0 },
+  buildings:{ vending:0, factory:0, plantation:0, bottling:0, empire:0, lab:0, satellite:0 },
   upgrades:{}, milestones:{},
+  fizzTokens:0, totalPrestiges:0, runStartTime:Date.now(),
+  lifetimeCola:0, lifetimeClicks:0,
 };
 
 function getBuildingCps(bId) {
@@ -620,7 +762,7 @@ function getBuildingCps(bId) {
   UPGRADES.forEach(u=>{
     if (state.upgrades[u.id] && u.type==='global') mult*=u.mult;
   });
-  return b.baseCps * cnt * mult;
+  return b.baseCps * cnt * mult * getPrestigeMultiplier();
 }
 
 function getTotalCps() {
@@ -630,7 +772,7 @@ function getTotalCps() {
 function getColasPerClick() {
   let cpc = 1;
   UPGRADES.forEach(u=>{ if (state.upgrades[u.id] && u.type==='click') cpc*=u.mult; });
-  return cpc + getTotalCps()*0.1;
+  return (cpc + getTotalCps()*0.1) * getPrestigeMultiplier();
 }
 
 function buildingCost(bId) {
@@ -684,13 +826,17 @@ function doClick(clientX, clientY) {
   updateUI();
 }
 
-// Whole screen is clickable — ignore clicks inside panels
+// Whole screen is clickable — ignore clicks inside panels, prestige bar, or modals
 document.addEventListener('click', e => {
-  if (!e.target.closest('.panel')) doClick(e.clientX, e.clientY);
+  if (!e.target.closest('.panel') &&
+      !e.target.closest('#prestige-bar') &&
+      !e.target.closest('.modal-overlay')) doClick(e.clientX, e.clientY);
 });
 
 document.addEventListener('touchend', e => {
-  if (!e.target.closest('.panel')) {
+  if (!e.target.closest('.panel') &&
+      !e.target.closest('#prestige-bar') &&
+      !e.target.closest('.modal-overlay')) {
     e.preventDefault();
     const t = e.changedTouches[0];
     doClick(t.clientX, t.clientY);
@@ -778,6 +924,8 @@ function updateUI() {
     el.classList.toggle('affordable', state.cola >= u.cost);
     el.classList.toggle('locked', !u.unlock(state));
   });
+
+  updatePrestigeUI();
 }
 
 function renderBuildings() {
@@ -835,9 +983,10 @@ function checkMilestones() {
   MILESTONES.forEach(m=>{
     if (state.milestones[m.id]) return;
     let triggered = false;
-    if (!m.type                       && state.totalCola    >= m.threshold) triggered = true;
-    if (m.type==='clicks'             && state.totalClicks  >= m.val)       triggered = true;
-    if (m.type==='buildings'          && totalBuildingCount()>= m.val)       triggered = true;
+    if (!m.type                       && state.totalCola     >= m.threshold)  triggered = true;
+    if (m.type==='clicks'             && state.totalClicks   >= m.val)        triggered = true;
+    if (m.type==='buildings'          && totalBuildingCount() >= m.val)        triggered = true;
+    if (m.type==='prestige'           && state.totalPrestiges >= m.val)        triggered = true;
     if (triggered) {
       state.milestones[m.id] = true;
       milestoneQueue.push(m);
@@ -889,18 +1038,25 @@ function loadGame() {
     BUILDINGS.forEach(b=>{ state.buildings[b.id] = saved.buildings?.[b.id]||0; });
     UPGRADES.forEach(u=>{ if (saved.upgrades?.[u.id]) state.upgrades[u.id]=true; });
     MILESTONES.forEach(m=>{ if (saved.milestones?.[m.id]) state.milestones[m.id]=true; });
+    state.fizzTokens     = saved.fizzTokens     || 0;
+    state.totalPrestiges = saved.totalPrestiges || 0;
+    state.runStartTime   = saved.runStartTime   || Date.now();
+    state.lifetimeCola   = saved.lifetimeCola   || 0;
+    state.lifetimeClicks = saved.lifetimeClicks || 0;
     showToast('📂 Game loaded!');
     renderBuildings(); renderUpgrades(); updateUI();
   } catch(e) { showToast('⚠️ Load failed.'); }
 }
 
 function resetGame() {
-  if (!confirm('Reset ALL progress? This cannot be undone!')) return;
+  if (!confirm('Reset ALL progress including Fizz Tokens and Prestige? This cannot be undone!')) return;
   localStorage.removeItem(SAVE_KEY);
   state = {
     cola:0, totalCola:0, totalClicks:0,
-    buildings:{vending:0,factory:0,plantation:0,bottling:0,empire:0},
+    buildings:{vending:0,factory:0,plantation:0,bottling:0,empire:0,lab:0,satellite:0},
     upgrades:{}, milestones:{},
+    fizzTokens:0, totalPrestiges:0, runStartTime:Date.now(),
+    lifetimeCola:0, lifetimeClicks:0,
   };
   renderBuildings(); renderUpgrades(); updateUI();
   showToast('🗑 Game reset!');
@@ -929,9 +1085,147 @@ function applyOfflineGains() {
   } catch(e){}
 }
 
+// ── Prestige ──────────────────────────────────────────────
+function getPrestigeMultiplier() {
+  return 1 + state.fizzTokens * 0.02;
+}
+
+function calcFizzTokensEarned() {
+  return Math.floor(state.totalCola / 1e12);
+}
+
+function updatePrestigeUI() {
+  const tokens   = state.fizzTokens;
+  const bonusPct = Math.round((getPrestigeMultiplier() - 1) * 100);
+  const earned   = calcFizzTokensEarned();
+  const eligible = state.totalCola >= PRESTIGE_THRESHOLD;
+
+  document.getElementById('prestige-token-count').textContent =
+    '🔥 ' + tokens + ' Fizz Token' + (tokens !== 1 ? 's' : '');
+  document.getElementById('prestige-bonus').textContent =
+    bonusPct > 0 ? '+' + bonusPct + '% Bonus' : 'Kein Bonus';
+  document.getElementById('prestige-run').textContent =
+    'Run #' + (state.totalPrestiges + 1);
+
+  const btnP = document.getElementById('btn-prestige');
+  btnP.style.display = eligible ? 'block' : 'none';
+  document.getElementById('prestige-earn-preview').textContent = earned;
+}
+
+function doPrestige() {
+  if (state.totalCola < PRESTIGE_THRESHOLD) return;
+  const earned = calcFizzTokensEarned();
+  const newTotal = state.fizzTokens + earned;
+  if (!confirm(
+    'Prestige durchführen?\n\n' +
+    'Du erhältst ' + earned + ' Fizz Token(s).\n' +
+    'Neuer Bonus: +' + Math.round((newTotal * 0.02) * 100) + '% auf alle Produktion.\n\n' +
+    'Cola, Gebäude und Upgrades werden zurückgesetzt.\n' +
+    'Fizz Tokens bleiben dauerhaft erhalten!'
+  )) return;
+
+  const runNumber = state.totalPrestiges + 1;
+  const timeMs    = Date.now() - state.runStartTime;
+
+  recordLeaderboardEntry({
+    runNumber,
+    timeMs,
+    colaAtPrestige:  state.totalCola,
+    tokensEarned:    earned,
+    fizzTokensTotal: newTotal,
+    timestamp:       Date.now(),
+  });
+
+  state = {
+    cola:0, totalCola:0, totalClicks:0,
+    buildings:{vending:0,factory:0,plantation:0,bottling:0,empire:0,lab:0,satellite:0},
+    upgrades:{}, milestones:{},
+    fizzTokens:      newTotal,
+    totalPrestiges:  runNumber,
+    runStartTime:    Date.now(),
+    lifetimeCola:    state.lifetimeCola + state.totalCola,
+    lifetimeClicks:  state.lifetimeClicks + state.totalClicks,
+  };
+
+  autoSave();
+  renderBuildings(); renderUpgrades(); updateUI();
+  checkMilestones();
+  showToast('🔥 Prestige! +' + earned + ' Fizz Token' + (earned !== 1 ? 's' : '') + '! Bonus: +' + Math.round(newTotal * 2) + '%');
+}
+
+// ── Leaderboard ───────────────────────────────────────────
+function fmtTime(ms) {
+  if (ms < 60000)   return Math.floor(ms / 1000) + 's';
+  if (ms < 3600000) return Math.floor(ms / 60000) + 'm ' + Math.floor((ms % 60000) / 1000) + 's';
+  return Math.floor(ms / 3600000) + 'h ' + Math.floor((ms % 3600000) / 60000) + 'm';
+}
+
+function recordLeaderboardEntry(entry) {
+  try {
+    const raw   = localStorage.getItem(LEADERBOARD_KEY);
+    const board = raw ? JSON.parse(raw) : [];
+    board.push(entry);
+    board.sort((a, b) => a.timeMs - b.timeMs);
+    localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(board.slice(0, LEADERBOARD_MAX)));
+  } catch(e) {}
+}
+
+function getLeaderboard() {
+  try {
+    const raw = localStorage.getItem(LEADERBOARD_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) { return []; }
+}
+
+function renderLeaderboard() {
+  const board = getLeaderboard();
+  const tbody = document.getElementById('leaderboard-body');
+  const empty = document.getElementById('leaderboard-empty');
+  const table = document.getElementById('leaderboard-table');
+
+  if (board.length === 0) {
+    table.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+
+  table.style.display = '';
+  empty.style.display = 'none';
+  tbody.innerHTML = '';
+
+  board.forEach((entry, i) => {
+    const date = new Date(entry.timestamp).toLocaleDateString('de-DE');
+    const tr   = document.createElement('tr');
+    tr.innerHTML =
+      '<td>' + (i + 1) + '</td>' +
+      '<td>#' + entry.runNumber + '</td>' +
+      '<td>' + fmtTime(entry.timeMs) + '</td>' +
+      '<td>' + fmt(entry.colaAtPrestige) + ' 🥤</td>' +
+      '<td>+' + entry.tokensEarned + ' (' + entry.fizzTokensTotal + ' gesamt)</td>' +
+      '<td>' + date + '</td>';
+    tbody.appendChild(tr);
+  });
+}
+
 document.getElementById('btn-save').addEventListener('click', saveGame);
 document.getElementById('btn-load').addEventListener('click', loadGame);
 document.getElementById('btn-reset').addEventListener('click', resetGame);
+
+document.getElementById('btn-prestige').addEventListener('click', doPrestige);
+
+document.getElementById('btn-leaderboard').addEventListener('click', () => {
+  renderLeaderboard();
+  document.getElementById('leaderboard-modal').style.display = 'flex';
+});
+
+document.getElementById('btn-close-leaderboard').addEventListener('click', () => {
+  document.getElementById('leaderboard-modal').style.display = 'none';
+});
+
+document.getElementById('leaderboard-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('leaderboard-modal'))
+    document.getElementById('leaderboard-modal').style.display = 'none';
+});
 
 document.addEventListener('keydown', e=>{
   if (e.key==='s' && (e.ctrlKey||e.metaKey)) { e.preventDefault(); saveGame(); }
@@ -950,6 +1244,11 @@ document.addEventListener('keydown', e=>{
       BUILDINGS.forEach(b=>{ state.buildings[b.id] = saved.buildings?.[b.id]||0; });
       UPGRADES.forEach(u=>{ if (saved.upgrades?.[u.id]) state.upgrades[u.id]=true; });
       MILESTONES.forEach(m=>{ if (saved.milestones?.[m.id]) state.milestones[m.id]=true; });
+      state.fizzTokens     = saved.fizzTokens     || 0;
+      state.totalPrestiges = saved.totalPrestiges || 0;
+      state.runStartTime   = saved.runStartTime   || Date.now();
+      state.lifetimeCola   = saved.lifetimeCola   || 0;
+      state.lifetimeClicks = saved.lifetimeClicks || 0;
     }
   } catch(e){}
 
