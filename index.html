@@ -686,66 +686,80 @@ function fmt(n) {
 }
 
 const BUILDINGS = [
-  { id:'vending',    name:'Vending Machine', emoji:'🥤', baseCost:15,    baseCps:0.1,  desc:'A trusty vending machine dispensing cold cola around the clock.' },
-  { id:'factory',    name:'Cola Factory',    emoji:'🏭', baseCost:100,   baseCps:0.5,  desc:'A small factory churning out bottles by the crate.' },
-  { id:'plantation', name:'Cola Plantation', emoji:'🌿', baseCost:500,   baseCps:2,    desc:'Vast fields of kola nut trees — the secret ingredient.' },
-  { id:'bottling',   name:'Bottling Plant',  emoji:'🍾', baseCost:3000,  baseCps:10,   desc:'Automated bottling lines running 24/7.' },
-  { id:'empire',     name:'Cola Empire',     emoji:'👑', baseCost:20000,   baseCps:50,   desc:'A global beverage empire. Cola flows like water.' },
-  { id:'lab',        name:'Cola Research Lab',emoji:'🧬', baseCost:150000,  baseCps:250,  desc:'Cutting-edge carbonation science at industrial scale.' },
-  { id:'satellite',  name:'Cola Satellite',   emoji:'🛰️', baseCost:1200000, baseCps:1200, desc:'Beaming cola recipes to every corner of the planet, 24/7.' },
+  { id:'vending',    name:'Vending Machine',  emoji:'🥤', baseCost:15,        baseCps:0.1,   desc:'A trusty vending machine dispensing cold cola around the clock.' },
+  { id:'factory',    name:'Cola Factory',     emoji:'🏭', baseCost:100,       baseCps:0.5,   desc:'A small factory churning out bottles by the crate.' },
+  { id:'plantation', name:'Cola Plantation',  emoji:'🌿', baseCost:500,       baseCps:2,     desc:'Vast fields of kola nut trees — the secret ingredient.' },
+  { id:'bottling',   name:'Bottling Plant',   emoji:'🍾', baseCost:3000,      baseCps:10,    desc:'Automated bottling lines running 24/7.' },
+  { id:'empire',     name:'Cola Empire',      emoji:'👑', baseCost:20000,     baseCps:50,    desc:'A global beverage empire. Cola flows like water.' },
+  { id:'lab',        name:'Cola Research Lab',emoji:'🧬', baseCost:150000,    baseCps:250,   desc:'Cutting-edge carbonation science at industrial scale.' },
+  { id:'satellite',  name:'Cola Satellite',   emoji:'🛰️', baseCost:1200000,   baseCps:1200,  desc:'Beaming cola recipes to every corner of the planet, 24/7.' },
+  { id:'dimension',  name:'Cola Dimension',   emoji:'🌀', baseCost:10000000,  baseCps:6500,  desc:'A parallel dimension entirely filled with cola. Laws of physics: optional.' },
+  { id:'multiverse', name:'Cola Multiverse',  emoji:'🌌', baseCost:100000000, baseCps:32000, desc:'Infinite universes, infinite cola. Production beyond comprehension.' },
 ];
 
 const UPGRADES = [
-  { id:'u_better_recipe',  name:'Better Recipe',    emoji:'📋', cost:50,      desc:'A secret tweak — double the cola per click.',          type:'click',    mult:2, unlock:s=>s.totalClicks>=10 },
-  { id:'u_power_grip',     name:'Power Grip',        emoji:'💪', cost:500,     desc:'Squeeze harder! ×2 cola per click.',                   type:'click',    mult:2, unlock:s=>s.totalClicks>=100 },
-  { id:'u_diamond_fingers',name:'Diamond Fingers',   emoji:'💎', cost:5000,    desc:'Your clicks are legendary. ×3 cola per click.',        type:'click',    mult:3, unlock:s=>s.totalClicks>=500 },
-  { id:'u_turbo_click',    name:'Turbo Click',       emoji:'⚡', cost:50000,   desc:'Supersonic clicking power. ×5 cola per click.',        type:'click',    mult:5, unlock:s=>s.totalClicks>=2000 },
-  { id:'u_fizz_boost',     name:'Fizz Boost',        emoji:'🫧', cost:100,     desc:'Carbonation overload! Vending machines ×2.',           type:'building', target:'vending',    mult:2, unlock:s=>s.buildings.vending>=1 },
-  { id:'u_ice_cold',       name:'Ice Cold',           emoji:'🧊', cost:800,     desc:'Extra-chilled cola sells itself. Vending machines ×2.',type:'building', target:'vending',    mult:2, unlock:s=>s.buildings.vending>=5 },
-  { id:'u_vending_pro',    name:'Vending Pro',        emoji:'🤖', cost:6000,    desc:'AI-powered vending machines. ×3 output.',              type:'building', target:'vending',    mult:3, unlock:s=>s.buildings.vending>=15 },
-  { id:'u_assembly_line',  name:'Assembly Line',      emoji:'⚙️', cost:800,     desc:'Faster conveyor belts! Cola factories ×2.',            type:'building', target:'factory',    mult:2, unlock:s=>s.buildings.factory>=1 },
-  { id:'u_quality_control',name:'Quality Control',    emoji:'🔬', cost:5000,    desc:'Zero waste, more cola. Factories ×2.',                 type:'building', target:'factory',    mult:2, unlock:s=>s.buildings.factory>=5 },
-  { id:'u_mega_factory',   name:'Mega Factory',       emoji:'🏗️', cost:40000,   desc:'A factory visible from orbit. ×3.',                    type:'building', target:'factory',    mult:3, unlock:s=>s.buildings.factory>=15 },
-  { id:'u_fertilizer',     name:'Secret Fertilizer',  emoji:'🌱', cost:4000,    desc:'Proprietary soil blend doubles kola yield. ×2.',       type:'building', target:'plantation', mult:2, unlock:s=>s.buildings.plantation>=1 },
-  { id:'u_irrigation',     name:'Smart Irrigation',   emoji:'💧', cost:25000,   desc:'Precision watering for peak kola production. ×2.',     type:'building', target:'plantation', mult:2, unlock:s=>s.buildings.plantation>=5 },
-  { id:'u_speed_caps',     name:'Speed Cappers',       emoji:'🔩', cost:25000,   desc:'Faster capping machines. Bottling plants ×2.',         type:'building', target:'bottling',   mult:2, unlock:s=>s.buildings.bottling>=1 },
-  { id:'u_glass_tech',     name:'Glass Tech',          emoji:'🔭', cost:150000,  desc:'Lighter, stronger bottles. Bottling plants ×3.',       type:'building', target:'bottling',   mult:3, unlock:s=>s.buildings.bottling>=5 },
-  { id:'u_global_brand',   name:'Global Brand',        emoji:'🌍', cost:200000,  desc:'Everyone recognizes the Cola Empire. ×2.',             type:'building', target:'empire',     mult:2, unlock:s=>s.buildings.empire>=1 },
-  { id:'u_monopoly',       name:'Cola Monopoly',       emoji:'♟️', cost:1500000, desc:'You OWN cola. Empire production ×3.',                  type:'building', target:'empire',     mult:3, unlock:s=>s.buildings.empire>=5 },
-  { id:'u_secret_formula', name:'Secret Formula',      emoji:'🧪', cost:10000,   desc:'The legendary formula. ALL production ×1.5.',          type:'global',   mult:1.5, unlock:s=>s.totalCola>=1000 },
-  { id:'u_caramel_color',  name:'Caramel Color',       emoji:'🍯', cost:80000,   desc:'That perfect brown hue boosts demand. ALL ×1.5.',      type:'global',   mult:1.5, unlock:s=>s.totalCola>=50000 },
-  { id:'u_cola_science',   name:'Cola Science',        emoji:'🔭', cost:500000,  desc:'Applied carbonation physics. ALL production ×2.',      type:'global',   mult:2,   unlock:s=>s.totalCola>=500000 },
-  { id:'u_divine_recipe',  name:'Divine Recipe',       emoji:'✨', cost:5000000,  desc:'Transcendent cola. ALL production ×3.',               type:'global',   mult:3,   unlock:s=>s.totalCola>=5000000 },
-  { id:'u_quantum_fizz',  name:'Quantum Fizz',         emoji:'⚛️', cost:800000,   desc:'Quantenverschränkte Cola-Moleküle. Labs ×2.',           type:'building', target:'lab',       mult:2, unlock:s=>s.buildings.lab>=1 },
-  { id:'u_orbital_tanks', name:'Orbital Tanks',        emoji:'🛸', cost:5000000,  desc:'Weltraumtanks für maximale Lagerung. Labs ×3.',         type:'building', target:'lab',       mult:3, unlock:s=>s.buildings.lab>=5 },
-  { id:'u_global_signal', name:'Global Signal',        emoji:'📡', cost:8000000,  desc:'Weltweites Broadcast-Netz. Satelliten ×2.',            type:'building', target:'satellite', mult:2, unlock:s=>s.buildings.satellite>=1 },
-  { id:'u_dark_matter',   name:'Dark Matter Cola',     emoji:'🌑', cost:50000000, desc:'Sie trotzt der Physik. ALLE Produktion ×2.',           type:'global',   mult:2,   unlock:s=>s.totalCola>=50000000 },
-  { id:'u_fizz_singular', name:'Fizz Singularity',     emoji:'🌀', cost:500000000,desc:'Das Universum IST Cola. ALLE Produktion ×3.',          type:'global',   mult:3,   unlock:s=>s.totalCola>=500000000 },
+  { id:'u_better_recipe',  name:'Better Recipe',    emoji:'📋', cost:50,           desc:'A secret tweak — double the cola per click.',            type:'click',    mult:2,   unlock:s=>s.totalClicks>=10 },
+  { id:'u_power_grip',     name:'Power Grip',        emoji:'💪', cost:500,          desc:'Squeeze harder! ×2 cola per click.',                     type:'click',    mult:2,   unlock:s=>s.totalClicks>=100 },
+  { id:'u_diamond_fingers',name:'Diamond Fingers',   emoji:'💎', cost:5000,         desc:'Your clicks are legendary. ×3 cola per click.',          type:'click',    mult:3,   unlock:s=>s.totalClicks>=500 },
+  { id:'u_turbo_click',    name:'Turbo Click',       emoji:'⚡', cost:50000,        desc:'Supersonic clicking power. ×5 cola per click.',          type:'click',    mult:5,   unlock:s=>s.totalClicks>=2000 },
+  { id:'u_fizz_boost',     name:'Fizz Boost',        emoji:'🫧', cost:100,          desc:'Carbonation overload! Vending machines ×2.',             type:'building', target:'vending',    mult:2, unlock:s=>s.buildings.vending>=1 },
+  { id:'u_ice_cold',       name:'Ice Cold',           emoji:'🧊', cost:800,          desc:'Extra-chilled cola sells itself. Vending machines ×2.',  type:'building', target:'vending',    mult:2, unlock:s=>s.buildings.vending>=5 },
+  { id:'u_vending_pro',    name:'Vending Pro',        emoji:'🤖', cost:6000,         desc:'AI-powered vending machines. ×3 output.',               type:'building', target:'vending',    mult:3, unlock:s=>s.buildings.vending>=15 },
+  { id:'u_assembly_line',  name:'Assembly Line',      emoji:'⚙️', cost:800,          desc:'Faster conveyor belts! Cola factories ×2.',              type:'building', target:'factory',    mult:2, unlock:s=>s.buildings.factory>=1 },
+  { id:'u_quality_control',name:'Quality Control',    emoji:'🔬', cost:5000,         desc:'Zero waste, more cola. Factories ×2.',                   type:'building', target:'factory',    mult:2, unlock:s=>s.buildings.factory>=5 },
+  { id:'u_mega_factory',   name:'Mega Factory',       emoji:'🏗️', cost:40000,        desc:'A factory visible from orbit. ×3.',                      type:'building', target:'factory',    mult:3, unlock:s=>s.buildings.factory>=15 },
+  { id:'u_fertilizer',     name:'Secret Fertilizer',  emoji:'🌱', cost:4000,         desc:'Proprietary soil blend doubles kola yield. ×2.',         type:'building', target:'plantation', mult:2, unlock:s=>s.buildings.plantation>=1 },
+  { id:'u_irrigation',     name:'Smart Irrigation',   emoji:'💧', cost:25000,        desc:'Precision watering for peak kola production. ×2.',       type:'building', target:'plantation', mult:2, unlock:s=>s.buildings.plantation>=5 },
+  { id:'u_speed_caps',     name:'Speed Cappers',       emoji:'🔩', cost:25000,        desc:'Faster capping machines. Bottling plants ×2.',           type:'building', target:'bottling',   mult:2, unlock:s=>s.buildings.bottling>=1 },
+  { id:'u_glass_tech',     name:'Glass Tech',          emoji:'🔭', cost:150000,       desc:'Lighter, stronger bottles. Bottling plants ×3.',         type:'building', target:'bottling',   mult:3, unlock:s=>s.buildings.bottling>=5 },
+  { id:'u_global_brand',   name:'Global Brand',        emoji:'🌍', cost:200000,       desc:'Everyone recognizes the Cola Empire. ×2.',               type:'building', target:'empire',     mult:2, unlock:s=>s.buildings.empire>=1 },
+  { id:'u_monopoly',       name:'Cola Monopoly',       emoji:'♟️', cost:1500000,      desc:'You OWN cola. Empire production ×3.',                    type:'building', target:'empire',     mult:3, unlock:s=>s.buildings.empire>=5 },
+  { id:'u_secret_formula', name:'Secret Formula',      emoji:'🧪', cost:10000,        desc:'The legendary formula. ALL production ×1.5.',            type:'global',   mult:1.5, unlock:s=>s.totalCola>=1000 },
+  { id:'u_caramel_color',  name:'Caramel Color',       emoji:'🍯', cost:80000,        desc:'That perfect brown hue boosts demand. ALL ×1.5.',        type:'global',   mult:1.5, unlock:s=>s.totalCola>=50000 },
+  { id:'u_cola_science',   name:'Cola Science',        emoji:'🔭', cost:500000,       desc:'Applied carbonation physics. ALL production ×2.',        type:'global',   mult:2,   unlock:s=>s.totalCola>=500000 },
+  { id:'u_divine_recipe',  name:'Divine Recipe',       emoji:'✨', cost:5000000,      desc:'Transcendent cola. ALL production ×3.',                  type:'global',   mult:3,   unlock:s=>s.totalCola>=5000000 },
+  { id:'u_quantum_fizz',   name:'Quantum Fizz',        emoji:'⚛️', cost:800000,       desc:'Quantenverschränkte Cola-Moleküle. Labs ×2.',            type:'building', target:'lab',       mult:2, unlock:s=>s.buildings.lab>=1 },
+  { id:'u_orbital_tanks',  name:'Orbital Tanks',       emoji:'🛸', cost:5000000,      desc:'Weltraumtanks für maximale Lagerung. Labs ×3.',          type:'building', target:'lab',       mult:3, unlock:s=>s.buildings.lab>=5 },
+  { id:'u_global_signal',  name:'Global Signal',       emoji:'📡', cost:8000000,      desc:'Weltweites Broadcast-Netz. Satelliten ×2.',              type:'building', target:'satellite', mult:2, unlock:s=>s.buildings.satellite>=1 },
+  { id:'u_dark_matter',    name:'Dark Matter Cola',    emoji:'🌑', cost:50000000,     desc:'Sie trotzt der Physik. ALLE Produktion ×2.',             type:'global',   mult:2,   unlock:s=>s.totalCola>=50000000 },
+  { id:'u_fizz_singular',  name:'Fizz Singularity',    emoji:'🌀', cost:500000000,    desc:'Das Universum IST Cola. ALLE Produktion ×3.',            type:'global',   mult:3,   unlock:s=>s.totalCola>=500000000 },
+  { id:'u_vending_net',    name:'Vending Network',     emoji:'🕸️', cost:6000000,      desc:'Vernetzte Automaten im Turbo. Vending ×2.',              type:'building', target:'vending',   mult:2, unlock:s=>s.buildings.vending>=50 },
+  { id:'u_factory_grid',   name:'Factory Megagrid',    emoji:'⚡', cost:60000000,     desc:'Superleitende Fabriknetze. Factories ×2.',               type:'building', target:'factory',   mult:2, unlock:s=>s.buildings.factory>=50 },
+  { id:'u_plant_super',    name:'Superplantage',       emoji:'🌳', cost:300000000,    desc:'Genetisch perfekte Kolanüsse. Plantations ×2.',          type:'building', target:'plantation',mult:2, unlock:s=>s.buildings.plantation>=50 },
+  { id:'u_lab_expand',     name:'Lab-Expansion',       emoji:'🔬', cost:500000000,    desc:'Weltweit vernetzte Forschungslabore. Labs ×2.',          type:'building', target:'lab',       mult:2, unlock:s=>s.buildings.lab>=25 },
+  { id:'u_sat_constellat', name:'Sat-Konstellation',   emoji:'🛰️', cost:3000000000,   desc:'Globales Satellitennetz für Echtzeit-Cola. Sat. ×2.',    type:'building', target:'satellite', mult:2, unlock:s=>s.buildings.satellite>=20 },
+  { id:'u_dim_rift',       name:'Dimensions-Riss',     emoji:'🌀', cost:25000000,     desc:'Riss in die Cola-Dimension. Dimensions ×2.',             type:'building', target:'dimension', mult:2, unlock:s=>s.buildings.dimension>=1 },
+  { id:'u_dim_storm',      name:'Dimensionssturm',     emoji:'🌪️', cost:250000000,    desc:'Cola-Sturm aus parallelen Welten. Dimensions ×3.',       type:'building', target:'dimension', mult:3, unlock:s=>s.buildings.dimension>=5 },
+  { id:'u_multi_link',     name:'Multiversum-Link',    emoji:'🌌', cost:300000000,    desc:'Verbindung zu unendlichen Welten. Multiverse ×2.',       type:'building', target:'multiverse',mult:2, unlock:s=>s.buildings.multiverse>=1 },
+  { id:'u_multi_cascade',  name:'Multiversum-Kaskade', emoji:'💫', cost:3000000000,   desc:'Cola aus tausend Universen gleichzeitig. Multiverse ×3.',type:'building', target:'multiverse',mult:3, unlock:s=>s.buildings.multiverse>=5 },
+  { id:'u_cola_ferment',   name:'Cola-Fermentierung',  emoji:'🫙', cost:800000000,    desc:'Quantenfermentierung verdoppelt alles. ALLE ×2.',        type:'global',   mult:2,   unlock:s=>s.totalCola>=1e9 },
+  { id:'u_cosmic_cola',    name:'Cosmic Cola',         emoji:'🌠', cost:8000000000,   desc:'Kosmische Energie speist die Produktion. ALLE ×3.',      type:'global',   mult:3,   unlock:s=>s.totalCola>=1e10 },
+  { id:'u_cola_infinity',  name:'Cola-Infinity-Engine',emoji:'♾️', cost:80000000000,  desc:'Unendlicher Cola-Strom. ALLE Produktion ×5.',            type:'global',   mult:5,   unlock:s=>s.totalCola>=1e11 },
 ];
 
 const MILESTONES = [
-  { id:'m1',   threshold:100,   title:'🥤 First Sip!',         sub:'You collected 100 cola!' },
-  { id:'m2',   threshold:1000,  title:'🎉 Cola Enthusiast',    sub:'Reached 1,000 cola!' },
-  { id:'m3',   threshold:10000, title:'🏭 Cola Industrialist', sub:'10,000 cola produced!' },
-  { id:'m4',   threshold:1e6,   title:'💰 Cola Millionaire',   sub:'A million cola!' },
-  { id:'m5',   threshold:1e9,   title:'🌍 Cola Billionaire',   sub:'One BILLION cola!' },
-  { id:'m6',   threshold:1e12,  title:'🚀 Cola Trillionaire',  sub:'A trillion cola! Unreal.' },
-  { id:'m_c1', type:'clicks',   val:100,   title:'👆 Click Happy',   sub:'100 total clicks!' },
-  { id:'m_c2', type:'clicks',   val:1000,  title:'🤜 Click Warrior', sub:'1,000 clicks! Impressive.' },
-  { id:'m_c3', type:'clicks',   val:10000, title:'⚡ Click Legend',  sub:'10,000 clicks! Your finger is a weapon.' },
-  { id:'m_b1', type:'buildings',val:1,   title:'🛒 First Building',sub:'Bought your first producer!' },
-  { id:'m_b2', type:'buildings',val:10,  title:'🏘️ Small Empire',  sub:'10 buildings owned!' },
-  { id:'m_b3', type:'buildings',val:50,  title:'🏙️ Cola City',     sub:'50 buildings owned!' },
-  { id:'m_b4', type:'buildings', val:100, title:'🌆 Megalopolis',       sub:'100 buildings! You are unstoppable.' },
-  { id:'m_b5', type:'buildings', val:200, title:'🌏 Cola Continent',    sub:'200 Gebäude! Absolut unaufhaltsam.' },
+  { id:'m1',   threshold:100,   title:'🥤 First Sip!',          sub:'You collected 100 cola!' },
+  { id:'m2',   threshold:1000,  title:'🎉 Cola Enthusiast',     sub:'Reached 1,000 cola!' },
+  { id:'m3',   threshold:10000, title:'🏭 Cola Industrialist',  sub:'10,000 cola produced!' },
+  { id:'m4',   threshold:1e6,   title:'💰 Cola Millionaire',    sub:'A million cola!' },
+  { id:'m5',   threshold:1e9,   title:'🌍 Cola Billionaire',    sub:'One BILLION cola!' },
+  { id:'m6',   threshold:1e12,  title:'🚀 Cola Trillionaire',   sub:'A trillion cola! Unreal.' },
+  { id:'m_c1', type:'clicks',   val:100,   title:'👆 Click Happy',    sub:'100 total clicks!' },
+  { id:'m_c2', type:'clicks',   val:1000,  title:'🤜 Click Warrior',  sub:'1,000 clicks! Impressive.' },
+  { id:'m_c3', type:'clicks',   val:10000, title:'⚡ Click Legend',   sub:'10,000 clicks! Your finger is a weapon.' },
+  { id:'m_b1', type:'buildings',val:1,   title:'🛒 First Building', sub:'Bought your first producer!' },
+  { id:'m_b2', type:'buildings',val:10,  title:'🏘️ Small Empire',   sub:'10 buildings owned!' },
+  { id:'m_b3', type:'buildings',val:50,  title:'🏙️ Cola City',      sub:'50 buildings owned!' },
+  { id:'m_b4', type:'buildings',val:100, title:'🌆 Megalopolis',    sub:'100 buildings! You are unstoppable.' },
+  { id:'m_b5', type:'buildings',val:200, title:'🌏 Cola Continent',  sub:'200 Gebäude! Absolut unaufhaltsam.' },
   { id:'m7',   threshold:1e15,            title:'🌌 Cola Quadrillionär', sub:'Eine Billiarde Cola! Unvorstellbar.' },
-  { id:'m_p1', type:'prestige',  val:1,   title:'🔥 Erster Prestige',   sub:'Du hast zum ersten Mal aufgestiegen!' },
-  { id:'m_p5', type:'prestige',  val:5,   title:'🏆 Prestige-Meister',  sub:'Fünf Aufstiege. Du BIST die Cola.' },
+  { id:'m_p1', type:'prestige', val:1,   title:'🔥 Erster Prestige',  sub:'Du hast zum ersten Mal aufgestiegen!' },
+  { id:'m_p5', type:'prestige', val:5,   title:'🏆 Prestige-Meister', sub:'Fünf Aufstiege. Du BIST die Cola.' },
 ];
 
 let state = {
   cola:0, totalCola:0, totalClicks:0,
-  buildings:{ vending:0, factory:0, plantation:0, bottling:0, empire:0, lab:0, satellite:0 },
+  buildings:{ vending:0, factory:0, plantation:0, bottling:0, empire:0, lab:0, satellite:0, dimension:0, multiverse:0 },
   upgrades:{}, milestones:{},
   fizzTokens:0, totalPrestiges:0, runStartTime:Date.now(),
   lifetimeCola:0, lifetimeClicks:0,
@@ -810,7 +824,6 @@ const clickZone = document.getElementById('click-zone');
 
 let pressTimer = null;
 function doClick(clientX, clientY) {
-  // Animate the can regardless of where on screen the click happened
   colaBtn.classList.add('pressed');
   clearTimeout(pressTimer);
   pressTimer = setTimeout(() => colaBtn.classList.remove('pressed'), 110);
@@ -983,10 +996,10 @@ function checkMilestones() {
   MILESTONES.forEach(m=>{
     if (state.milestones[m.id]) return;
     let triggered = false;
-    if (!m.type                       && state.totalCola     >= m.threshold)  triggered = true;
-    if (m.type==='clicks'             && state.totalClicks   >= m.val)        triggered = true;
-    if (m.type==='buildings'          && totalBuildingCount() >= m.val)        triggered = true;
-    if (m.type==='prestige'           && state.totalPrestiges >= m.val)        triggered = true;
+    if (!m.type              && state.totalCola      >= m.threshold) triggered = true;
+    if (m.type==='clicks'   && state.totalClicks    >= m.val)       triggered = true;
+    if (m.type==='buildings'&& totalBuildingCount() >= m.val)       triggered = true;
+    if (m.type==='prestige' && state.totalPrestiges >= m.val)       triggered = true;
     if (triggered) {
       state.milestones[m.id] = true;
       milestoneQueue.push(m);
@@ -1053,7 +1066,7 @@ function resetGame() {
   localStorage.removeItem(SAVE_KEY);
   state = {
     cola:0, totalCola:0, totalClicks:0,
-    buildings:{vending:0,factory:0,plantation:0,bottling:0,empire:0,lab:0,satellite:0},
+    buildings:{vending:0,factory:0,plantation:0,bottling:0,empire:0,lab:0,satellite:0,dimension:0,multiverse:0},
     upgrades:{}, milestones:{},
     fizzTokens:0, totalPrestiges:0, runStartTime:Date.now(),
     lifetimeCola:0, lifetimeClicks:0,
@@ -1138,7 +1151,7 @@ function doPrestige() {
 
   state = {
     cola:0, totalCola:0, totalClicks:0,
-    buildings:{vending:0,factory:0,plantation:0,bottling:0,empire:0,lab:0,satellite:0},
+    buildings:{vending:0,factory:0,plantation:0,bottling:0,empire:0,lab:0,satellite:0,dimension:0,multiverse:0},
     upgrades:{}, milestones:{},
     fizzTokens:      newTotal,
     totalPrestiges:  runNumber,
