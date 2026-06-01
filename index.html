@@ -198,7 +198,7 @@
     .panel:hover .can-wrap { /* intentionally empty — don't glow on panel hover */ }
 
     /* Cursor overrides inside panels so interactive items still look clickable */
-    .building-card:not(.locked), .upgrade-card:not(.locked):not(.bought), .btn-small { cursor: pointer; }
+    .building-card:not(.locked), .btn-small { cursor: pointer; }
 
     .can-text { fill: var(--cream); font-family: 'Georgia', serif; font-weight: 900; }
     .can-wave { fill: none; stroke: var(--cream); stroke-width: 1.5; opacity: 0.65; }
@@ -271,33 +271,6 @@
       50%      { filter: drop-shadow(0 10px 45px rgba(220,20,60,0.9)) drop-shadow(0 0 55px rgba(255,215,0,0.28)) drop-shadow(0 3px 10px rgba(0,0,0,0.7)); }
     }
     .can-glow { animation: canPulse 2s ease-in-out infinite; }
-
-    /* ── Upgrade cards ──────────────────────────────────── */
-    .upgrade-card {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 14px;
-      border-bottom: 1px solid rgba(45,10,10,0.7);
-      cursor: pointer; transition: background 0.12s;
-      border-left: 3px solid transparent;
-    }
-    .upgrade-card:hover:not(.locked):not(.bought) { background: rgba(38,8,8,0.75); }
-    .upgrade-card.affordable { border-left-color: #1a8c1a; }
-    .upgrade-card.bought  { opacity: 0.28; cursor: default; pointer-events: none; }
-    .upgrade-card.locked  { opacity: 0.27; cursor: not-allowed; }
-
-    .upgrade-icon {
-      width: 40px; height: 40px; border-radius: 10px;
-      background: linear-gradient(135deg, rgba(88,10,20,0.9), rgba(48,4,10,0.96));
-      border: 1px solid rgba(130,25,35,0.5);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem; flex-shrink: 0;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
-    }
-    .upgrade-info { flex: 1; min-width: 0; }
-    .upgrade-name { font-size: 0.82rem; font-weight: 800; color: var(--cream); }
-    .upgrade-desc { font-size: 0.67rem; color: var(--muted); margin-top: 2px; line-height: 1.4; }
-    .upgrade-cost { font-size: 0.74rem; font-weight: 700; color: var(--gold); margin-top: 3px; }
-    .upgrade-card.affordable .upgrade-cost { color: #55cc55; }
 
     /* ── Building cards ─────────────────────────────────── */
     .building-card {
@@ -490,6 +463,34 @@
       text-align: center; color: var(--muted);
       font-size: 0.85rem; padding: 32px 0;
     }
+
+    .special-upgrade-card {
+      display: flex; align-items: center; gap: 14px;
+      padding: 18px 16px; margin: 12px 10px;
+      background: rgba(30,8,8,0.8);
+      border: 1px solid var(--border); border-radius: 12px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s, transform 0.1s;
+    }
+    .special-upgrade-card:hover {
+      border-color: var(--border-h); background: rgba(50,12,12,0.9);
+    }
+    .special-upgrade-card.affordable {
+      border-color: rgba(220,20,60,0.55);
+    }
+    .special-upgrade-card.affordable:hover {
+      border-color: var(--gold); transform: translateY(-1px);
+    }
+    .su-icon { font-size: 2.2rem; flex-shrink: 0; }
+    .su-body { flex: 1; }
+    .su-name {
+      font-family: 'Righteous', cursive;
+      font-size: 0.95rem; color: var(--gold); letter-spacing: 1px;
+    }
+    .su-level { font-size: 0.82rem; color: var(--cream); margin-top: 3px; }
+    .su-desc  { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+    .su-cost  { font-size: 0.85rem; font-weight: 700; color: var(--red-l); margin-top: 6px; }
+    .special-upgrade-card.affordable .su-cost { color: var(--gold); }
   </style>
 </head>
 <body>
@@ -683,80 +684,23 @@ function fmt(n) {
 }
 
 const BUILDINGS = [
-  { id:'vending',    name:'Vending Machine', emoji:'🥤', baseCost:15,    baseCps:0.1,  desc:'A trusty vending machine dispensing cold cola around the clock.' },
-  { id:'factory',    name:'Cola Factory',    emoji:'🏭', baseCost:100,   baseCps:0.5,  desc:'A small factory churning out bottles by the crate.' },
-  { id:'plantation', name:'Cola Plantation', emoji:'🌿', baseCost:500,   baseCps:2,    desc:'Vast fields of kola nut trees — the secret ingredient.' },
-  { id:'bottling',   name:'Bottling Plant',  emoji:'🍾', baseCost:3000,  baseCps:10,   desc:'Automated bottling lines running 24/7.' },
-  { id:'empire',     name:'Cola Empire',     emoji:'👑', baseCost:20000,   baseCps:50,   desc:'A global beverage empire. Cola flows like water.' },
-  { id:'lab',        name:'Cola Research Lab',emoji:'🧬', baseCost:150000,  baseCps:250,  desc:'Cutting-edge carbonation science at industrial scale.' },
-  { id:'satellite',  name:'Cola Satellite',   emoji:'🛰️', baseCost:1200000, baseCps:1200, desc:'Beaming cola recipes to every corner of the planet, 24/7.' },
-];
-
-const UPGRADES = [
-  // ── Click upgrades ────────────────────────────────────────
-  { id:'u_better_recipe',   name:'Carbonation Secret',    emoji:'📋', cost:50,         desc:'A secret tweak — double the cola per click.',             type:'click', mult:2,  unlock:s=>s.totalClicks>=10 },
-  { id:'u_power_grip',      name:'Iron Grip',              emoji:'💪', cost:500,        desc:'Squeeze harder! ×2 cola per click.',                      type:'click', mult:2,  unlock:s=>s.totalClicks>=100 },
-  { id:'u_diamond_fingers', name:'Crystal Fingers',        emoji:'💎', cost:5000,       desc:'Your clicks are legendary. ×3 cola per click.',           type:'click', mult:3,  unlock:s=>s.totalClicks>=500 },
-  { id:'u_turbo_click',     name:'Turbo Click',            emoji:'⚡', cost:50000,      desc:'Supersonic clicking power. ×5 cola per click.',           type:'click', mult:5,  unlock:s=>s.totalClicks>=2000 },
-  { id:'u_plasma_punch',    name:'Plasma Punch',           emoji:'🔥', cost:500000,     desc:'Supercharged tap energy. ×3 cola per click.',             type:'click', mult:3,  unlock:s=>s.totalClicks>=10000 },
-  { id:'u_quantum_tap',     name:'Quantum Tap',            emoji:'🌊', cost:5000000,    desc:'Tap across dimensions. ×5 cola per click.',               type:'click', mult:5,  unlock:s=>s.totalClicks>=50000 },
-  { id:'u_cosmic_strike',   name:'Cosmic Strike',          emoji:'🌠', cost:500000000,  desc:'The force of a supernova in each click. ×8.',             type:'click', mult:8,  unlock:s=>s.totalClicks>=200000 },
-  { id:'u_divine_touch',    name:'Divine Touch',           emoji:'✨', cost:5e10,       desc:'Reality bends to your will. ×10 cola per click.',         type:'click', mult:10, unlock:s=>s.totalClicks>=1000000 },
-
-  // ── Vending Machine upgrades ──────────────────────────────
-  { id:'u_fizz_boost',      name:'Carbonation Boost',      emoji:'🫧', cost:100,        desc:'Carbonation overload! Vending machines ×2.',              type:'building', target:'vending', mult:2, unlock:s=>s.buildings.vending>=1 },
-  { id:'u_ice_cold',        name:'Cryo Cola',               emoji:'🧊', cost:800,        desc:'Extra-chilled cola sells itself. Vending machines ×2.',  type:'building', target:'vending', mult:2, unlock:s=>s.buildings.vending>=5 },
-  { id:'u_vending_pro',     name:'Vending Supremacy',       emoji:'🤖', cost:6000,       desc:'AI-powered vending machines. ×3 output.',                type:'building', target:'vending', mult:3, unlock:s=>s.buildings.vending>=15 },
-  { id:'u_vending_hyper',   name:'Vending Matrix',          emoji:'🕹️', cost:50000000,   desc:'Quantum-entangled dispensing network. ×5.',               type:'building', target:'vending', mult:5, unlock:s=>s.buildings.vending>=25 },
-
-  // ── Cola Factory upgrades ─────────────────────────────────
-  { id:'u_assembly_line',   name:'Assembly Line',           emoji:'⚙️', cost:800,        desc:'Faster conveyor belts! Cola factories ×2.',              type:'building', target:'factory', mult:2, unlock:s=>s.buildings.factory>=1 },
-  { id:'u_quality_control', name:'Quality Control',         emoji:'🔬', cost:5000,       desc:'Zero waste, more cola. Factories ×2.',                   type:'building', target:'factory', mult:2, unlock:s=>s.buildings.factory>=5 },
-  { id:'u_mega_factory',    name:'Mega Factory',            emoji:'🏗️', cost:40000,      desc:'A factory visible from orbit. ×3.',                      type:'building', target:'factory', mult:3, unlock:s=>s.buildings.factory>=15 },
-  { id:'u_factory_hyper',   name:'Hyper Production',        emoji:'🌋', cost:250000000,  desc:'Volcanic output at industrial scale. ×5.',               type:'building', target:'factory', mult:5, unlock:s=>s.buildings.factory>=25 },
-
-  // ── Cola Plantation upgrades ──────────────────────────────
-  { id:'u_fertilizer',      name:'Secret Fertilizer',       emoji:'🌱', cost:4000,       desc:'Proprietary soil blend doubles kola yield. ×2.',         type:'building', target:'plantation', mult:2, unlock:s=>s.buildings.plantation>=1 },
-  { id:'u_irrigation',      name:'Smart Irrigation',        emoji:'💧', cost:25000,      desc:'Precision watering for peak kola production. ×2.',       type:'building', target:'plantation', mult:2, unlock:s=>s.buildings.plantation>=5 },
-  { id:'u_plant_hyper',     name:'BioEngineered Kola',      emoji:'🧫', cost:1000000000, desc:'Genetically perfect kola trees. Plantations ×5.',        type:'building', target:'plantation', mult:5, unlock:s=>s.buildings.plantation>=25 },
-
-  // ── Bottling Plant upgrades ───────────────────────────────
-  { id:'u_speed_caps',      name:'Speed Cappers',           emoji:'🔩', cost:25000,      desc:'Faster capping machines. Bottling plants ×2.',           type:'building', target:'bottling', mult:2, unlock:s=>s.buildings.bottling>=1 },
-  { id:'u_glass_tech',      name:'Glass Tech',              emoji:'🔭', cost:150000,     desc:'Lighter, stronger bottles. Bottling plants ×3.',         type:'building', target:'bottling', mult:3, unlock:s=>s.buildings.bottling>=5 },
-  { id:'u_bottling_hyper',  name:'Nano Bottling',           emoji:'⚗️', cost:5000000000, desc:'Molecular-level precision capping. ×5.',                 type:'building', target:'bottling', mult:5, unlock:s=>s.buildings.bottling>=25 },
-
-  // ── Cola Empire upgrades ──────────────────────────────────
-  { id:'u_global_brand',    name:'Global Brand',            emoji:'🌍', cost:200000,     desc:'Everyone recognizes the Cola Empire. ×2.',               type:'building', target:'empire', mult:2, unlock:s=>s.buildings.empire>=1 },
-  { id:'u_monopoly',        name:'Cola Monopoly',           emoji:'♟️', cost:1500000,    desc:'You OWN cola. Empire production ×3.',                    type:'building', target:'empire', mult:3, unlock:s=>s.buildings.empire>=5 },
-  { id:'u_empire_hyper',    name:'Galactic Empire',         emoji:'🌐', cost:30000000000,desc:'A cola empire spanning galaxies. ×5.',                   type:'building', target:'empire', mult:5, unlock:s=>s.buildings.empire>=25 },
-
-  // ── Research Lab upgrades ─────────────────────────────────
-  { id:'u_quantum_fizz',    name:'Quantum Fizz',            emoji:'⚛️', cost:800000,     desc:'Quantum-entangled cola molecules. Labs ×2.',             type:'building', target:'lab', mult:2, unlock:s=>s.buildings.lab>=1 },
-  { id:'u_orbital_tanks',   name:'Orbital Tanks',           emoji:'🛸', cost:5000000,    desc:'Space-grade storage tanks. Labs ×3.',                    type:'building', target:'lab', mult:3, unlock:s=>s.buildings.lab>=5 },
-  { id:'u_lab_hyper',       name:'Singularity Lab',         emoji:'🔮', cost:100000000000,desc:'Research beyond the laws of physics. Labs ×5.',         type:'building', target:'lab', mult:5, unlock:s=>s.buildings.lab>=25 },
-
-  // ── Cola Satellite upgrades ───────────────────────────────
-  { id:'u_global_signal',   name:'Global Signal',           emoji:'📡', cost:8000000,    desc:'Worldwide broadcast network. Satellites ×2.',            type:'building', target:'satellite', mult:2, unlock:s=>s.buildings.satellite>=1 },
-  { id:'u_sat_hyper',       name:'Dyson Array',             emoji:'☀️', cost:500000000000,desc:'Harnessing a star to power cola satellites. ×5.',       type:'building', target:'satellite', mult:5, unlock:s=>s.buildings.satellite>=25 },
-
-  // ── Global multipliers (early) ────────────────────────────
-  { id:'u_secret_formula',  name:'Secret Formula',          emoji:'🧪', cost:10000,      desc:'The legendary formula. ALL production ×1.5.',            type:'global', mult:1.5, unlock:s=>s.totalCola>=1000 },
-  { id:'u_caramel_color',   name:'Caramel Synthesis',       emoji:'🍯', cost:80000,      desc:'That perfect brown hue boosts demand. ALL ×1.5.',        type:'global', mult:1.5, unlock:s=>s.totalCola>=50000 },
-  { id:'u_cola_science',    name:'Cola Science',            emoji:'🔬', cost:500000,     desc:'Applied carbonation physics. ALL production ×2.',        type:'global', mult:2,   unlock:s=>s.totalCola>=500000 },
-  { id:'u_divine_recipe',   name:'Divine Recipe',           emoji:'📜', cost:5000000,    desc:'Transcendent cola formula. ALL production ×3.',          type:'global', mult:3,   unlock:s=>s.totalCola>=5000000 },
-  { id:'u_dark_matter',     name:'Dark Matter Cola',        emoji:'🌑', cost:50000000,   desc:'It defies physics. ALL production ×2.',                  type:'global', mult:2,   unlock:s=>s.totalCola>=50000000 },
-  { id:'u_fizz_singular',   name:'Fizz Singularity',        emoji:'🌀', cost:500000000,  desc:'The universe IS cola. ALL production ×3.',               type:'global', mult:3,   unlock:s=>s.totalCola>=500000000 },
-
-  // ── Global multipliers (late game) ───────────────────────
-  { id:'u_carb_engine',     name:'Carbonation Engine',      emoji:'🔧', cost:5000000000, desc:'Industrial carbonation at cosmic scale. ALL ×2.',        type:'global', mult:2,   unlock:s=>s.totalCola>=1e9 },
-  { id:'u_fizz_core',       name:'Fizz Core',               emoji:'💫', cost:5e10,       desc:'The heart of all fizz. ALL production ×2.',              type:'global', mult:2,   unlock:s=>s.totalCola>=1e10 },
-  { id:'u_cola_reactor',    name:'Cola Reactor',            emoji:'⚡', cost:5e11,       desc:'Nuclear-grade cola reactions. ALL production ×3.',       type:'global', mult:3,   unlock:s=>s.totalCola>=1e11 },
-  { id:'u_trillion_surge',  name:'Trillion Surge',          emoji:'🚀', cost:5e12,       desc:'Reaching the trillions. ALL production ×3.',             type:'global', mult:3,   unlock:s=>s.totalCola>=1e12 },
-  { id:'u_quad_protocol',   name:'Quadrillion Protocol',    emoji:'🛸', cost:5e15,       desc:'The quadrillion-cola protocol. ALL ×4.',                 type:'global', mult:4,   unlock:s=>s.totalCola>=1e15 },
-  { id:'u_cola_nexus',      name:'Cola Nexus',              emoji:'🌐', cost:5e18,       desc:'A nexus connecting all cola production. ALL ×5.',        type:'global', mult:5,   unlock:s=>s.totalCola>=1e18 },
-  { id:'u_hyper_formula',   name:'Hyperdrive Formula',      emoji:'🌠', cost:5e21,       desc:'Cola traveling at the speed of light. ALL ×5.',          type:'global', mult:5,   unlock:s=>s.totalCola>=1e21 },
-  { id:'u_omega_fizz',      name:'Omega Fizz',              emoji:'☄️', cost:5e24,       desc:'The omega point of cola. ALL production ×8.',            type:'global', mult:8,   unlock:s=>s.totalCola>=1e24 },
-  { id:'u_universe_blend',  name:'Universe Blend',          emoji:'🌌', cost:5e27,       desc:'The universe itself becomes cola. ALL ×10.',             type:'global', mult:10,  unlock:s=>s.totalCola>=1e27 },
+  { id:'vending',       name:'Vending Machine',      emoji:'🥤', baseCost:15,      baseCps:0.1,         desc:'A trusty vending machine dispensing cold cola around the clock.' },
+  { id:'factory',       name:'Cola Factory',          emoji:'🏭', baseCost:100,     baseCps:0.5,         desc:'A small factory churning out bottles by the crate.' },
+  { id:'plantation',    name:'Cola Plantation',       emoji:'🌿', baseCost:500,     baseCps:2,           desc:'Vast fields of kola nut trees — the secret ingredient.' },
+  { id:'bottling',      name:'Bottling Plant',        emoji:'🍾', baseCost:3000,    baseCps:10,          desc:'Automated bottling lines running 24/7.' },
+  { id:'empire',        name:'Cola Empire',           emoji:'👑', baseCost:20000,   baseCps:50,          desc:'A global beverage empire. Cola flows like water.' },
+  { id:'lab',           name:'Cola Research Lab',     emoji:'🧬', baseCost:150000,  baseCps:250,         desc:'Cutting-edge carbonation science at industrial scale.' },
+  { id:'satellite',     name:'Cola Satellite',        emoji:'🛰️', baseCost:1200000, baseCps:1200,        desc:'Beaming cola recipes to every corner of the planet, 24/7.' },
+  { id:'planet',        name:'Cola Planet',           emoji:'🪐', baseCost:1e7,     baseCps:6000,        desc:'An entire planet dedicated to cola production.' },
+  { id:'star',          name:'Cola Star',             emoji:'⭐', baseCost:7.5e7,   baseCps:33000,       desc:'Stellar fusion powers an endless cola supply.' },
+  { id:'galaxy',        name:'Cola Galaxy',           emoji:'🌌', baseCost:5.5e8,   baseCps:180000,      desc:'Billions of star systems, all making cola.' },
+  { id:'nebula',        name:'Cola Nebula',           emoji:'🌠', baseCost:4e9,     baseCps:1000000,     desc:'Vast clouds of cola-gas collapsing into new worlds.' },
+  { id:'constellation', name:'Cola Constellation',   emoji:'✨', baseCost:3e10,    baseCps:6000000,     desc:'Ancient star patterns rewritten in cola.' },
+  { id:'universe',      name:'Cola Universe',         emoji:'🔮', baseCost:2.2e11,  baseCps:35000000,    desc:'An entire universe where the only law is cola.' },
+  { id:'dimension',     name:'Cola Dimension',        emoji:'🌀', baseCost:1.6e12,  baseCps:200000000,   desc:'A pocket dimension where cola flows instead of time.' },
+  { id:'multiverse',    name:'Cola Multiverse',       emoji:'♾️', baseCost:1.2e13,  baseCps:1200000000,  desc:'Infinite parallel worlds, all producing cola.' },
+  { id:'bigbang',       name:'Cola Big Bang',         emoji:'💥', baseCost:9e13,    baseCps:7000000000,  desc:'The beginning of everything. Cola first, questions later.' },
+  { id:'void',          name:'Cola Void',             emoji:'⚫', baseCost:7e14,    baseCps:40000000000, desc:'Beyond existence. Pure cola potential.' },
 ];
 
 const MILESTONES = [
@@ -787,8 +731,10 @@ const MILESTONES = [
 
 let state = {
   cola:0, totalCola:0, totalClicks:0,
-  buildings:{ vending:0, factory:0, plantation:0, bottling:0, empire:0, lab:0, satellite:0 },
-  upgrades:{}, milestones:{},
+  buildings:{ vending:0, factory:0, plantation:0, bottling:0, empire:0, lab:0, satellite:0,
+              planet:0, star:0, galaxy:0, nebula:0, constellation:0, universe:0, dimension:0, multiverse:0, bigbang:0, void:0 },
+  milestones:{},
+  clickLevel:0, offlineLevel:0,
   fizzTokens:0, totalPrestiges:0, runStartTime:Date.now(),
   lifetimeCola:0, lifetimeClicks:0,
 };
@@ -797,14 +743,7 @@ function getBuildingCps(bId) {
   const b = BUILDINGS.find(b=>b.id===bId);
   const cnt = state.buildings[bId]||0;
   if (!cnt) return 0;
-  let mult = 1;
-  UPGRADES.forEach(u=>{
-    if (state.upgrades[u.id] && u.type==='building' && u.target===bId) mult*=u.mult;
-  });
-  UPGRADES.forEach(u=>{
-    if (state.upgrades[u.id] && u.type==='global') mult*=u.mult;
-  });
-  return b.baseCps * cnt * mult * getPrestigeMultiplier();
+  return b.baseCps * cnt * getPrestigeMultiplier();
 }
 
 function getTotalCps() {
@@ -812,9 +751,8 @@ function getTotalCps() {
 }
 
 function getColasPerClick() {
-  let cpc = 1;
-  UPGRADES.forEach(u=>{ if (state.upgrades[u.id] && u.type==='click') cpc*=u.mult; });
-  return (cpc + getTotalCps()*0.1) * getPrestigeMultiplier();
+  const clickMult = Math.pow(2, state.clickLevel);
+  return (clickMult + getTotalCps() * 0.1) * getPrestigeMultiplier();
 }
 
 function buildingCost(bId) {
@@ -924,19 +862,85 @@ function buyBuilding(bId) {
   if (state.cola < cost) return;
   state.cola -= cost;
   state.buildings[bId] = (state.buildings[bId]||0)+1;
-  updateUI(); checkMilestones(); renderBuildings(); renderUpgrades();
+  updateUI(); checkMilestones(); renderBuildings(); renderSpecialUpgrades();
 }
 
-function buyUpgrade(uid) {
-  const u = UPGRADES.find(u=>u.id===uid);
-  if (!u || state.upgrades[uid] || state.cola < u.cost) return;
-  state.cola -= u.cost;
-  state.upgrades[uid] = true;
-  showToast('✨ ' + u.name + ' purchased!');
-  updateUI(); renderUpgrades(); renderBuildings();
+// ── Special Upgrades ──────────────────────────────────────
+function getClickUpgradeCost() {
+  return Math.ceil(100 * Math.pow(6, state.clickLevel));
+}
+
+function getOfflineUpgradeCost() {
+  return Math.ceil(500 * Math.pow(8, state.offlineLevel));
+}
+
+function getOfflineRate() {
+  return 0.25 + state.offlineLevel * 0.25;
+}
+
+function getMaxOfflineSeconds() {
+  return Math.min(3600 * 2 + state.offlineLevel * 3600 * 4, 3600 * 72);
+}
+
+function buyClickUpgrade() {
+  const cost = getClickUpgradeCost();
+  if (state.cola < cost) return;
+  state.cola -= cost;
+  state.clickLevel++;
+  showToast('🖱️ Click Power Lv.' + state.clickLevel + '! ×' + Math.pow(2, state.clickLevel) + ' per click!');
+  renderSpecialUpgrades(); updateUI();
+}
+
+function buyOfflineUpgrade() {
+  const cost = getOfflineUpgradeCost();
+  if (state.cola < cost) return;
+  state.cola -= cost;
+  state.offlineLevel++;
+  showToast('💤 Offline Vault Lv.' + state.offlineLevel + '! ' + Math.round(getOfflineRate()*100) + '% offline production!');
+  renderSpecialUpgrades(); updateUI();
 }
 
 // ── Rendering ─────────────────────────────────────────────
+function renderSpecialUpgrades() {
+  const list = document.getElementById('upgrades-list');
+  list.innerHTML = '';
+
+  const clickCost = getClickUpgradeCost();
+  const clickMult = Math.pow(2, state.clickLevel);
+  const nextClickMult = Math.pow(2, state.clickLevel + 1);
+  const clickAff = state.cola >= clickCost;
+  const clickCard = document.createElement('div');
+  clickCard.className = 'special-upgrade-card' + (clickAff ? ' affordable' : '');
+  clickCard.innerHTML = `
+    <div class="su-icon">🖱️</div>
+    <div class="su-body">
+      <div class="su-name">Click Power</div>
+      <div class="su-level">Lv.${state.clickLevel} — next: ×${fmt(nextClickMult)} / click</div>
+      <div class="su-desc">Aktuell: ×${fmt(clickMult)} per click</div>
+      <div class="su-cost">${fmt(clickCost)} cola</div>
+    </div>`;
+  clickCard.addEventListener('click', buyClickUpgrade);
+  list.appendChild(clickCard);
+
+  const offCost = getOfflineUpgradeCost();
+  const offPct  = Math.round(getOfflineRate() * 100);
+  const nextPct = Math.round((getOfflineRate() + 0.25) * 100);
+  const maxH    = (getMaxOfflineSeconds() / 3600).toFixed(0);
+  const offAff  = state.cola >= offCost;
+  const offCard = document.createElement('div');
+  offCard.className = 'special-upgrade-card' + (offAff ? ' affordable' : '');
+  offCard.innerHTML = `
+    <div class="su-icon">💤</div>
+    <div class="su-body">
+      <div class="su-name">Offline Vault</div>
+      <div class="su-level">Lv.${state.offlineLevel} — next: ${nextPct}% offline · max ${Number(maxH)+4}h</div>
+      <div class="su-desc">Aktuell: ${offPct}% offline · max ${maxH}h</div>
+      <div class="su-cost">${fmt(offCost)} cola</div>
+    </div>`;
+  offCard.addEventListener('click', buyOfflineUpgrade);
+  list.appendChild(offCard);
+}
+
 function updateUI() {
   const cps = getTotalCps();
   const cpc = getColasPerClick();
@@ -959,12 +963,10 @@ function updateUI() {
     el.querySelector('.building-count').textContent = state.buildings[id]||0;
   });
 
-  document.querySelectorAll('.upgrade-card[data-id]').forEach(el=>{
-    const uid = el.dataset.id;
-    const u   = UPGRADES.find(u=>u.id===uid);
-    if (!u || state.upgrades[uid]) return;
-    el.classList.toggle('affordable', state.cola >= u.cost);
-    el.classList.toggle('locked', !u.unlock(state));
+  const clickCost = getClickUpgradeCost();
+  const offCost   = getOfflineUpgradeCost();
+  document.querySelectorAll('.special-upgrade-card').forEach((card, i) => {
+    card.classList.toggle('affordable', state.cola >= (i === 0 ? clickCost : offCost));
   });
 
   updatePrestigeUI();
@@ -988,32 +990,6 @@ function renderBuildings() {
         <div class="building-cost">${fmt(cost)} cola</div>
       </div>`;
     card.addEventListener('click', ()=>buyBuilding(b.id));
-    list.appendChild(card);
-  });
-}
-
-function renderUpgrades() {
-  const list = document.getElementById('upgrades-list');
-  list.innerHTML = '';
-  const available = UPGRADES.filter(u=>!state.upgrades[u.id] &&  u.unlock(state));
-  const locked    = UPGRADES.filter(u=>!state.upgrades[u.id] && !u.unlock(state));
-  const bought    = UPGRADES.filter(u=> state.upgrades[u.id]);
-
-  [...available, ...locked, ...bought].forEach(u=>{
-    const isBought = !!state.upgrades[u.id];
-    const isLocked = !u.unlock(state) && !isBought;
-    const aff      = state.cola >= u.cost && !isBought && !isLocked;
-    const card     = document.createElement('div');
-    card.className = 'upgrade-card'+(isBought?' bought':'')+(isLocked?' locked':'')+(aff?' affordable':'');
-    card.dataset.id = u.id;
-    card.innerHTML = `
-      <div class="upgrade-icon">${isBought?'✅':isLocked?'🔒':u.emoji}</div>
-      <div class="upgrade-info">
-        <div class="upgrade-name">${u.name}</div>
-        <div class="upgrade-desc">${u.desc}</div>
-        <div class="upgrade-cost">${isBought?'Purchased':fmt(u.cost)+' cola'}</div>
-      </div>`;
-    if (!isBought && !isLocked) card.addEventListener('click', ()=>buyUpgrade(u.id));
     list.appendChild(card);
   });
 }
@@ -1078,15 +1054,16 @@ function loadGame() {
     state.totalCola   = saved.totalCola   || 0;
     state.totalClicks = saved.totalClicks || 0;
     BUILDINGS.forEach(b=>{ state.buildings[b.id] = saved.buildings?.[b.id]||0; });
-    UPGRADES.forEach(u=>{ if (saved.upgrades?.[u.id]) state.upgrades[u.id]=true; });
     MILESTONES.forEach(m=>{ if (saved.milestones?.[m.id]) state.milestones[m.id]=true; });
     state.fizzTokens     = saved.fizzTokens     || 0;
     state.totalPrestiges = saved.totalPrestiges || 0;
     state.runStartTime   = saved.runStartTime   || Date.now();
     state.lifetimeCola   = saved.lifetimeCola   || 0;
     state.lifetimeClicks = saved.lifetimeClicks || 0;
+    state.clickLevel     = saved.clickLevel     || 0;
+    state.offlineLevel   = saved.offlineLevel   || 0;
     showToast('📂 Game loaded!');
-    renderBuildings(); renderUpgrades(); updateUI();
+    renderBuildings(); renderSpecialUpgrades(); updateUI();
   } catch(e) { showToast('⚠️ Load failed.'); }
 }
 
@@ -1095,12 +1072,14 @@ function resetGame() {
   localStorage.removeItem(SAVE_KEY);
   state = {
     cola:0, totalCola:0, totalClicks:0,
-    buildings:{vending:0,factory:0,plantation:0,bottling:0,empire:0,lab:0,satellite:0},
-    upgrades:{}, milestones:{},
+    buildings:{vending:0,factory:0,plantation:0,bottling:0,empire:0,lab:0,satellite:0,
+               planet:0,star:0,galaxy:0,nebula:0,constellation:0,universe:0,dimension:0,multiverse:0,bigbang:0,void:0},
+    milestones:{},
+    clickLevel:0, offlineLevel:0,
     fizzTokens:0, totalPrestiges:0, runStartTime:Date.now(),
     lifetimeCola:0, lifetimeClicks:0,
   };
-  renderBuildings(); renderUpgrades(); updateUI();
+  renderBuildings(); renderSpecialUpgrades(); updateUI();
   showToast('🗑 Game reset!');
 }
 
@@ -1116,13 +1095,15 @@ function applyOfflineGains() {
     if (!raw) return;
     const saved = JSON.parse(raw);
     if (!saved._ts) return;
-    const elapsed = Math.max(0, Math.min((Date.now()-saved._ts)/1000, 86400));
+    const maxSec = getMaxOfflineSeconds();
+    const elapsed = Math.max(0, Math.min((Date.now()-saved._ts)/1000, maxSec));
     if (elapsed < 10) return;
-    const gain = getTotalCps() * elapsed * 0.5;
+    const rate = getOfflineRate();
+    const gain = getTotalCps() * elapsed * rate;
     if (gain > 0) {
       state.cola      += gain;
       state.totalCola += gain;
-      showToast('💤 Offline: +' + fmt(gain) + ' cola (' + Math.floor(elapsed) + 's away)');
+      showToast('💤 Offline: +' + fmt(gain) + ' cola (' + Math.floor(elapsed) + 's · ' + Math.round(rate*100) + '%)');
     }
   } catch(e){}
 }
@@ -1189,8 +1170,10 @@ function doPrestige() {
 
   state = {
     cola:0, totalCola:0, totalClicks:0,
-    buildings:{vending:0,factory:0,plantation:0,bottling:0,empire:0,lab:0,satellite:0},
-    upgrades:{}, milestones:{},
+    buildings:{vending:0,factory:0,plantation:0,bottling:0,empire:0,lab:0,satellite:0,
+               planet:0,star:0,galaxy:0,nebula:0,constellation:0,universe:0,dimension:0,multiverse:0,bigbang:0,void:0},
+    milestones:{},
+    clickLevel:0, offlineLevel:0,
     fizzTokens:      newTotal,
     totalPrestiges:  runNumber,
     runStartTime:    Date.now(),
@@ -1199,7 +1182,7 @@ function doPrestige() {
   };
 
   autoSave();
-  renderBuildings(); renderUpgrades(); updateUI();
+  renderBuildings(); renderSpecialUpgrades(); updateUI();
   checkMilestones();
   showToast('🔥 Prestige! +' + earned + ' Fizz Token' + (earned !== 1 ? 's' : '') + '! Bonus: +' + Math.round(newTotal * 2) + '%');
 }
@@ -1290,18 +1273,19 @@ document.addEventListener('keydown', e=>{
       state.totalCola   = saved.totalCola   || 0;
       state.totalClicks = saved.totalClicks || 0;
       BUILDINGS.forEach(b=>{ state.buildings[b.id] = saved.buildings?.[b.id]||0; });
-      UPGRADES.forEach(u=>{ if (saved.upgrades?.[u.id]) state.upgrades[u.id]=true; });
       MILESTONES.forEach(m=>{ if (saved.milestones?.[m.id]) state.milestones[m.id]=true; });
       state.fizzTokens     = saved.fizzTokens     || 0;
       state.totalPrestiges = saved.totalPrestiges || 0;
       state.runStartTime   = saved.runStartTime   || Date.now();
       state.lifetimeCola   = saved.lifetimeCola   || 0;
       state.lifetimeClicks = saved.lifetimeClicks || 0;
+      state.clickLevel     = saved.clickLevel     || 0;
+      state.offlineLevel   = saved.offlineLevel   || 0;
     }
   } catch(e){}
 
   renderBuildings();
-  renderUpgrades();
+  renderSpecialUpgrades();
   applyOfflineGains();
   updateUI();
   lastTick = Date.now();
