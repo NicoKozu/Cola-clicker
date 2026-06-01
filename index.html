@@ -696,14 +696,14 @@ const BUILDINGS = [
 
 const UPGRADES = [
   // ── Click upgrades ────────────────────────────────────────
-  { id:'u_better_recipe',   name:'Carbonation Secret',    emoji:'📋', cost:50,         desc:'A secret tweak — double the cola per click.',             type:'click', mult:2,  unlock:s=>s.totalClicks>=10 },
-  { id:'u_power_grip',      name:'Iron Grip',              emoji:'💪', cost:500,        desc:'Squeeze harder! ×2 cola per click.',                      type:'click', mult:2,  unlock:s=>s.totalClicks>=100 },
-  { id:'u_diamond_fingers', name:'Crystal Fingers',        emoji:'💎', cost:5000,       desc:'Your clicks are legendary. ×3 cola per click.',           type:'click', mult:3,  unlock:s=>s.totalClicks>=500 },
-  { id:'u_turbo_click',     name:'Turbo Click',            emoji:'⚡', cost:50000,      desc:'Supersonic clicking power. ×5 cola per click.',           type:'click', mult:5,  unlock:s=>s.totalClicks>=2000 },
-  { id:'u_plasma_punch',    name:'Plasma Punch',           emoji:'🔥', cost:500000,     desc:'Supercharged tap energy. ×3 cola per click.',             type:'click', mult:3,  unlock:s=>s.totalClicks>=10000 },
-  { id:'u_quantum_tap',     name:'Quantum Tap',            emoji:'🌊', cost:5000000,    desc:'Tap across dimensions. ×5 cola per click.',               type:'click', mult:5,  unlock:s=>s.totalClicks>=50000 },
-  { id:'u_cosmic_strike',   name:'Cosmic Strike',          emoji:'🌠', cost:500000000,  desc:'The force of a supernova in each click. ×8.',             type:'click', mult:8,  unlock:s=>s.totalClicks>=200000 },
-  { id:'u_divine_touch',    name:'Divine Touch',           emoji:'✨', cost:5e10,       desc:'Reality bends to your will. ×10 cola per click.',         type:'click', mult:10, unlock:s=>s.totalClicks>=1000000 },
+  { id:'u_better_recipe',   name:'Carbonation Secret',    emoji:'📋', cost:25,         desc:'A secret tweak — double the cola per click.',             type:'click', mult:2,  unlock:s=>s.totalClicks>=10 },
+  { id:'u_power_grip',      name:'Iron Grip',              emoji:'💪', cost:250,        desc:'Squeeze harder! ×2 cola per click.',                      type:'click', mult:2,  unlock:s=>s.totalClicks>=100 },
+  { id:'u_diamond_fingers', name:'Crystal Fingers',        emoji:'💎', cost:2500,       desc:'Your clicks are legendary. ×3 cola per click.',           type:'click', mult:3,  unlock:s=>s.totalClicks>=500 },
+  { id:'u_turbo_click',     name:'Turbo Click',            emoji:'⚡', cost:25000,      desc:'Supersonic clicking power. ×5 cola per click.',           type:'click', mult:5,  unlock:s=>s.totalClicks>=2000 },
+  { id:'u_plasma_punch',    name:'Plasma Punch',           emoji:'🔥', cost:250000,     desc:'Supercharged tap energy. ×3 cola per click.',             type:'click', mult:3,  unlock:s=>s.totalClicks>=10000 },
+  { id:'u_quantum_tap',     name:'Quantum Tap',            emoji:'🌊', cost:2500000,    desc:'Tap across dimensions. ×5 cola per click.',               type:'click', mult:5,  unlock:s=>s.totalClicks>=50000 },
+  { id:'u_cosmic_strike',   name:'Cosmic Strike',          emoji:'🌠', cost:250000000,  desc:'The force of a supernova in each click. ×8.',             type:'click', mult:8,  unlock:s=>s.totalClicks>=200000 },
+  { id:'u_divine_touch',    name:'Divine Touch',           emoji:'✨', cost:2.5e10,     desc:'Reality bends to your will. ×10 cola per click.',         type:'click', mult:10, unlock:s=>s.totalClicks>=1000000 },
 
   // ── Vending Machine upgrades ──────────────────────────────
   { id:'u_fizz_boost',      name:'Carbonation Boost',      emoji:'🫧', cost:100,        desc:'Carbonation overload! Vending machines ×2.',              type:'building', target:'vending', mult:2, unlock:s=>s.buildings.vending>=1 },
@@ -816,7 +816,7 @@ function getTotalCps() {
 function getColasPerClick() {
   let cpc = 1;
   UPGRADES.forEach(u=>{ if (state.upgrades[u.id] && u.type==='click') cpc*=u.mult; });
-  return (cpc + getTotalCps()*0.1) * getPrestigeMultiplier();
+  return cpc * getPrestigeMultiplier();
 }
 
 function buildingCost(bId) {
