@@ -515,6 +515,7 @@
       <button class="btn-small" id="btn-load">📂 Load</button>
       <button class="btn-small" id="btn-reset">🗑 Reset</button>
       <button class="btn-small" id="btn-leaderboard">🏆 Scores</button>
+      <button class="btn-small" id="btn-sound">🔊 Sound</button>
     </div>
   </div>
 
@@ -685,6 +686,146 @@ function fmt(n) {
   return (n/1e18).toFixed(2) + 'Qi';
 }
 
+// ── Sound System ─────────────────────────────────────────
+const SOUND_KEY = 'cola_clicker_sound';
+let audioCtx = null;
+let soundMuted = localStorage.getItem(SOUND_KEY) === 'muted';
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function playClick() {
+  if (soundMuted) return;
+  const ctx = getAudioCtx();
+  const t = ctx.currentTime;
+
+  // Noise burst for fizz
+  const bufSize = Math.floor(ctx.sampleRate * 0.06);
+  const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+  const noise = ctx.createBufferSource();
+  noise.buffer = buf;
+  const noiseGain = ctx.createGain();
+  noiseGain.gain.setValueAtTime(0.12, t);
+  noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.frequency.value = 1800;
+  filter.Q.value = 1.5;
+  noise.connect(filter);
+  filter.connect(noiseGain);
+  noiseGain.connect(ctx.destination);
+  noise.start(t);
+  noise.stop(t + 0.06);
+
+  // Short "pop" tone
+  const osc = ctx.createOscillator();
+  const oscGain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(220, t);
+  osc.frequency.exponentialRampToValueAtTime(90, t + 0.04);
+  oscGain.gain.setValueAtTime(0.08, t);
+  oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+  osc.connect(oscGain);
+  oscGain.connect(ctx.destination);
+  osc.start(t);
+  osc.stop(t + 0.04);
+}
+
+function playBuyBuilding() {
+  if (soundMuted) return;
+  const ctx = getAudioCtx();
+  const t = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(320, t);
+  osc.frequency.exponentialRampToValueAtTime(160, t + 0.18);
+  gain.gain.setValueAtTime(0.22, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(t);
+  osc.stop(t + 0.18);
+}
+
+function playBuyUpgrade() {
+  if (soundMuted) return;
+  const ctx = getAudioCtx();
+  const t = ctx.currentTime;
+  [523, 659, 784].forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0, t + i * 0.09);
+    gain.gain.linearRampToValueAtTime(0.14, t + i * 0.09 + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.09 + 0.18);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(t + i * 0.09);
+    osc.stop(t + i * 0.09 + 0.18);
+  });
+}
+
+function playMilestone() {
+  if (soundMuted) return;
+  const ctx = getAudioCtx();
+  const t = ctx.currentTime;
+  [523, 659, 784, 1047].forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0, t + i * 0.13);
+    gain.gain.linearRampToValueAtTime(0.16, t + i * 0.13 + 0.04);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.13 + 0.35);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(t + i * 0.13);
+    osc.stop(t + i * 0.13 + 0.35);
+  });
+}
+
+function playPrestige() {
+  if (soundMuted) return;
+  const ctx = getAudioCtx();
+  const t = ctx.currentTime;
+  const sweep = ctx.createOscillator();
+  const sweepGain = ctx.createGain();
+  sweep.type = 'sine';
+  sweep.frequency.setValueAtTime(220, t);
+  sweep.frequency.exponentialRampToValueAtTime(880, t + 0.6);
+  sweepGain.gain.setValueAtTime(0.18, t);
+  sweepGain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+  sweep.connect(sweepGain);
+  sweepGain.connect(ctx.destination);
+  sweep.start(t);
+  sweep.stop(t + 0.6);
+  [440, 554, 659, 880].forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0, t + 0.4 + i * 0.06);
+    gain.gain.linearRampToValueAtTime(0.12, t + 0.4 + i * 0.06 + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4 + i * 0.06 + 0.7);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(t + 0.4 + i * 0.06);
+    osc.stop(t + 0.4 + i * 0.06 + 0.7);
+  });
+}
+
+function updateSoundBtn() {
+  const btn = document.getElementById('btn-sound');
+  if (btn) btn.textContent = soundMuted ? '🔇 Sound' : '🔊 Sound';
+}
+
 const BUILDINGS = [
   { id:'vending',    name:'Vending Machine',  emoji:'🥤', baseCost:15,        baseCps:0.1,   desc:'A trusty vending machine dispensing cold cola around the clock.' },
   { id:'factory',    name:'Cola Factory',     emoji:'🏭', baseCost:100,       baseCps:0.5,   desc:'A small factory churning out bottles by the crate.' },
@@ -835,6 +976,7 @@ function doClick(clientX, clientY) {
   spawnBubbles(clientX, clientY);
   spawnFloatText(clientX, clientY, cpc);
   spawnShockwave(clientX, clientY);
+  playClick();
   checkMilestones();
   updateUI();
 }
@@ -895,6 +1037,7 @@ function buyBuilding(bId) {
   if (state.cola < cost) return;
   state.cola -= cost;
   state.buildings[bId] = (state.buildings[bId]||0)+1;
+  playBuyBuilding();
   updateUI(); checkMilestones(); renderBuildings(); renderUpgrades();
 }
 
@@ -903,6 +1046,7 @@ function buyUpgrade(uid) {
   if (!u || state.upgrades[uid] || state.cola < u.cost) return;
   state.cola -= u.cost;
   state.upgrades[uid] = true;
+  playBuyUpgrade();
   showToast('✨ ' + u.name + ' purchased!');
   updateUI(); renderUpgrades(); renderBuildings();
 }
@@ -1017,6 +1161,7 @@ function drainMilestoneQueue() {
   document.getElementById('milestone-title').textContent = m.title;
   document.getElementById('milestone-sub').textContent   = m.sub;
   banner.classList.add('show');
+  playMilestone();
   setTimeout(()=>{
     banner.classList.remove('show');
     setTimeout(()=>{ milestoneShowing=false; drainMilestoneQueue(); }, 600);
@@ -1160,6 +1305,7 @@ function doPrestige() {
     lifetimeClicks:  state.lifetimeClicks + state.totalClicks,
   };
 
+  playPrestige();
   autoSave();
   renderBuildings(); renderUpgrades(); updateUI();
   checkMilestones();
@@ -1223,6 +1369,12 @@ function renderLeaderboard() {
 document.getElementById('btn-save').addEventListener('click', saveGame);
 document.getElementById('btn-load').addEventListener('click', loadGame);
 document.getElementById('btn-reset').addEventListener('click', resetGame);
+document.getElementById('btn-sound').addEventListener('click', () => {
+  soundMuted = !soundMuted;
+  localStorage.setItem(SOUND_KEY, soundMuted ? 'muted' : 'on');
+  updateSoundBtn();
+  if (!soundMuted) playClick();
+});
 
 document.getElementById('btn-prestige').addEventListener('click', doPrestige);
 
@@ -1269,6 +1421,7 @@ document.addEventListener('keydown', e=>{
   renderUpgrades();
   applyOfflineGains();
   updateUI();
+  updateSoundBtn();
   lastTick = Date.now();
   requestAnimationFrame(tick);
 
