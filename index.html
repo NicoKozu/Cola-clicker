@@ -987,8 +987,7 @@
       <button class="btn-small" id="btn-reset">🗑 Reset</button>
       <button class="btn-small" id="btn-achievements">🏅 Goals</button>
       <button class="btn-small" id="btn-leaderboard">🏆 Scores</button>
-      <!-- DEV ONLY — REMOVE BEFORE RELEASE -->
-      <button class="btn-small" id="btn-dev-admin">⚙ DEV</button>
+      <button class="btn-small" id="btn-sound">🔊 Sound</button>
       <a id="btn-kofi" href="https://ko-fi.com/L5K120OT29" target="_blank" rel="noopener">☕ Support on Ko-fi</a>
       <button id="btn-impressum">Legal Notice</button>
     </div>
@@ -1554,6 +1553,65 @@ function updateComboDisplay() {
 }
 
 // ── Click handler ─────────────────────────────────────────
+// ── Sound System ──────────────────────────────────────────
+let _audioCtx = null;
+let soundMuted = localStorage.getItem('cola_clicker_muted') === '1';
+
+function getAudioCtx() {
+  if (!_audioCtx) {
+    try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return null; }
+  }
+  if (_audioCtx.state === 'suspended') _audioCtx.resume();
+  return _audioCtx;
+}
+
+function playClickSound() {
+  if (soundMuted) return;
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  const now = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  const mod = ctx.createOscillator();
+  const modGain = ctx.createGain();
+  mod.connect(modGain);
+  modGain.connect(osc.frequency);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.type = 'sine';
+  mod.type = 'sine';
+  osc.frequency.setValueAtTime(900, now);
+  osc.frequency.exponentialRampToValueAtTime(1600, now + 0.07);
+  osc.frequency.exponentialRampToValueAtTime(1100, now + 0.14);
+  mod.frequency.setValueAtTime(25, now);
+  modGain.gain.setValueAtTime(120, now);
+  modGain.gain.exponentialRampToValueAtTime(0.1, now + 0.14);
+  gain.gain.setValueAtTime(0, now);
+  gain.gain.linearRampToValueAtTime(0.15, now + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+  mod.start(now); mod.stop(now + 0.2);
+  osc.start(now); osc.stop(now + 0.2);
+}
+
+function playUnlockSound() {
+  if (soundMuted) return;
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  const now = ctx.currentTime;
+  [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'triangle';
+    const t = now + i * 0.07;
+    osc.frequency.setValueAtTime(freq, t);
+    gain.gain.setValueAtTime(0.12, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+    osc.start(t); osc.stop(t + 0.3);
+  });
+}
+
 const colaBtn   = document.getElementById('cola-btn');
 const clickZone = document.getElementById('click-zone');
 
@@ -1562,7 +1620,7 @@ const clickTimestamps = [];
 
 function doClick(clientX, clientY) {
   clickTimestamps.push(Date.now());
-  // Animate the can regardless of where on screen the click happened
+  playClickSound();
   colaBtn.classList.add('pressed');
   clearTimeout(pressTimer);
   pressTimer = setTimeout(() => colaBtn.classList.remove('pressed'), 110);
@@ -1648,6 +1706,7 @@ function buyBuilding(bId) {
   if (state.cola < cost) return;
   state.cola -= cost;
   state.buildings[bId] = (state.buildings[bId]||0) + n;
+  playUnlockSound();
   updateUI(); checkMilestones(); renderBuildings(); renderSpecialUpgrades();
 }
 
@@ -1685,6 +1744,7 @@ function buyClickUpgrade() {
   if (state.cola < cost) return;
   state.cola -= cost;
   state.clickLevel++;
+  playUnlockSound();
   showToast('🖱️ Click Power Lv.' + state.clickLevel + '! ×' + Math.pow(2, state.clickLevel) + ' per click!');
   renderSpecialUpgrades(); updateUI();
 }
@@ -1695,6 +1755,7 @@ function buyOfflineUpgrade() {
   if (state.cola < cost) return;
   state.cola -= cost;
   state.offlineLevel++;
+  playUnlockSound();
   showToast('💤 Offline Vault Lv.' + state.offlineLevel + '! ' + Math.round(getOfflineRate()*100) + '% offline production!');
   renderSpecialUpgrades(); updateUI();
 }
@@ -2107,6 +2168,7 @@ function buyFizzUpgrade(id) {
   state.fizzTokens -= cost;
   state.fizzUpgrades[id] = (state.fizzUpgrades[id] || 0) + 1;
   const lvl = state.fizzUpgrades[id];
+  playUnlockSound();
   showToast('🔥 ' + u.name + (u.type === 'repeatable' ? ' Lv.' + lvl : '') + ' unlocked!');
   renderSpecialUpgrades();
   updateUI();
@@ -2389,6 +2451,7 @@ function buyScantionUpgrade(id) {
     doFinalBossWin();
     return;
   }
+  playUnlockSound();
   showToast('⚡ ' + u.name + ' unlocked!');
   renderSpecialUpgrades();
   updateUI();
@@ -2501,7 +2564,22 @@ document.getElementById('btn-close-impressum').addEventListener('click', () => {
   document.getElementById('impressum-modal').style.display = 'none';
 });
 
-/* DEV ONLY — REMOVE BEFORE RELEASE */
+// ── Sound toggle ──────────────────────────────────────────
+(function() {
+  const btn = document.getElementById('btn-sound');
+  function updateSoundBtn() {
+    btn.textContent = soundMuted ? '🔇 Sound' : '🔊 Sound';
+  }
+  updateSoundBtn();
+  btn.addEventListener('click', () => {
+    soundMuted = !soundMuted;
+    localStorage.setItem('cola_clicker_muted', soundMuted ? '1' : '0');
+    updateSoundBtn();
+    if (!soundMuted) playUnlockSound();
+  });
+})();
+
+/* DEV ONLY */
 (function() {
   function devRefresh() {
     autoSave(); renderBuildings(); renderSpecialUpgrades(); updateUI(); checkMilestones();
@@ -2512,12 +2590,8 @@ document.getElementById('btn-close-impressum').addEventListener('click', () => {
     btn.addEventListener('click', () => apply(inp.value));
     inp.addEventListener('keydown', e => { if (e.key === 'Enter') apply(inp.value); });
   }
-  const devPanel = document.getElementById('dev-admin-panel');
-  document.getElementById('btn-dev-admin').addEventListener('click', () => {
-    devPanel.style.display = devPanel.style.display === 'flex' ? 'none' : 'flex';
-  });
   document.getElementById('btn-close-dev').addEventListener('click', () => {
-    devPanel.style.display = 'none';
+    document.getElementById('dev-admin-panel').style.display = 'none';
   });
   devBind('dev-cola', 'dev-cola-btn', val => {
     const n = parseFloat(val);
