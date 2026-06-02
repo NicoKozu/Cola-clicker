@@ -655,6 +655,83 @@
     .special-upgrade-card.owned { cursor: default; opacity: 0.65; }
     .special-upgrade-card.owned:hover { transform: none; border-color: var(--border); background: rgba(30,8,8,0.8); }
 
+    /* ── Scantion styles ─────────────────────────────────── */
+    #scantion-info {
+      display: flex; gap: 14px; align-items: center;
+      font-size: 0.7rem; color: var(--muted);
+    }
+    #scantion-token-count { color: #5599ff; font-weight: 800; }
+    #scantion-bonus { color: #55ccff; font-weight: 700; }
+
+    .btn-scantion {
+      padding: 8px 24px;
+      background: linear-gradient(135deg, #001a70, #1432DC, #001a70);
+      border: 2px solid #3a5aff;
+      border-radius: 12px;
+      color: #e0e8ff; font-weight: 900; font-size: 0.82rem;
+      font-family: 'Righteous', cursive; cursor: pointer;
+      box-shadow: 0 0 18px rgba(20,50,220,0.55);
+      animation: scantionPulse 2s ease-in-out infinite;
+      transition: transform 0.1s;
+    }
+    .btn-scantion:hover { transform: scale(1.04); }
+    @keyframes scantionPulse {
+      0%,100% { box-shadow: 0 0 18px rgba(20,50,220,0.55); }
+      50%      { box-shadow: 0 0 36px rgba(20,50,220,0.85), 0 0 60px rgba(50,100,255,0.3); }
+    }
+
+    #scantion-progress-wrap { width: 100%; padding: 0 16px 14px; flex-shrink: 0; }
+    #scantion-progress-label {
+      font-size: 0.64rem; color: var(--muted); text-align: center;
+      margin-bottom: 6px; letter-spacing: 0.4px; font-family: 'Nunito', sans-serif;
+    }
+    .scantion-goal-tag { color: #5599ff; font-weight: 800; }
+    #scantion-progress-bar-outer {
+      width: 100%; height: 8px; border-radius: 4px;
+      background: rgba(4,6,40,0.85); border: 1px solid rgba(25,35,130,0.45); overflow: hidden;
+    }
+    #scantion-progress-bar-inner {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, #0a1e8b, #1432DC, #3a5aff);
+      border-radius: 4px; transition: width 0.6s ease;
+      box-shadow: 0 0 8px rgba(20,50,220,0.55);
+    }
+    #scantion-progress-pct {
+      font-size: 0.62rem; color: #aac4ff; text-align: center;
+      margin-top: 5px; font-family: 'Nunito', sans-serif; font-weight: 700;
+      font-variant-numeric: tabular-nums; letter-spacing: 0.3px;
+    }
+
+    .upgrade-tabs {
+      display: flex; gap: 6px; padding: 8px 10px 2px; flex-shrink: 0;
+    }
+    .upgrade-tab-btn {
+      flex: 1; padding: 5px 6px;
+      background: rgba(30,6,6,0.8); border: 1px solid rgba(100,30,30,0.5);
+      border-radius: 8px; color: var(--muted);
+      font-size: 0.68rem; font-weight: 700; cursor: pointer;
+      font-family: 'Nunito', sans-serif; transition: all 0.15s;
+    }
+    .upgrade-tab-btn.active {
+      background: rgba(50,10,10,0.9); border-color: rgba(180,60,60,0.7); color: var(--gold);
+    }
+    .upgrade-tab-btn.scantion-tab.active {
+      background: rgba(5,10,50,0.9); border-color: rgba(60,80,180,0.7); color: #5599ff;
+    }
+
+    .scantion-section-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 16px 6px; border-top: 1px solid rgba(20,50,140,0.35); margin-top: 6px;
+    }
+    .scantion-section-title {
+      font-family: 'Righteous', cursive;
+      font-size: 0.72rem; letter-spacing: 2px; color: #5599ff; text-transform: uppercase;
+    }
+    .su-cost-scantion { color: #5599ff; }
+    .special-upgrade-card.affordable .su-cost-scantion { color: #99ccff; }
+    .special-upgrade-card.scantion-owned { cursor: default; opacity: 0.65; }
+    .special-upgrade-card.scantion-owned:hover { transform: none; border-color: var(--border); background: rgba(30,8,8,0.8); }
+
     /* ── Click Combo ─────────────────────────────────────── */
     #combo-display {
       width: 100%; padding: 2px 20px 6px;
@@ -750,6 +827,13 @@
       <button id="btn-prestige" class="btn-prestige" style="display:none">
         ✨ Prestige — +<span id="prestige-earn-preview">0</span> Fizz Token(s)
       </button>
+      <div id="scantion-info" style="display:none">
+        <span id="scantion-token-count">⚡ 0 Scantion Tokens</span>
+        <span id="scantion-bonus">Kein Scantion-Bonus</span>
+      </div>
+      <button id="btn-scantion" class="btn-scantion" style="display:none">
+        ⚡ SCANTION — +<span id="scantion-earn-preview">0</span> Token(s)
+      </button>
     </div>
 
     <div id="click-zone">
@@ -837,6 +921,13 @@
       </div>
       <div id="prestige-progress-pct">0.00000000%</div>
     </div>
+    <div id="scantion-progress-wrap" style="display:none">
+      <div id="scantion-progress-label">⚡ Fortschritt bis Scantion — Ziel: <span class="scantion-goal-tag" id="scantion-goal-text">100T</span></div>
+      <div id="scantion-progress-bar-outer">
+        <div id="scantion-progress-bar-inner"></div>
+      </div>
+      <div id="scantion-progress-pct">0%</div>
+    </div>
   </div>
 
   <!-- RIGHT: Buildings -->
@@ -906,14 +997,20 @@
 const LEADERBOARD_KEY = 'cola_clicker_leaderboard';
 const LEADERBOARD_MAX    = 10;
 
+const FMT_SUFFIXES = [
+  [1e33, 'Dc'], [1e30, 'No'], [1e27, 'Oc'], [1e24, 'Sp'],
+  [1e21, 'Sx'], [1e18, 'Qi'], [1e15, 'Qa'], [1e12, 'T'],
+  [1e9,  'B'],  [1e6,  'M'],  [1e3,  'K'],
+];
 function fmt(n) {
-  if (n < 1e3)  return parseFloat(n.toFixed(1)).toString();
-  if (n < 1e6)  return (n/1e3).toFixed(2)  + 'K';
-  if (n < 1e9)  return (n/1e6).toFixed(2)  + 'M';
-  if (n < 1e12) return (n/1e9).toFixed(2)  + 'B';
-  const exp = Math.floor(Math.log10(n));
-  const mantissa = n / Math.pow(10, exp);
-  return mantissa.toFixed(2) + 'e' + exp;
+  if (n < 1e3) return parseFloat(n.toFixed(1)).toString();
+  if (n >= 1e36) {
+    const exp = Math.floor(Math.log10(n) / 3) * 3;
+    return (n / Math.pow(10, exp)).toFixed(2) + 'e' + exp;
+  }
+  for (const [threshold, suffix] of FMT_SUFFIXES) {
+    if (n >= threshold) return (n / threshold).toFixed(2) + suffix;
+  }
 }
 
 const BUILDINGS = [
@@ -981,6 +1078,27 @@ const FIZZ_UPGRADES = [
   { id:'milestone_1b',    name:'Fizz-Meilenstein VII',  emoji:'👑', type:'milestone',  cost:1000000000,      maxLevel:1,     bonus:1.0, effectType:'all', desc:'Unendlichkeit selbst neigt sich vor dir.' },
 ];
 
+const SCANTION_UPGRADES = [
+  { id:'sq_quantum',       name:'Quantum Carbonation',      emoji:'⚡', cost:1,
+    desc:'Verdoppelt die gesamte Produktion. Cola existiert in allen Zuständen gleichzeitig.' },
+  { id:'sq_fizz_catalyst', name:'Fizz Katalysator',         emoji:'🧪', cost:2,
+    desc:'Fizz Tokens geben +5% statt +2% Produktionsbonus.' },
+  { id:'sq_synergy',       name:'Gebäude-Synergie',         emoji:'🔗', cost:2,
+    desc:'Jeder einzigartige Gebäudetyp (≥1 besessen) gibt +5% auf alle Produktion.' },
+  { id:'sq_click',         name:'Click-Resonanz',           emoji:'👆', cost:2,
+    desc:'Jeder Klick erzeugt zusätzlich 0,5% der aktuellen Cola/s.' },
+  { id:'sq_vault',         name:'Temporaler Tresor',        emoji:'⏳', cost:3,
+    desc:'Offline-Cap ×3 und Offline-Rate +50%.' },
+  { id:'sq_velocity',      name:'Prestige-Geschwindigkeit', emoji:'🌀', cost:3,
+    desc:'Jedes Prestige in diesem Scantion-Run gibt +5% auf alle Produktion (stapelt sich).' },
+  { id:'sq_echo',          name:'Scantion-Echo',            emoji:'♾️', cost:5,
+    desc:'Jeder abgeschlossene Scantion gibt permanent +30% auf alle Produktion (stapelt sich).' },
+];
+
+const BUILDINGS_MAP = Object.fromEntries(BUILDINGS.map(b => [b.id, b]));
+
+const FIZZ_MILESTONES = FIZZ_UPGRADES.filter(u => u.type === 'milestone');
+
 let state = {
   cola:0, totalCola:0, totalClicks:0,
   buildings:{ vending:0, factory:0, plantation:0, bottling:0, empire:0, lab:0, satellite:0,
@@ -990,38 +1108,64 @@ let state = {
   fizzTokens:0, totalPrestiges:0, runStartTime:Date.now(),
   lifetimeCola:0, lifetimeClicks:0,
   fizzUpgrades:{ fizz_boost:0, click_infusion:0, milestone_1k:0, milestone_10k:0, milestone_100k:0, milestone_1m:0, milestone_10m:0, milestone_100m:0, milestone_1b:0 },
+  scantionTokens:0, totalScantions:0, prestiges_this_scantion:0,
+  scantionUpgrades:{ sq_quantum:false, sq_fizz_catalyst:false, sq_synergy:false, sq_click:false, sq_vault:false, sq_velocity:false, sq_echo:false },
 };
 
+function getScantionMult() {
+  const su = state.scantionUpgrades;
+  let mult = 1;
+  if (su.sq_quantum)  mult *= 2;
+  if (su.sq_echo)     mult *= Math.pow(1.3, state.totalScantions || 0);
+  if (su.sq_velocity) mult *= (1 + (state.prestiges_this_scantion || 0) * 0.05);
+  return mult;
+}
+
+function getScantionSynergyMult() {
+  if (!state.scantionUpgrades.sq_synergy) return 1;
+  const unique = Object.values(state.buildings).filter(v => v >= 1).length;
+  return 1 + unique * 0.05;
+}
+
 function getBuildingCps(bId) {
-  const b = BUILDINGS.find(b=>b.id===bId);
-  const cnt = state.buildings[bId]||0;
+  const b = BUILDINGS_MAP[bId];
+  const cnt = state.buildings[bId] || 0;
   if (!cnt) return 0;
-  return b.baseCps * cnt * getPrestigeMultiplier() * getFizzUpgradeMultiplier();
+  return b.baseCps * cnt * getPrestigeMultiplier() * getFizzUpgradeMultiplier() * getScantionMult() * getScantionSynergyMult();
 }
 
 function getTotalCps() {
-  return BUILDINGS.reduce((s,b)=>s+getBuildingCps(b.id), 0);
+  const mult = getPrestigeMultiplier() * getFizzUpgradeMultiplier() * getScantionMult() * getScantionSynergyMult();
+  return BUILDINGS.reduce((s, b) => {
+    const cnt = state.buildings[b.id] || 0;
+    return cnt ? s + b.baseCps * cnt * mult : s;
+  }, 0);
 }
 
-function getColasPerClick() {
-  const clickMult  = Math.pow(2, state.clickLevel);
-  const comboMult  = clickComboLevel > 0 ? CPS_LEVELS[clickComboLevel - 1].mult : 1;
-  return clickMult * getPrestigeMultiplier() * getFizzUpgradeMultiplier() * getFizzClickMultiplier() * comboMult;
+function getColasPerClick(cpsHint) {
+  const clickMult = Math.pow(2, state.clickLevel);
+  const comboMult = clickComboLevel > 0 ? CPS_LEVELS[clickComboLevel - 1].mult : 1;
+  let cpc = clickMult * getPrestigeMultiplier() * getFizzUpgradeMultiplier() * getFizzClickMultiplier() * comboMult * getScantionMult();
+  if (state.scantionUpgrades.sq_click) {
+    cpc += (cpsHint !== undefined ? cpsHint : getTotalCps()) * 0.005;
+  }
+  return cpc;
 }
 
 function buildingCost(bId) {
-  const b = BUILDINGS.find(b=>b.id===bId);
-  return Math.ceil(b.baseCost * Math.pow(1.05, state.buildings[bId]||0));
+  const b = BUILDINGS_MAP[bId];
+  return Math.ceil(b.baseCost * Math.pow(1.05, state.buildings[bId] || 0));
 }
 
 let buyMultiplier = 1; // 1 | 10 | 100 | 'max'
+let upgradesTab = 'fizz'; // 'fizz' | 'scantion'
 let clickComboLevel = 0;
 let clickComboTimer = 0;
 let clickComboDecayTimer = 0;
 
 function buildingCostN(bId, n) {
-  const b = BUILDINGS.find(b=>b.id===bId);
-  const cnt = state.buildings[bId]||0;
+  const b = BUILDINGS_MAP[bId];
+  const cnt = state.buildings[bId] || 0;
   let total = 0;
   for (let i = 0; i < n; i++) {
     total += Math.ceil(b.baseCost * Math.pow(1.05, cnt + i));
@@ -1030,8 +1174,8 @@ function buildingCostN(bId, n) {
 }
 
 function maxAffordableBuildings(bId) {
-  const b = BUILDINGS.find(b=>b.id===bId);
-  const cnt = state.buildings[bId]||0;
+  const b = BUILDINGS_MAP[bId];
+  const cnt = state.buildings[bId] || 0;
   let total = 0, n = 0;
   while (n < 10000) {
     const next = Math.ceil(b.baseCost * Math.pow(1.05, cnt + n));
@@ -1259,11 +1403,15 @@ function getOfflineRateForLevel(level) {
 }
 
 function getOfflineRate() {
-  return getOfflineRateForLevel(state.offlineLevel);
+  let rate = getOfflineRateForLevel(state.offlineLevel);
+  if (state.scantionUpgrades && state.scantionUpgrades.sq_vault) rate = Math.min(1, rate * 1.5);
+  return rate;
 }
 
 function getMaxOfflineSeconds() {
-  return Math.min(3600 * 2 + state.offlineLevel * 3600 * 4, 3600 * 72);
+  let cap = Math.min(3600 * 2 + state.offlineLevel * 3600 * 4, 3600 * 72);
+  if (state.scantionUpgrades && state.scantionUpgrades.sq_vault) cap = Math.min(cap * 3, 3600 * 72);
+  return cap;
 }
 
 function buyClickUpgrade() {
@@ -1332,12 +1480,33 @@ function renderSpecialUpgrades() {
   if (!isMaxed) offCard.addEventListener('click', buyOfflineUpgrade);
   list.appendChild(offCard);
 
-  renderFizzUpgrades();
+  const hasPrestiges = (state.totalPrestiges || 0) >= 1 || (state.fizzTokens || 0) > 0;
+  const hasScantion  = (state.scantionTokens || 0) > 0 || (state.totalScantions || 0) > 0;
+
+  if (hasPrestiges) {
+    if (hasScantion) {
+      const tabs = document.createElement('div');
+      tabs.className = 'upgrade-tabs';
+      const fizzBtn = document.createElement('button');
+      fizzBtn.className = 'upgrade-tab-btn' + (upgradesTab === 'fizz' ? ' active' : '');
+      fizzBtn.textContent = '🔥 Prestige';
+      fizzBtn.addEventListener('click', () => { upgradesTab = 'fizz'; renderSpecialUpgrades(); });
+      const scBtn = document.createElement('button');
+      scBtn.className = 'upgrade-tab-btn scantion-tab' + (upgradesTab === 'scantion' ? ' active' : '');
+      scBtn.textContent = '⚡ Scantion';
+      scBtn.addEventListener('click', () => { upgradesTab = 'scantion'; renderSpecialUpgrades(); });
+      tabs.appendChild(fizzBtn);
+      tabs.appendChild(scBtn);
+      list.appendChild(tabs);
+    }
+    if (!hasScantion || upgradesTab === 'fizz') renderFizzUpgrades();
+    else renderScantionUpgrades();
+  }
 }
 
 function updateUI() {
   const cps = getTotalCps();
-  const cpc = getColasPerClick();
+  const cpc = getColasPerClick(cps);
 
   document.getElementById('cola-count').textContent  = fmt(Math.floor(state.cola)) + ' 🥤';
   const now3 = Date.now();
@@ -1386,6 +1555,8 @@ function updateUI() {
 
   updatePrestigeUI();
   updatePrestigeProgress();
+  updateScantionUI();
+  updateScantionProgress();
   updateComboDisplay();
 }
 
@@ -1492,26 +1663,35 @@ function saveGame() {
   catch(e) { showToast('⚠️ Could not save!'); }
 }
 
+function _applyState(saved) {
+  state.cola        = saved.cola        || 0;
+  state.totalCola   = saved.totalCola   || 0;
+  state.totalClicks = saved.totalClicks || 0;
+  BUILDINGS.forEach(b  => { state.buildings[b.id]   = saved.buildings?.[b.id]   || 0; });
+  MILESTONES.forEach(m => { if (saved.milestones?.[m.id]) state.milestones[m.id] = true; });
+  state.fizzTokens     = saved.fizzTokens     || 0;
+  state.totalPrestiges = saved.totalPrestiges || 0;
+  state.runStartTime   = saved.runStartTime   || Date.now();
+  state.lifetimeCola   = saved.lifetimeCola   || 0;
+  state.lifetimeClicks = saved.lifetimeClicks || 0;
+  state.clickLevel     = saved.clickLevel     || 0;
+  state.offlineLevel   = saved.offlineLevel   || 0;
+  if (saved.fizzUpgrades) {
+    FIZZ_UPGRADES.forEach(u => { state.fizzUpgrades[u.id] = saved.fizzUpgrades[u.id] || 0; });
+  }
+  state.scantionTokens          = saved.scantionTokens          || 0;
+  state.totalScantions          = saved.totalScantions          || 0;
+  state.prestiges_this_scantion = saved.prestiges_this_scantion || 0;
+  if (saved.scantionUpgrades) {
+    SCANTION_UPGRADES.forEach(u => { state.scantionUpgrades[u.id] = !!saved.scantionUpgrades[u.id]; });
+  }
+}
+
 function loadGame() {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) { showToast('📭 No save found.'); return; }
-    const saved = JSON.parse(raw);
-    state.cola        = saved.cola        || 0;
-    state.totalCola   = saved.totalCola   || 0;
-    state.totalClicks = saved.totalClicks || 0;
-    BUILDINGS.forEach(b=>{ state.buildings[b.id] = saved.buildings?.[b.id]||0; });
-    MILESTONES.forEach(m=>{ if (saved.milestones?.[m.id]) state.milestones[m.id]=true; });
-    state.fizzTokens     = saved.fizzTokens     || 0;
-    state.totalPrestiges = saved.totalPrestiges || 0;
-    state.runStartTime   = saved.runStartTime   || Date.now();
-    state.lifetimeCola   = saved.lifetimeCola   || 0;
-    state.lifetimeClicks = saved.lifetimeClicks || 0;
-    state.clickLevel     = saved.clickLevel     || 0;
-    state.offlineLevel   = saved.offlineLevel   || 0;
-    if (saved.fizzUpgrades) {
-      FIZZ_UPGRADES.forEach(u => { state.fizzUpgrades[u.id] = saved.fizzUpgrades[u.id] || 0; });
-    }
+    _applyState(JSON.parse(raw));
     showToast('📂 Game loaded!');
     renderBuildings(); renderSpecialUpgrades(); updateUI();
   } catch(e) { showToast('⚠️ Load failed.'); }
@@ -1522,14 +1702,16 @@ function resetGame() {
   localStorage.removeItem(SAVE_KEY);
   state = {
     cola:0, totalCola:0, totalClicks:0,
-    buildings:{vending:0,factory:0,plantation:0,bottling:0,empire:0,lab:0,satellite:0,
-               planet:0,star:0,galaxy:0,nebula:0,constellation:0,universe:0,dimension:0,multiverse:0,bigbang:0,void:0},
-    milestones:{},
+    buildings:        Object.fromEntries(BUILDINGS.map(b => [b.id, 0])),
+    milestones:       {},
     clickLevel:0, offlineLevel:0,
     fizzTokens:0, totalPrestiges:0, runStartTime:Date.now(),
     lifetimeCola:0, lifetimeClicks:0,
-    fizzUpgrades:{ fizz_boost:0, click_infusion:0, milestone_1k:0, milestone_10k:0, milestone_100k:0, milestone_1m:0, milestone_10m:0, milestone_100m:0, milestone_1b:0 },
+    fizzUpgrades:     Object.fromEntries(FIZZ_UPGRADES.map(u => [u.id, 0])),
+    scantionTokens:0, totalScantions:0, prestiges_this_scantion:0,
+    scantionUpgrades: Object.fromEntries(SCANTION_UPGRADES.map(u => [u.id, false])),
   };
+  upgradesTab = 'fizz';
   renderBuildings(); renderSpecialUpgrades(); updateUI();
   showToast('🗑 Game reset!');
 }
@@ -1580,13 +1762,13 @@ function updatePrestigeProgress() {
 }
 
 function getPrestigeMultiplier() {
-  return 1 + state.fizzTokens * 0.02;
+  const rate = (state.scantionUpgrades && state.scantionUpgrades.sq_fizz_catalyst) ? 0.05 : 0.02;
+  return 1 + state.fizzTokens * rate;
 }
 
 function getFizzUpgradeMultiplier() {
   const cpsBoost = Math.pow(2, state.fizzUpgrades.fizz_boost || 0);
-  const milestoneMult = FIZZ_UPGRADES
-    .filter(u => u.type === 'milestone')
+  const milestoneMult = FIZZ_MILESTONES
     .reduce((acc, u) => acc * ((state.fizzUpgrades[u.id] || 0) >= 1 ? 1 + u.bonus : 1), 1);
   return cpsBoost * milestoneMult;
 }
@@ -1692,11 +1874,12 @@ function doPrestige() {
   if (state.totalCola < threshold) return;
   const earned = calcFizzTokensEarned();
   const newTotal = state.fizzTokens + earned;
-  const nextThreshold = 1e12 * Math.sqrt(state.fizzTokens + earned + 1);
+  const nextThreshold = 1e12 * Math.sqrt(newTotal + 1);
+  const fizzRate = state.scantionUpgrades.sq_fizz_catalyst ? 0.05 : 0.02;
   if (!confirm(
     'Prestige durchführen?\n\n' +
     'Du erhältst ' + earned + ' Fizz Token(s).\n' +
-    'Neuer Bonus: +' + Math.round((newTotal * 0.02) * 100) + '% auf alle Produktion.\n' +
+    'Neuer Bonus: +' + Math.round(newTotal * fizzRate * 100) + '% auf alle Produktion.\n' +
     'Nächstes Ziel: ' + fmt(nextThreshold) + '\n\n' +
     'Cola, Gebäude und Upgrades werden zurückgesetzt.\n' +
     'Fizz Tokens bleiben dauerhaft erhalten!'
@@ -1716,22 +1899,153 @@ function doPrestige() {
 
   state = {
     cola:0, totalCola:0, totalClicks:0,
-    buildings:{vending:0,factory:0,plantation:0,bottling:0,empire:0,lab:0,satellite:0,
-               planet:0,star:0,galaxy:0,nebula:0,constellation:0,universe:0,dimension:0,multiverse:0,bigbang:0,void:0},
-    milestones:      state.milestones,
+    buildings:        Object.fromEntries(BUILDINGS.map(b => [b.id, 0])),
+    milestones:       state.milestones,
     clickLevel:0, offlineLevel:0,
-    fizzTokens:      newTotal,
-    totalPrestiges:  runNumber,
-    runStartTime:    Date.now(),
-    lifetimeCola:    state.lifetimeCola + state.totalCola,
-    lifetimeClicks:  state.lifetimeClicks + state.totalClicks,
-    fizzUpgrades:    state.fizzUpgrades,
+    fizzTokens:       newTotal,
+    totalPrestiges:   runNumber,
+    runStartTime:     Date.now(),
+    lifetimeCola:     state.lifetimeCola + state.totalCola,
+    lifetimeClicks:   state.lifetimeClicks + state.totalClicks,
+    fizzUpgrades:     state.fizzUpgrades,
+    scantionTokens:   state.scantionTokens,
+    totalScantions:   state.totalScantions,
+    prestiges_this_scantion: (state.prestiges_this_scantion || 0) + 1,
+    scantionUpgrades: state.scantionUpgrades,
   };
 
   autoSave();
   renderBuildings(); renderSpecialUpgrades(); updateUI();
   checkMilestones();
-  showToast('🔥 Prestige! +' + earned + ' Fizz Token' + (earned !== 1 ? 's' : '') + '! Bonus: +' + Math.round(newTotal * 2) + '%');
+  showToast('🔥 Prestige! +' + earned + ' Fizz Token' + (earned !== 1 ? 's' : '') + '! Bonus: +' + Math.round(newTotal * fizzRate * 100) + '%');
+}
+
+// ── Scantion (Layer 2) ────────────────────────────────────
+function getScantionThreshold() {
+  return 1e14 * Math.sqrt((state.scantionTokens || 0) + 1);
+}
+
+function calcScantionTokensEarned() {
+  return Math.max(1, Math.floor((state.fizzTokens || 0) / 5));
+}
+
+function updateScantionProgress() {
+  const hasPrestiges = (state.totalPrestiges || 0) >= 1 || (state.fizzTokens || 0) > 0;
+  const wrap = document.getElementById('scantion-progress-wrap');
+  if (!wrap) return;
+  if (!hasPrestiges) { wrap.style.display = 'none'; return; }
+  wrap.style.display = '';
+  const threshold = getScantionThreshold();
+  const pct = Math.min((state.totalCola / threshold) * 100, 100);
+  document.getElementById('scantion-progress-bar-inner').style.width = pct + '%';
+  document.getElementById('scantion-goal-text').textContent = fmt(threshold);
+  const pctStr = pct >= 10 ? pct.toFixed(1) + '%' : pct >= 1 ? pct.toFixed(2) + '%' : pct.toFixed(4) + '%';
+  document.getElementById('scantion-progress-pct').textContent = pctStr;
+}
+
+function updateScantionUI() {
+  const tokens = state.scantionTokens || 0;
+  const scantions = state.totalScantions || 0;
+  const infoEl = document.getElementById('scantion-info');
+  const btnEl  = document.getElementById('btn-scantion');
+  if (!infoEl || !btnEl) return;
+
+  if (tokens > 0 || scantions > 0) {
+    infoEl.style.display = 'flex';
+    document.getElementById('scantion-token-count').textContent =
+      '⚡ ' + tokens + ' Scantion Token' + (tokens !== 1 ? 's' : '');
+    const echoBonus = (state.scantionUpgrades && state.scantionUpgrades.sq_echo)
+      ? ' · +' + Math.round(scantions * 30) + '% Echo' : '';
+    document.getElementById('scantion-bonus').textContent =
+      scantions > 0 ? 'Scantion #' + scantions + echoBonus : 'Kein Scantion-Bonus';
+  } else {
+    infoEl.style.display = 'none';
+  }
+
+  const threshold = getScantionThreshold();
+  const eligible  = state.totalCola >= threshold;
+  btnEl.style.display = eligible ? 'block' : 'none';
+  if (eligible) {
+    document.getElementById('scantion-earn-preview').textContent = calcScantionTokensEarned();
+  }
+}
+
+function doScantion() {
+  const threshold = getScantionThreshold();
+  if (state.totalCola < threshold) return;
+  const earned = calcScantionTokensEarned();
+  const newST  = (state.scantionTokens || 0) + earned;
+  if (!confirm(
+    'SCANTION durchführen?\n\n' +
+    'Du erhältst ' + earned + ' Scantion Token' + (earned !== 1 ? 's' : '') + '.\n\n' +
+    'ALLES wird zurückgesetzt:\n' +
+    '  • Cola, Gebäude, Prestige-Upgrades\n' +
+    '  • Fizz Tokens (' + state.fizzTokens + ') gehen verloren\n\n' +
+    'Scantion Tokens & Upgrades bleiben dauerhaft!\n' +
+    'Bereit für Layer 2?'
+  )) return;
+
+  state = {
+    cola:0, totalCola:0, totalClicks:0,
+    buildings:        Object.fromEntries(BUILDINGS.map(b => [b.id, 0])),
+    milestones:       state.milestones,
+    clickLevel:0, offlineLevel:0,
+    fizzTokens:       0,
+    totalPrestiges:   0,
+    runStartTime:     Date.now(),
+    lifetimeCola:     state.lifetimeCola + state.totalCola,
+    lifetimeClicks:   state.lifetimeClicks + state.totalClicks,
+    fizzUpgrades:     Object.fromEntries(FIZZ_UPGRADES.map(u => [u.id, 0])),
+    scantionTokens:   newST,
+    totalScantions:   (state.totalScantions || 0) + 1,
+    prestiges_this_scantion: 0,
+    scantionUpgrades: state.scantionUpgrades,
+  };
+
+  autoSave();
+  upgradesTab = 'fizz';
+  renderBuildings(); renderSpecialUpgrades(); updateUI();
+  checkMilestones();
+  showToast('⚡ SCANTION #' + state.totalScantions + '! +' + earned + ' Token' + (earned !== 1 ? 's' : '') + '! Willkommen in Layer 2!');
+}
+
+function renderScantionUpgrades() {
+  const list = document.getElementById('upgrades-list');
+  const header = document.createElement('div');
+  header.className = 'scantion-section-header';
+  header.innerHTML = '<span style="font-size:0.95rem">⚡</span><span class="scantion-section-title">SCANTION UPGRADES</span>';
+  list.appendChild(header);
+
+  const tokens = state.scantionTokens || 0;
+  SCANTION_UPGRADES.forEach(u => {
+    const isOwned   = !!(state.scantionUpgrades && state.scantionUpgrades[u.id]);
+    const canAfford = !isOwned && tokens >= u.cost;
+    const card = document.createElement('div');
+    card.className = 'special-upgrade-card' + (canAfford ? ' affordable' : '') + (isOwned ? ' scantion-owned' : '');
+    card.innerHTML = `
+      <div class="su-icon">${u.emoji}</div>
+      <div class="su-body">
+        <div class="su-name">${u.name}</div>
+        <div class="su-level">${isOwned ? '✓ Aktiv' : 'Einmalig — einmal kaufen'}</div>
+        <div class="su-desc">${u.desc}</div>
+        <div class="su-cost su-cost-scantion">${isOwned ? '✓ Gekauft' : '⚡ ' + u.cost + ' Scantion Token' + (u.cost !== 1 ? 's' : '')}</div>
+      </div>`;
+    if (!isOwned) card.addEventListener('click', () => buyScantionUpgrade(u.id));
+    list.appendChild(card);
+  });
+}
+
+function buyScantionUpgrade(id) {
+  const u = SCANTION_UPGRADES.find(u => u.id === id);
+  if (!u) return;
+  if (state.scantionUpgrades[id]) return;
+  if ((state.scantionTokens || 0) < u.cost) return;
+  state.scantionTokens -= u.cost;
+  state.scantionUpgrades[id] = true;
+  showToast('⚡ ' + u.name + ' freigeschaltet!');
+  renderSpecialUpgrades();
+  updateUI();
+  autoSave();
 }
 
 // ── Leaderboard ───────────────────────────────────────────
@@ -1815,6 +2129,7 @@ document.getElementById('btn-close-achievements').addEventListener('click', () =
 });
 
 document.getElementById('btn-prestige').addEventListener('click', doPrestige);
+document.getElementById('btn-scantion').addEventListener('click', doScantion);
 
 document.getElementById('btn-leaderboard').addEventListener('click', () => {
   renderLeaderboard();
@@ -1838,24 +2153,7 @@ document.addEventListener('keydown', e=>{
 (function init() {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
-    if (raw) {
-      const saved = JSON.parse(raw);
-      state.cola        = saved.cola        || 0;
-      state.totalCola   = saved.totalCola   || 0;
-      state.totalClicks = saved.totalClicks || 0;
-      BUILDINGS.forEach(b=>{ state.buildings[b.id] = saved.buildings?.[b.id]||0; });
-      MILESTONES.forEach(m=>{ if (saved.milestones?.[m.id]) state.milestones[m.id]=true; });
-      state.fizzTokens     = saved.fizzTokens     || 0;
-      state.totalPrestiges = saved.totalPrestiges || 0;
-      state.runStartTime   = saved.runStartTime   || Date.now();
-      state.lifetimeCola   = saved.lifetimeCola   || 0;
-      state.lifetimeClicks = saved.lifetimeClicks || 0;
-      state.clickLevel     = saved.clickLevel     || 0;
-      state.offlineLevel   = saved.offlineLevel   || 0;
-      if (saved.fizzUpgrades) {
-        FIZZ_UPGRADES.forEach(u => { state.fizzUpgrades[u.id] = saved.fizzUpgrades[u.id] || 0; });
-      }
-    }
+    if (raw) _applyState(JSON.parse(raw));
   } catch(e){}
 
   renderBuildings();
@@ -1867,11 +2165,7 @@ document.addEventListener('keydown', e=>{
 
   setInterval(()=>{
     try {
-      const base = JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');
-      base._ts      = Date.now();
-      base.cola      = state.cola;
-      base.totalCola = state.totalCola;
-      localStorage.setItem(SAVE_KEY, JSON.stringify(Object.assign(base, state)));
+      localStorage.setItem(SAVE_KEY, JSON.stringify(Object.assign({}, state, { _ts: Date.now() })));
     } catch(e){}
   }, 5000);
 })();
