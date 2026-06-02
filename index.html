@@ -1110,7 +1110,7 @@
       <div id="prestige-progress-pct">0.00000000%</div>
     </div>
     <div id="scantion-progress-wrap" style="display:none">
-      <div id="scantion-progress-label">⚡ Progress to Scantion — 🔥 Fizz Goal: <span class="scantion-goal-tag" id="scantion-goal-text">1M</span></div>
+      <div id="scantion-progress-label">⚡ Progress to Scantion</div>
       <div id="scantion-progress-bar-outer">
         <div id="scantion-progress-bar-inner"></div>
       </div>
@@ -1216,8 +1216,12 @@
 
 <div id="confirm-modal" class="modal-overlay" style="display:none">
   <div class="modal-box" style="width:min(460px,92vw); max-height:unset">
+    <div id="confirm-modal-title"
+         style="display:none; padding:22px 28px 0;
+                font-family:'Righteous',cursive; font-size:1.05rem;
+                color:var(--gold); letter-spacing:1.5px"></div>
     <div id="confirm-modal-body"
-         style="padding:28px 28px 12px; white-space:pre-line;
+         style="padding:20px 28px 12px; white-space:pre-line;
                 font-size:0.88rem; line-height:1.7; color:var(--text)"></div>
     <div style="display:flex; gap:10px; padding:12px 24px 22px; justify-content:flex-end">
       <button id="confirm-modal-cancel" class="btn-small" style="flex:0 0 auto; padding:8px 18px">Cancel</button>
@@ -1951,12 +1955,15 @@ function loadGame() {
   } catch(e) { showToast('⚠️ Load failed.'); }
 }
 
-function showConfirm(msg, okLabel = 'Confirm') {
+function showConfirm(msg, okLabel = 'Confirm', title = '') {
   return new Promise(resolve => {
-    const modal  = document.getElementById('confirm-modal');
-    const body   = document.getElementById('confirm-modal-body');
-    const okBtn  = document.getElementById('confirm-modal-ok');
-    const canBtn = document.getElementById('confirm-modal-cancel');
+    const modal    = document.getElementById('confirm-modal');
+    const titleEl  = document.getElementById('confirm-modal-title');
+    const body     = document.getElementById('confirm-modal-body');
+    const okBtn    = document.getElementById('confirm-modal-ok');
+    const canBtn   = document.getElementById('confirm-modal-cancel');
+    titleEl.textContent  = title;
+    titleEl.style.display = title ? 'block' : 'none';
     body.textContent     = msg;
     okBtn.textContent    = okLabel;
     canBtn.style.display = '';
@@ -1974,16 +1981,19 @@ function showConfirm(msg, okLabel = 'Confirm') {
   });
 }
 
-function showAlert(msg, okLabel = 'OK') {
+function showAlert(msg, okLabel = 'OK', title = '') {
   return new Promise(resolve => {
-    const modal  = document.getElementById('confirm-modal');
-    const body   = document.getElementById('confirm-modal-body');
-    const okBtn  = document.getElementById('confirm-modal-ok');
-    const canBtn = document.getElementById('confirm-modal-cancel');
-    body.textContent     = msg;
-    okBtn.textContent    = okLabel;
-    canBtn.style.display = 'none';
-    modal.style.display  = 'flex';
+    const modal   = document.getElementById('confirm-modal');
+    const titleEl = document.getElementById('confirm-modal-title');
+    const body    = document.getElementById('confirm-modal-body');
+    const okBtn   = document.getElementById('confirm-modal-ok');
+    const canBtn  = document.getElementById('confirm-modal-cancel');
+    titleEl.textContent   = title;
+    titleEl.style.display = title ? 'block' : 'none';
+    body.textContent      = msg;
+    okBtn.textContent     = okLabel;
+    canBtn.style.display  = 'none';
+    modal.style.display   = 'flex';
     const onOk = () => {
       modal.style.display = 'none';
       okBtn.removeEventListener('click', onOk);
@@ -2182,8 +2192,7 @@ async function doPrestige() {
   if (!await showConfirm(
     'Perform Prestige?\n\n' +
     'You will receive ' + earned + ' Fizz Token(s).\n' +
-    'New Bonus: +' + Math.round(newTotal * fizzRate * 100) + '% to all production.\n' +
-    'Next Goal: ' + fmt(nextThreshold) + '\n\n' +
+    'New Bonus: +' + Math.round(newTotal * fizzRate * 100) + '% to all production.\n\n' +
     'Cola, buildings and upgrades will be reset.\n' +
     'Fizz Tokens are kept permanently!',
     '✨ Prestige!'
@@ -2549,6 +2558,21 @@ document.addEventListener('keydown', e=>{
   updateUI();
   lastTick = Date.now();
   requestAnimationFrame(tick);
+
+  if (!localStorage.getItem('cola_clicker_intro_v1')) {
+    localStorage.setItem('cola_clicker_intro_v1', '1');
+    setTimeout(() => showAlert(
+      'You feel it — that irresistible, fizzing pull deep in your soul.\n\n' +
+      'Click the can. Collect cola. Build your empire.\n\n' +
+      'Start with a single humble vending machine and grow into a Cola God ' +
+      'who commands entire galaxies of pure, carbonated bliss. ' +
+      'Unlock Prestige to transcend your limits. ' +
+      'Discover Scantion — a realm where cola itself bends reality.\n\n' +
+      'The universe is thirsty.\nOnly you can quench it. 🌌',
+      '🥤 Let\'s Go!',
+      '🥤 Welcome to Cola Clicker'
+    ), 500);
+  }
 
   setInterval(()=>{
     try {
