@@ -2003,11 +2003,11 @@ function doPrestige() {
 
 // ── Scantion (Layer 2) ────────────────────────────────────
 function getScantionThreshold() {
-  return 1e6 * Math.pow(10, state.totalScantions || 0);
+  return 1e6 * Math.sqrt((state.scantionTokens || 0) + 1);
 }
 
 function calcScantionTokensEarned() {
-  return Math.max(1, Math.floor((state.fizzTokens || 0) / 5));
+  return Math.max(1, Math.floor((state.fizzTokens || 0) / getScantionThreshold()));
 }
 
 function updateScantionProgress() {
