@@ -861,39 +861,6 @@
     #combo-hint {
       font-size: 0.6rem; color: var(--muted); letter-spacing: 0.8px;
     }
-
-    /* ── Sophia Heart ─────────────────────────────────────── */
-    #sophia-heart-container {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: min(84%, 440px);
-      pointer-events: none;
-      z-index: 5;
-      filter: drop-shadow(0 0 28px rgba(255,50,120,0.9)) drop-shadow(0 0 60px rgba(255,50,120,0.5));
-      animation: sophiaHeartPulse 1.4s ease-in-out infinite;
-    }
-    @keyframes sophiaHeartPulse {
-      0%,100% { transform: translate(-50%,-50%) scale(1);    filter: drop-shadow(0 0 28px rgba(255,50,120,0.9)) drop-shadow(0 0 60px rgba(255,50,120,0.5)); }
-      14%     { transform: translate(-50%,-50%) scale(1.14); filter: drop-shadow(0 0 45px rgba(255,80,150,1))   drop-shadow(0 0 90px rgba(255,80,150,0.7)); }
-      28%     { transform: translate(-50%,-50%) scale(1); }
-      42%     { transform: translate(-50%,-50%) scale(1.09); filter: drop-shadow(0 0 38px rgba(255,80,150,0.95)) drop-shadow(0 0 75px rgba(255,80,150,0.65)); }
-      70%     { transform: translate(-50%,-50%) scale(1); }
-    }
-    .sophia-float-heart {
-      position: absolute;
-      pointer-events: none;
-      font-size: 1.5rem;
-      z-index: 4;
-      opacity: 0;
-      animation: sophiaFloatHeart linear infinite;
-    }
-    @keyframes sophiaFloatHeart {
-      0%   { transform: translateY(0)     scale(1);   opacity: 0; }
-      8%   {                                           opacity: 0.85; }
-      80%  {                                           opacity: 0.3; }
-      100% { transform: translateY(-200px) scale(0.4); opacity: 0; }
-    }
   </style>
 </head>
 <body>
@@ -1020,38 +987,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Sophia Heart -->
-    <div id="sophia-heart-container">
-      <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-        <defs>
-          <linearGradient id="sophiaGrad" x1="0.3" y1="0" x2="0.7" y2="1">
-            <stop offset="0%"   stop-color="#ff9ed0"/>
-            <stop offset="38%"  stop-color="#ff1f6e"/>
-            <stop offset="100%" stop-color="#a80040"/>
-          </linearGradient>
-          <filter id="sophiaGlow" x="-15%" y="-15%" width="130%" height="130%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="b"/>
-            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-        </defs>
-        <path d="M462.3 62.6C407.5 15.9 326 24.3 275.7 76.2L256 96.5l-19.7-20.3C186.1 24.3 104.5 15.9 49.7 62.6c-62.8 53.6-66.1 149.8-9.9 207.9l193.5 199.8c12.5 12.9 32.8 12.9 45.3 0l193.5-199.8c56.3-58.1 53-154.3-9.8-207.9z"
-              fill="url(#sophiaGrad)" filter="url(#sophiaGlow)"/>
-        <ellipse cx="172" cy="158" rx="58" ry="36" fill="rgba(255,255,255,0.2)" transform="rotate(-28,172,158)"/>
-        <text x="256" y="282"
-              text-anchor="middle" dominant-baseline="middle"
-              font-family="Righteous, cursive"
-              font-size="88" letter-spacing="4"
-              fill="white" opacity="0.97">Sophia</text>
-      </svg>
-    </div>
-    <!-- Floating hearts -->
-    <span class="sophia-float-heart" style="left:22%;bottom:38%;animation-duration:3.8s;animation-delay:0.0s;font-size:1.2rem;">💕</span>
-    <span class="sophia-float-heart" style="left:72%;bottom:42%;animation-duration:4.4s;animation-delay:1.2s;font-size:1.6rem;">❤️</span>
-    <span class="sophia-float-heart" style="left:45%;bottom:35%;animation-duration:3.2s;animation-delay:0.6s;font-size:1.0rem;">💗</span>
-    <span class="sophia-float-heart" style="left:62%;bottom:50%;animation-duration:5.1s;animation-delay:2.2s;font-size:1.3rem;">💕</span>
-    <span class="sophia-float-heart" style="left:30%;bottom:55%;animation-duration:4.7s;animation-delay:3.5s;font-size:1.1rem;">❤️</span>
-    <span class="sophia-float-heart" style="left:80%;bottom:38%;animation-duration:3.6s;animation-delay:0.9s;font-size:0.9rem;">💗</span>
 
     <div id="bottom-stats">
       <div class="stat-chip">
