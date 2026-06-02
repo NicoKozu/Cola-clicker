@@ -970,7 +970,7 @@
       <div id="prestige-progress-pct">0.00000000%</div>
     </div>
     <div id="scantion-progress-wrap" style="display:none">
-      <div id="scantion-progress-label">⚡ Fortschritt bis Scantion — Ziel: <span class="scantion-goal-tag" id="scantion-goal-text">100T</span></div>
+      <div id="scantion-progress-label">⚡ Fortschritt bis Scantion — 🔥 Fizz-Ziel: <span class="scantion-goal-tag" id="scantion-goal-text">1M</span></div>
       <div id="scantion-progress-bar-outer">
         <div id="scantion-progress-bar-inner"></div>
       </div>
@@ -1561,8 +1561,8 @@ function renderSpecialUpgrades() {
   if (!isMaxed) offCard.addEventListener('click', buyOfflineUpgrade);
   list.appendChild(offCard);
 
-  const hasPrestiges = (state.totalPrestiges || 0) >= 1 || (state.fizzTokens || 0) > 0;
-  const hasScantion  = (state.scantionTokens || 0) > 0 || (state.totalScantions || 0) > 0;
+  const hasPrestiges = (state.totalPrestiges || 0) >= 1 || (state.fizzTokens || 0) > 0 || (state.totalScantions || 0) >= 1;
+  const hasScantion  = (state.scantionTokens || 0) > 0 || (state.totalScantions || 0) >= 1;
 
   if (hasPrestiges) {
     if (hasScantion) {
@@ -2003,7 +2003,7 @@ function doPrestige() {
 
 // ── Scantion (Layer 2) ────────────────────────────────────
 function getScantionThreshold() {
-  return 1e14 * Math.sqrt((state.scantionTokens || 0) + 1);
+  return 1e6 * Math.pow(10, state.totalScantions || 0);
 }
 
 function calcScantionTokensEarned() {
@@ -2011,13 +2011,13 @@ function calcScantionTokensEarned() {
 }
 
 function updateScantionProgress() {
-  const hasPrestiges = (state.totalPrestiges || 0) >= 1 || (state.fizzTokens || 0) > 0;
+  const hasPrestiges = (state.totalPrestiges || 0) >= 1 || (state.fizzTokens || 0) > 0 || (state.totalScantions || 0) >= 1;
   const wrap = document.getElementById('scantion-progress-wrap');
   if (!wrap) return;
   if (!hasPrestiges) { wrap.style.display = 'none'; return; }
   wrap.style.display = '';
   const threshold = getScantionThreshold();
-  const pct = Math.min((state.totalCola / threshold) * 100, 100);
+  const pct = Math.min(((state.fizzTokens || 0) / threshold) * 100, 100);
   document.getElementById('scantion-progress-bar-inner').style.width = pct + '%';
   document.getElementById('scantion-goal-text').textContent = fmt(threshold);
   const pctStr = pct >= 10 ? pct.toFixed(1) + '%' : pct >= 1 ? pct.toFixed(2) + '%' : pct.toFixed(4) + '%';
@@ -2045,8 +2045,7 @@ function updateScantionUI() {
   }
 
   const threshold = getScantionThreshold();
-  const hasDonePres = state.totalPrestiges >= 1 || state.fizzTokens > 0;
-  const eligible  = hasDonePres && state.totalCola >= threshold;
+  const eligible  = (state.fizzTokens || 0) >= threshold;
   btnEl.style.display = eligible ? 'block' : 'none';
   if (eligible) {
     document.getElementById('scantion-earn-preview').textContent = calcScantionTokensEarned();
@@ -2055,8 +2054,7 @@ function updateScantionUI() {
 
 function doScantion() {
   const threshold = getScantionThreshold();
-  if (state.totalCola < threshold) return;
-  if (state.totalPrestiges < 1 && state.fizzTokens <= 0) return;
+  if ((state.fizzTokens || 0) < threshold) return;
   const earned = calcScantionTokensEarned();
   const newST  = (state.scantionTokens || 0) + earned;
   if (!confirm(
