@@ -344,6 +344,46 @@
       border-top: 1px solid rgba(80,20,20,0.4);
       flex-shrink: 0;
       flex-wrap: wrap;
+      position: relative;
+    }
+    #sound-panel {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 5px);
+      left: 0; right: 0;
+      background: linear-gradient(160deg, rgba(18,5,5,0.98), rgba(10,3,3,0.99));
+      border: 1px solid rgba(130,25,35,0.5);
+      border-radius: 10px;
+      padding: 14px 16px;
+      box-shadow: 0 -6px 20px rgba(0,0,0,0.75);
+      z-index: 50;
+    }
+    .sound-row {
+      display: flex; align-items: center; gap: 10px;
+    }
+    #sound-panel-icon { font-size: 1rem; flex-shrink: 0; }
+    #sound-pct {
+      font-size: 0.65rem; font-weight: 700; color: var(--gold);
+      min-width: 32px; text-align: right; flex-shrink: 0;
+      font-family: 'Nunito', sans-serif;
+    }
+    #sound-slider {
+      -webkit-appearance: none; appearance: none;
+      flex: 1; height: 4px; border-radius: 2px; outline: none; cursor: pointer;
+      background: linear-gradient(90deg,
+        rgba(220,20,60,0.9) var(--vol, 80%),
+        rgba(60,15,15,0.6)  var(--vol, 80%));
+    }
+    #sound-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--cream); cursor: pointer;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.7);
+    }
+    #sound-slider::-moz-range-thumb {
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--cream); cursor: pointer;
+      border: none; box-shadow: 0 1px 5px rgba(0,0,0,0.7);
     }
     #btn-kofi {
       width: 100%; padding: 7px 4px;
@@ -984,6 +1024,13 @@
     </div>
     <div class="panel-scroll" id="upgrades-list"></div>
     <div id="save-bar">
+      <div id="sound-panel">
+        <div class="sound-row">
+          <span id="sound-panel-icon">🔊</span>
+          <input type="range" id="sound-slider" min="0" max="100" value="80">
+          <span id="sound-pct">80%</span>
+        </div>
+      </div>
       <button class="btn-small" id="btn-reset">🗑 Reset</button>
       <button class="btn-small" id="btn-achievements">🏅 Goals</button>
       <button class="btn-small" id="btn-leaderboard">🏆 Scores</button>
@@ -1554,72 +1601,67 @@ function updateComboDisplay() {
 
 // ── Click handler ─────────────────────────────────────────
 // ── Sound System ──────────────────────────────────────────
+// ── Sound System ──────────────────────────────────────────
 let _audioCtx = null;
-let soundMuted = localStorage.getItem('cola_clicker_muted') === '1';
+let _masterGain = null;
+let soundVolume = Math.min(100, Math.max(0,
+  parseInt(localStorage.getItem('cola_clicker_volume') ?? '80', 10)));
 
 function getAudioCtx() {
   if (!_audioCtx) {
-    try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return null; }
+    try {
+      _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      _masterGain = _audioCtx.createGain();
+      _masterGain.gain.value = soundVolume / 100;
+      _masterGain.connect(_audioCtx.destination);
+    } catch(e) { return null; }
   }
   return _audioCtx;
 }
 
 // iOS WebKit: AudioContext starts suspended and resume() is async.
-// Route all sound through this helper so sounds only play after the context is running.
+// All sounds go through this so they only play once the context is running.
 function withAudio(fn) {
+  if (soundVolume === 0) return;
   const ctx = getAudioCtx();
-  if (!ctx || soundMuted) return;
+  if (!ctx) return;
   if (ctx.state === 'running') {
-    fn(ctx);
+    fn(ctx, _masterGain);
   } else {
-    ctx.resume().then(() => fn(ctx));
+    ctx.resume().then(() => fn(ctx, _masterGain));
   }
 }
 
 function playClickSound() {
-  withAudio(ctx => {
+  withAudio((ctx, dest) => {
     const now = ctx.currentTime;
-    // Sharp pop (can crack)
-    const pop = ctx.createOscillator();
-    const popG = ctx.createGain();
-    pop.connect(popG); popG.connect(ctx.destination);
-    pop.type = 'sine';
-    pop.frequency.setValueAtTime(180, now);
-    pop.frequency.exponentialRampToValueAtTime(40, now + 0.045);
-    popG.gain.setValueAtTime(0.35, now);
-    popG.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
-    pop.start(now); pop.stop(now + 0.045);
-    // Fizz/hiss noise
-    const bufLen = Math.floor(ctx.sampleRate * 0.18);
-    const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < bufLen; i++) data[i] = Math.random() * 2 - 1;
-    const noise = ctx.createBufferSource();
-    noise.buffer = buf;
-    const filt = ctx.createBiquadFilter();
-    filt.type = 'bandpass'; filt.frequency.value = 3500; filt.Q.value = 1.2;
-    const noiseG = ctx.createGain();
-    noiseG.gain.setValueAtTime(0.12, now);
-    noiseG.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
-    noise.connect(filt); filt.connect(noiseG); noiseG.connect(ctx.destination);
-    noise.start(now); noise.stop(now + 0.18);
+    // Punchy thock — clean pitch drop, no noise
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.connect(g); g.connect(dest);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(210, now);
+    osc.frequency.exponentialRampToValueAtTime(38, now + 0.055);
+    g.gain.setValueAtTime(0.75, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.075);
+    osc.start(now); osc.stop(now + 0.075);
   });
 }
 
 function playUnlockSound() {
-  withAudio(ctx => {
+  withAudio((ctx, dest) => {
     const now = ctx.currentTime;
-    // Soft ping: fundamental + octave harmonic
-    [1047, 2093].forEach((freq, i) => {
+    // Warm bell: fundamental + 2nd harmonic + slightly inharmonic 3rd partial
+    [[880, 0.14], [1760, 0.06], [2580, 0.025]].forEach(([freq, vol]) => {
       const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
+      const g = ctx.createGain();
+      osc.connect(g); g.connect(dest);
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, now);
-      gain.gain.setValueAtTime(0, now);
-      gain.gain.linearRampToValueAtTime(i === 0 ? 0.14 : 0.05, now + 0.006);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
-      osc.start(now); osc.stop(now + 0.55);
+      osc.frequency.value = freq;
+      g.gain.setValueAtTime(0, now);
+      g.gain.linearRampToValueAtTime(vol, now + 0.005);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+      osc.start(now); osc.stop(now + 0.45);
     });
   });
 }
@@ -2576,19 +2618,39 @@ document.getElementById('btn-close-impressum').addEventListener('click', () => {
   document.getElementById('impressum-modal').style.display = 'none';
 });
 
-// ── Sound toggle ──────────────────────────────────────────
+// ── Sound panel ──────────────────────────────────────────
 (function() {
-  const btn = document.getElementById('btn-sound');
-  function updateSoundBtn() {
-    btn.textContent = soundMuted ? '🔇 Sound' : '🔊 Sound';
+  const btn    = document.getElementById('btn-sound');
+  const panel  = document.getElementById('sound-panel');
+  const slider = document.getElementById('sound-slider');
+  const pctEl  = document.getElementById('sound-pct');
+  const iconEl = document.getElementById('sound-panel-icon');
+
+  function volIcon(v) { return v === 0 ? '🔇' : v < 50 ? '🔉' : '🔊'; }
+
+  function applyVolume(v) {
+    soundVolume = v;
+    localStorage.setItem('cola_clicker_volume', v);
+    if (_masterGain) _masterGain.gain.value = v / 100;
+    slider.value = v;
+    slider.style.setProperty('--vol', v + '%');
+    pctEl.textContent = v + '%';
+    iconEl.textContent = volIcon(v);
+    btn.textContent = volIcon(v) + ' Sound';
   }
-  updateSoundBtn();
-  btn.addEventListener('click', () => {
-    soundMuted = !soundMuted;
-    localStorage.setItem('cola_clicker_muted', soundMuted ? '1' : '0');
-    updateSoundBtn();
-    if (!soundMuted) playUnlockSound();
+
+  applyVolume(soundVolume);
+
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
   });
+
+  slider.addEventListener('input', () => applyVolume(parseInt(slider.value, 10)));
+  slider.addEventListener('change', () => { if (soundVolume > 0) playUnlockSound(); });
+
+  panel.addEventListener('click', e => e.stopPropagation());
+  document.addEventListener('click', () => { panel.style.display = 'none'; });
 })();
 
 /* DEV ONLY */
