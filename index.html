@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
@@ -955,12 +955,12 @@
     <div class="panel-scroll" id="upgrades-list"></div>
     <div id="save-bar">
       <button class="btn-small" id="btn-reset">🗑 Reset</button>
-      <button class="btn-small" id="btn-achievements">🏅 Ziele</button>
+      <button class="btn-small" id="btn-achievements">🏅 Goals</button>
       <button class="btn-small" id="btn-leaderboard">🏆 Scores</button>
       <!-- DEV ONLY — REMOVE BEFORE RELEASE -->
       <button class="btn-small" id="btn-dev-admin">⚙ DEV</button>
-      <a id="btn-kofi" href="https://ko-fi.com/L5K120OT29" target="_blank" rel="noopener">☕ Support auf Ko-fi</a>
-      <button id="btn-impressum">Impressum</button>
+      <a id="btn-kofi" href="https://ko-fi.com/L5K120OT29" target="_blank" rel="noopener">☕ Support on Ko-fi</a>
+      <button id="btn-impressum">Legal Notice</button>
     </div>
   </div>
 
@@ -988,7 +988,7 @@
     <div id="prestige-bar">
       <div id="prestige-info">
         <span id="prestige-token-count">🔥 0 Fizz Tokens</span>
-        <span id="prestige-bonus">Kein Bonus</span>
+        <span id="prestige-bonus">No Bonus</span>
         <span id="prestige-run">Run #1</span>
       </div>
       <button id="btn-prestige" class="btn-prestige" style="display:none">
@@ -996,7 +996,7 @@
       </button>
       <div id="scantion-info" style="display:none">
         <span id="scantion-token-count">⚡ 0 Scantion Tokens</span>
-        <span id="scantion-bonus">Kein Scantion-Bonus</span>
+        <span id="scantion-bonus">No Scantion Bonus</span>
       </div>
       <button id="btn-scantion" class="btn-scantion" style="display:none">
         ⚡ SCANTION — +<span id="scantion-earn-preview">0</span> Token(s)
@@ -1082,14 +1082,14 @@
     </div>
 
     <div id="prestige-progress-wrap">
-      <div id="prestige-progress-label">Fortschritt bis Prestige <span class="prestige-goal-tag">(Ziel für Philipp und Chris)</span></div>
+      <div id="prestige-progress-label">Progress to Prestige <span class="prestige-goal-tag">(Goal for Philipp and Chris)</span></div>
       <div id="prestige-progress-bar-outer">
         <div id="prestige-progress-bar-inner"></div>
       </div>
       <div id="prestige-progress-pct">0.00000000%</div>
     </div>
     <div id="scantion-progress-wrap" style="display:none">
-      <div id="scantion-progress-label">⚡ Fortschritt bis Scantion — 🔥 Fizz-Ziel: <span class="scantion-goal-tag" id="scantion-goal-text">1M</span></div>
+      <div id="scantion-progress-label">⚡ Progress to Scantion — 🔥 Fizz Goal: <span class="scantion-goal-tag" id="scantion-goal-text">1M</span></div>
       <div id="scantion-progress-bar-outer">
         <div id="scantion-progress-bar-inner"></div>
       </div>
@@ -1116,7 +1116,7 @@
 
 <div id="leaderboard-modal" style="display:none">
   <div id="leaderboard-header">
-    <span id="leaderboard-title">🏆 Final Boss — Beste Zeiten</span>
+    <span id="leaderboard-title">🏆 Final Boss — Best Times</span>
     <button id="btn-close-leaderboard">✕</button>
   </div>
   <div id="leaderboard-body-wrap">
@@ -1125,34 +1125,33 @@
         <tr>
           <th>#</th>
           <th>Run</th>
-          <th>Zeit</th>
-          <th>Datum</th>
+          <th>Time</th>
+          <th>Date</th>
         </tr>
       </thead>
       <tbody id="leaderboard-body"></tbody>
     </table>
     <div id="leaderboard-empty" style="display:none">
-      Noch kein Final Boss besiegt. Sammle 1 Mrd. Scantion Tokens und kaufe das letzte Upgrade!
+      No Final Boss defeated yet. Collect 1B Scantion Tokens and buy the last upgrade!
     </div>
   </div>
 </div>
 
 <div id="impressum-modal" style="display:none">
   <div id="impressum-header">
-    <span id="impressum-title">📋 Impressum</span>
+    <span id="impressum-title">📋 Legal Notice</span>
     <button id="btn-close-impressum">✕</button>
   </div>
   <div id="impressum-body">
-    <strong>Angaben gemäß § 5 TMG</strong><br><br>
+    <strong>Legal Information</strong><br><br>
     Nico Kozuschek<br>
     <br>
-    <strong>Kontakt</strong><br>
+    <strong>Contact</strong><br>
     E-Mail: <a href="mailto:nico.kozuschek@web.de">nico.kozuschek@web.de</a><br>
     <br>
-    <strong>Datenschutz</strong><br>
-    Dieses Spiel speichert den Spielstand ausschließlich lokal in deinem Browser
-    (localStorage). Es werden keine personenbezogenen Daten erhoben, gespeichert
-    oder weitergegeben.
+    <strong>Privacy</strong><br>
+    This game stores your save data exclusively locally in your browser
+    (localStorage). No personal data is collected, stored, or shared.
   </div>
 </div>
 
@@ -1173,22 +1172,22 @@
   </div>
   <div class="dev-row">
     <label>Cola</label>
-    <input type="text" id="dev-cola" placeholder="z.B. 1e14" />
+    <input type="text" id="dev-cola" placeholder="e.g. 1e14" />
     <button class="dev-btn" id="dev-cola-btn">→</button>
   </div>
   <div class="dev-row">
     <label>Fizz</label>
-    <input type="text" id="dev-fizz" placeholder="z.B. 50" />
+    <input type="text" id="dev-fizz" placeholder="e.g. 50" />
     <button class="dev-btn" id="dev-fizz-btn">→</button>
   </div>
   <div class="dev-row">
     <label>Scantion</label>
-    <input type="text" id="dev-scantion" placeholder="z.B. 10" />
+    <input type="text" id="dev-scantion" placeholder="e.g. 10" />
     <button class="dev-btn" id="dev-scantion-btn">→</button>
   </div>
   <div class="dev-row">
     <label>Prestiges</label>
-    <input type="text" id="dev-prestiges" placeholder="z.B. 5" />
+    <input type="text" id="dev-prestiges" placeholder="e.g. 5" />
     <button class="dev-btn" id="dev-prestiges-btn">→</button>
   </div>
 </div>
@@ -1258,54 +1257,54 @@ const MILESTONES = [
   { id:'m_b2', type:'buildings',val:10,  title:'🏘️ Small Empire',  sub:'10 buildings owned!' },
   { id:'m_b3', type:'buildings',val:50,  title:'🏙️ Cola City',     sub:'50 buildings owned!' },
   { id:'m_b4', type:'buildings', val:100, title:'🌆 Megalopolis',       sub:'100 buildings! You are unstoppable.' },
-  { id:'m_b5', type:'buildings', val:200, title:'🌏 Cola Continent',    sub:'200 Gebäude! Absolut unaufhaltsam.' },
-  { id:'m7',    threshold:1e15,            title:'🌌 Cola Quadrillionär', sub:'Eine Billiarde Cola! Unvorstellbar.' },
-  { id:'m8',    threshold:1e18,            title:'⚡ Cola Quintillionär', sub:'1.00e18 Cola! Die Zahlen werden absurd.' },
-  { id:'m9',    threshold:1e24,            title:'☄️ Cola-Gott',          sub:'1.00e24 Cola! Du bist jenseits aller Logik.' },
-  { id:'m10',   threshold:1e30,            title:'🌌 Schöpfer der Cola',  sub:'1.00e30 Cola! Das Universum gehört dir.' },
-  { id:'m_c4',  type:'clicks', val:100000, title:'🔥 Click-Übermacht',   sub:'100.000 Klicks! Dein Finger ist unsterblich.' },
-  { id:'m_p1',  type:'prestige', val:1,    title:'🔥 Erster Prestige',   sub:'Du hast zum ersten Mal aufgestiegen!' },
-  { id:'m_p5',  type:'prestige', val:5,    title:'🏆 Prestige-Meister',  sub:'Fünf Aufstiege. Du BIST die Cola.' },
-  { id:'m_p10', type:'prestige', val:10,   title:'⚡ Prestige-Legende',  sub:'Zehn Aufstiege. Eine wahre Cola-Legende.' },
-  { id:'m_p25', type:'prestige', val:25,   title:'🌌 Prestige-Gottheit', sub:'25 Aufstiege. Das Universum verbeugt sich.' },
+  { id:'m_b5', type:'buildings', val:200, title:'🌏 Cola Continent',    sub:'200 Buildings! Absolutely unstoppable.' },
+  { id:'m7',    threshold:1e15,            title:'🌌 Cola Quadrillionaire', sub:'One Quadrillion Cola! Unimaginable.' },
+  { id:'m8',    threshold:1e18,            title:'⚡ Cola Quintillionaire', sub:'1.00e18 Cola! The numbers are getting absurd.' },
+  { id:'m9',    threshold:1e24,            title:'☄️ Cola God',             sub:'1.00e24 Cola! You are beyond all logic.' },
+  { id:'m10',   threshold:1e30,            title:'🌌 Cola Creator',         sub:'1.00e30 Cola! The universe belongs to you.' },
+  { id:'m_c4',  type:'clicks', val:100000, title:'🔥 Click Overlord',       sub:'100,000 Clicks! Your finger is immortal.' },
+  { id:'m_p1',  type:'prestige', val:1,    title:'🔥 First Prestige',       sub:'You have ascended for the first time!' },
+  { id:'m_p5',  type:'prestige', val:5,    title:'🏆 Prestige Master',      sub:'Five ascensions. You ARE the Cola.' },
+  { id:'m_p10', type:'prestige', val:10,   title:'⚡ Prestige Legend',      sub:'Ten ascensions. A true Cola Legend.' },
+  { id:'m_p25', type:'prestige', val:25,   title:'🌌 Prestige Deity',       sub:'25 ascensions. The universe bows before you.' },
 ];
 
 const CPS_LEVELS = [
-  { minCps: 5,  mult: 2, label: '🔥 ×2 COMBO',  cls: 'combo-lv1', toast: '🔥 ×2 Combo! Klick-Power verdoppelt!' },
-  { minCps: 10, mult: 3, label: '⚡ ×3 INFERNO', cls: 'combo-lv2', toast: '⚡ ×3 Inferno! Dreifache Klick-Power!' },
-  { minCps: 15, mult: 4, label: '💥 ×4 ULTRA',   cls: 'combo-lv3', toast: '💥 ×4 Ultra! Vierfache Klick-Power!' },
-  { minCps: 20, mult: 5, label: '🌌 ×5 GODMODE', cls: 'combo-lv4', toast: '🌌 ×5 GODMODE! Fünffache Klick-Power!' },
+  { minCps: 5,  mult: 2, label: '🔥 ×2 COMBO',  cls: 'combo-lv1', toast: '🔥 ×2 Combo! Click power doubled!' },
+  { minCps: 10, mult: 3, label: '⚡ ×3 INFERNO', cls: 'combo-lv2', toast: '⚡ ×3 Inferno! Triple click power!' },
+  { minCps: 15, mult: 4, label: '💥 ×4 ULTRA',   cls: 'combo-lv3', toast: '💥 ×4 Ultra! Quadruple click power!' },
+  { minCps: 20, mult: 5, label: '🌌 ×5 GODMODE', cls: 'combo-lv4', toast: '🌌 ×5 GODMODE! Quintuple click power!' },
 ];
 
 const FIZZ_UPGRADES = [
-  { id:'fizz_boost',      name:'Fizz-Verstärker',      emoji:'🔥', type:'repeatable', baseCost:100,         costScale:10.0, maxLevel:Infinity, effectPerLevel:2.0,  effectType:'cps',   desc:'Verdoppelt alle Cola-Produktion dauerhaft.' },
-  { id:'click_infusion',  name:'Klick-Infusion',        emoji:'👆', type:'repeatable', baseCost:25,          costScale:2.5,  maxLevel:Infinity, effectPerLevel:0.10, effectType:'click', desc:'Verstärkt jeden Klick dauerhaft.' },
-  { id:'milestone_1k',    name:'Fizz-Meilenstein I',    emoji:'💎', type:'milestone',  cost:1000,            maxLevel:1,     bonus:1.0, effectType:'all', desc:'Ein mächtiger Produktionsschub für alle Zeit.' },
-  { id:'milestone_10k',   name:'Fizz-Meilenstein II',   emoji:'🏆', type:'milestone',  cost:10000,           maxLevel:1,     bonus:1.0, effectType:'all', desc:'Der Produktionsfluss verdoppelt seine Kraft.' },
-  { id:'milestone_100k',  name:'Fizz-Meilenstein III',  emoji:'🌌', type:'milestone',  cost:100000,          maxLevel:1,     bonus:1.0, effectType:'all', desc:'Kosmische Energie treibt deine Cola-Produktion an.' },
-  { id:'milestone_1m',    name:'Fizz-Meilenstein IV',   emoji:'💫', type:'milestone',  cost:1000000,         maxLevel:1,     bonus:1.0, effectType:'all', desc:'Die Macht des Fizz durchdringt alle Welten.' },
-  { id:'milestone_10m',   name:'Fizz-Meilenstein V',    emoji:'⚡', type:'milestone',  cost:10000000,        maxLevel:1,     bonus:1.0, effectType:'all', desc:'Du bist ein Cola-Gott geworden.' },
-  { id:'milestone_100m',  name:'Fizz-Meilenstein VI',   emoji:'🌠', type:'milestone',  cost:100000000,       maxLevel:1,     bonus:1.0, effectType:'all', desc:'Jenseits des Universums fließt dein Cola.' },
-  { id:'milestone_1b',    name:'Fizz-Meilenstein VII',  emoji:'👑', type:'milestone',  cost:1000000000,      maxLevel:1,     bonus:1.0, effectType:'all', desc:'Unendlichkeit selbst neigt sich vor dir.' },
+  { id:'fizz_boost',      name:'Fizz Booster',        emoji:'🔥', type:'repeatable', baseCost:100,         costScale:10.0, maxLevel:Infinity, effectPerLevel:2.0,  effectType:'cps',   desc:'Permanently doubles all Cola production.' },
+  { id:'click_infusion',  name:'Click Infusion',      emoji:'👆', type:'repeatable', baseCost:25,          costScale:2.5,  maxLevel:Infinity, effectPerLevel:0.10, effectType:'click', desc:'Permanently boosts every click.' },
+  { id:'milestone_1k',    name:'Fizz Milestone I',    emoji:'💎', type:'milestone',  cost:1000,            maxLevel:1,     bonus:1.0, effectType:'all', desc:'A powerful production boost for all time.' },
+  { id:'milestone_10k',   name:'Fizz Milestone II',   emoji:'🏆', type:'milestone',  cost:10000,           maxLevel:1,     bonus:1.0, effectType:'all', desc:'The production flow doubles its power.' },
+  { id:'milestone_100k',  name:'Fizz Milestone III',  emoji:'🌌', type:'milestone',  cost:100000,          maxLevel:1,     bonus:1.0, effectType:'all', desc:'Cosmic energy powers your Cola production.' },
+  { id:'milestone_1m',    name:'Fizz Milestone IV',   emoji:'💫', type:'milestone',  cost:1000000,         maxLevel:1,     bonus:1.0, effectType:'all', desc:'The power of Fizz permeates all worlds.' },
+  { id:'milestone_10m',   name:'Fizz Milestone V',    emoji:'⚡', type:'milestone',  cost:10000000,        maxLevel:1,     bonus:1.0, effectType:'all', desc:'You have become a Cola God.' },
+  { id:'milestone_100m',  name:'Fizz Milestone VI',   emoji:'🌠', type:'milestone',  cost:100000000,       maxLevel:1,     bonus:1.0, effectType:'all', desc:'Beyond the universe, your Cola flows.' },
+  { id:'milestone_1b',    name:'Fizz Milestone VII',  emoji:'👑', type:'milestone',  cost:1000000000,      maxLevel:1,     bonus:1.0, effectType:'all', desc:'Infinity itself bows before you.' },
 ];
 
 const SCANTION_UPGRADES = [
-  { id:'sq_quantum',       name:'Quantum Carbonation',      emoji:'⚡', cost:1,
-    desc:'Verdoppelt die gesamte Produktion. Cola existiert in allen Zuständen gleichzeitig.' },
-  { id:'sq_fizz_catalyst', name:'Fizz Katalysator',         emoji:'🧪', cost:10,
-    desc:'Fizz Tokens geben +5% statt +2% Produktionsbonus.' },
-  { id:'sq_synergy',       name:'Gebäude-Synergie',         emoji:'🔗', cost:100,
-    desc:'Jeder einzigartige Gebäudetyp (≥1 besessen) gibt +5% auf alle Produktion.' },
-  { id:'sq_click',         name:'Click-Resonanz',           emoji:'👆', cost:1000,
-    desc:'Jeder Klick erzeugt zusätzlich 0,5% der aktuellen Cola/s.' },
-  { id:'sq_vault',         name:'Temporaler Tresor',        emoji:'⏳', cost:10000,
-    desc:'Offline-Cap ×3 und Offline-Rate +50%.' },
-  { id:'sq_velocity',      name:'Prestige-Geschwindigkeit', emoji:'🌀', cost:100000,
-    desc:'Jedes Prestige in diesem Scantion-Run gibt +5% auf alle Produktion (stapelt sich).' },
-  { id:'sq_echo',          name:'Scantion-Echo',            emoji:'♾️', cost:1000000,
-    desc:'Jeder abgeschlossene Scantion gibt permanent +30% auf alle Produktion (stapelt sich).' },
+  { id:'sq_quantum',       name:'Quantum Carbonation',  emoji:'⚡', cost:1,
+    desc:'Doubles all production. Cola exists in all states simultaneously.' },
+  { id:'sq_fizz_catalyst', name:'Fizz Catalyst',        emoji:'🧪', cost:10,
+    desc:'Fizz Tokens grant +5% instead of +2% production bonus.' },
+  { id:'sq_synergy',       name:'Building Synergy',     emoji:'🔗', cost:100,
+    desc:'Each unique building type owned (≥1) grants +5% to all production.' },
+  { id:'sq_click',         name:'Click Resonance',      emoji:'👆', cost:1000,
+    desc:'Each click additionally generates 0.5% of current cola/s.' },
+  { id:'sq_vault',         name:'Temporal Vault',       emoji:'⏳', cost:10000,
+    desc:'Offline cap ×3 and offline rate +50%.' },
+  { id:'sq_velocity',      name:'Prestige Velocity',    emoji:'🌀', cost:100000,
+    desc:'Each Prestige in this Scantion run grants +5% to all production (stacks).' },
+  { id:'sq_echo',          name:'Scantion Echo',        emoji:'♾️', cost:1000000,
+    desc:'Each completed Scantion permanently grants +30% to all production (stacks).' },
   { id:'sq_final_boss', name:'Final Boss', emoji:'👑', cost:1000000000,
-    desc:'Du hast alles erreicht. Betätige den Final Boss und beende das Spiel als unsterblicher Cola-Gott.' },
+    desc:'You have achieved everything. Activate the Final Boss and end the game as an immortal Cola God.' },
 ];
 
 const BUILDINGS_MAP = Object.fromEntries(BUILDINGS.map(b => [b.id, b]));
@@ -1460,7 +1459,7 @@ function updateClickCombo(dt) {
     if (clickComboLevel > prevLevel) {
       showToast(CPS_LEVELS[clickComboLevel - 1].toast);
     } else {
-      showToast('❄️ Combo verloren! Schneller klicken!');
+      showToast('❄️ Combo lost! Click faster!');
     }
   }
 }
@@ -1482,7 +1481,7 @@ function updateComboDisplay() {
     badge.textContent = lvl.label;
     badge.className   = lvl.cls;
   } else {
-    badge.textContent = '🔥 ×2 aufheizen...';
+    badge.textContent = '🔥 ×2 warming up...';
     badge.className   = 'combo-lv0';
   }
 
@@ -1493,7 +1492,7 @@ function updateComboDisplay() {
     const needed = CPS_LEVELS[clickComboLevel - 1].minCps;
     bar.style.width      = pct + '%';
     bar.style.background = '#4488ff';
-    hint.textContent     = (5 - clickComboDecayTimer).toFixed(1) + 's bis Verlust · ' + needed + '/s halten!';
+    hint.textContent     = (5 - clickComboDecayTimer).toFixed(1) + 's to loss · maintain ' + needed + '/s!';
   } else if (clickComboLevel < CPS_LEVELS.length) {
     // Advance: bar fills up toward next level
     const pct  = (clickComboTimer / 5) * 100;
@@ -1672,7 +1671,7 @@ function renderSpecialUpgrades() {
     <div class="su-body">
       <div class="su-name">Click Power</div>
       <div class="su-level">Lv.${state.clickLevel} — next: ×${fmt(nextClickMult)} / click</div>
-      <div class="su-desc">Aktuell: ×${fmt(clickMult)} per click</div>
+      <div class="su-desc">Current: ×${fmt(clickMult)} per click</div>
       <div class="su-cost">${fmt(clickCost)} cola</div>
     </div>`;
   clickCard.addEventListener('click', buyClickUpgrade);
@@ -1694,9 +1693,9 @@ function renderSpecialUpgrades() {
     <div class="su-icon">💤</div>
     <div class="su-body">
       <div class="su-name">Offline Vault</div>
-      <div class="su-level">Lv.${state.offlineLevel}${isMaxed ? ' — Maximiert ✓' : ' — nächste: +' + stepSize + '% → ' + nextPct + '%'}</div>
-      <div class="su-desc">Aktuell: ${offPct}% offline · max ${maxH}h</div>
-      <div class="su-cost">${isMaxed ? '100% erreicht!' : fmt(offCost) + ' cola'}</div>
+      <div class="su-level">Lv.${state.offlineLevel}${isMaxed ? ' — Maxed ✓' : ' — next: +' + stepSize + '% → ' + nextPct + '%'}</div>
+      <div class="su-desc">Current: ${offPct}% offline · max ${maxH}h</div>
+      <div class="su-cost">${isMaxed ? '100% reached!' : fmt(offCost) + ' cola'}</div>
     </div>`;
   if (!isMaxed) offCard.addEventListener('click', buyOfflineUpgrade);
   list.appendChild(offCard);
@@ -2014,7 +2013,7 @@ function buyFizzUpgrade(id) {
   state.fizzTokens -= cost;
   state.fizzUpgrades[id] = (state.fizzUpgrades[id] || 0) + 1;
   const lvl = state.fizzUpgrades[id];
-  showToast('🔥 ' + u.name + (u.type === 'repeatable' ? ' Lv.' + lvl : '') + ' freigeschaltet!');
+  showToast('🔥 ' + u.name + (u.type === 'repeatable' ? ' Lv.' + lvl : '') + ' unlocked!');
   renderSpecialUpgrades();
   updateUI();
   autoSave();
@@ -2039,16 +2038,16 @@ function renderFizzUpgrades() {
       if (u.id === 'fizz_boost') {
         const curMult  = Math.pow(2, level);
         const nextMult = Math.pow(2, level + 1);
-        levelLine = 'Lv.' + level + ' — jetzt: ×' + fmt(curMult) + ' · nächste: ×' + fmt(nextMult);
+        levelLine = 'Lv.' + level + ' — now: ×' + fmt(curMult) + ' · next: ×' + fmt(nextMult);
       } else {
         const curPct  = (level * u.effectPerLevel * 100).toFixed(0);
         const nextPct = ((level + 1) * u.effectPerLevel * 100).toFixed(0);
-        levelLine = 'Lv.' + level + ' — jetzt: +' + curPct + '% · nächste: +' + nextPct + '%';
+        levelLine = 'Lv.' + level + ' — now: +' + curPct + '% · next: +' + nextPct + '%';
       }
       costLine  = '🔥 ' + fmt(cost) + ' Fizz';
     } else {
-      levelLine = isOwned ? '✓ Aktiv — +20% Gesamtproduktion' : '+20% Gesamtproduktion (einmalig)';
-      costLine  = isOwned ? '✓ Gekauft' : '🔥 ' + fmt(cost) + ' Fizz';
+      levelLine = isOwned ? '✓ Active — +20% Total Production' : '+20% Total Production (one-time)';
+      costLine  = isOwned ? '✓ Purchased' : '🔥 ' + fmt(cost) + ' Fizz';
     }
 
     const card = document.createElement('div');
@@ -2083,9 +2082,9 @@ function updatePrestigeUI() {
   document.getElementById('prestige-token-count').textContent =
     '🔥 ' + tokens + ' Fizz Token' + (tokens !== 1 ? 's' : '');
   document.getElementById('prestige-bonus').textContent =
-    bonusPct > 0 ? '+' + bonusPct + '% Bonus' : 'Kein Bonus';
+    bonusPct > 0 ? '+' + bonusPct + '% Bonus' : 'No Bonus';
   document.getElementById('prestige-run').textContent =
-    'Run #' + (state.totalPrestiges + 1) + ' · Ziel: ' + fmt(threshold);
+    'Run #' + (state.totalPrestiges + 1) + ' · Goal: ' + fmt(threshold);
 
   const btnP = document.getElementById('btn-prestige');
   btnP.style.display = eligible ? 'block' : 'none';
@@ -2100,12 +2099,12 @@ function doPrestige() {
   const nextThreshold = 1e12 * Math.sqrt(newTotal + 1);
   const fizzRate = state.scantionUpgrades.sq_fizz_catalyst ? 0.02 : 0.01;
   if (!confirm(
-    'Prestige durchführen?\n\n' +
-    'Du erhältst ' + earned + ' Fizz Token(s).\n' +
-    'Neuer Bonus: +' + Math.round(newTotal * fizzRate * 100) + '% auf alle Produktion.\n' +
-    'Nächstes Ziel: ' + fmt(nextThreshold) + '\n\n' +
-    'Cola, Gebäude und Upgrades werden zurückgesetzt.\n' +
-    'Fizz Tokens bleiben dauerhaft erhalten!'
+    'Perform Prestige?\n\n' +
+    'You will receive ' + earned + ' Fizz Token(s).\n' +
+    'New Bonus: +' + Math.round(newTotal * fizzRate * 100) + '% to all production.\n' +
+    'Next Goal: ' + fmt(nextThreshold) + '\n\n' +
+    'Cola, buildings and upgrades will be reset.\n' +
+    'Fizz Tokens are kept permanently!'
   )) return;
 
   const runNumber = state.totalPrestiges + 1;
@@ -2182,7 +2181,7 @@ function updateScantionUI() {
       ? ' · +' + Math.round(scantions * 30) + '% Echo' : '';
     const tokenBonusPct = Math.round(tokens * 1);
     document.getElementById('scantion-bonus').textContent =
-      tokens > 0 ? '+' + tokenBonusPct + '% Bonus' + (scantions > 0 ? ' · Scantion #' + scantions + echoBonus : '') : 'Kein Scantion-Bonus';
+      tokens > 0 ? '+' + tokenBonusPct + '% Bonus' + (scantions > 0 ? ' · Scantion #' + scantions + echoBonus : '') : 'No Scantion Bonus';
   } else {
     infoEl.style.display = 'none';
   }
@@ -2201,13 +2200,13 @@ function doScantion() {
   const earned = calcScantionTokensEarned();
   const newST  = (state.scantionTokens || 0) + earned;
   if (!confirm(
-    'SCANTION durchführen?\n\n' +
-    'Du erhältst ' + earned + ' Scantion Token' + (earned !== 1 ? 's' : '') + '.\n\n' +
-    'ALLES wird zurückgesetzt:\n' +
-    '  • Cola, Gebäude, Prestige-Upgrades\n' +
-    '  • Fizz Tokens (' + state.fizzTokens + ') gehen verloren\n\n' +
-    'Scantion Tokens & Upgrades bleiben dauerhaft!\n' +
-    'Bereit für Layer 2?'
+    'Perform SCANTION?\n\n' +
+    'You will receive ' + earned + ' Scantion Token' + (earned !== 1 ? 's' : '') + '.\n\n' +
+    'EVERYTHING will be reset:\n' +
+    '  • Cola, buildings, Prestige upgrades\n' +
+    '  • Fizz Tokens (' + state.fizzTokens + ') will be lost\n\n' +
+    'Scantion Tokens & upgrades are kept permanently!\n' +
+    'Ready for Layer 2?'
   )) return;
 
   state = {
@@ -2232,7 +2231,7 @@ function doScantion() {
   upgradesTab = 'fizz';
   renderBuildings(); renderSpecialUpgrades(); updateUI();
   checkMilestones();
-  showToast('⚡ SCANTION #' + state.totalScantions + '! +' + earned + ' Token' + (earned !== 1 ? 's' : '') + '! Willkommen in Layer 2!');
+  showToast('⚡ SCANTION #' + state.totalScantions + '! +' + earned + ' Token' + (earned !== 1 ? 's' : '') + '! Welcome to Layer 2!');
 }
 
 function renderScantionUpgrades() {
@@ -2252,9 +2251,9 @@ function renderScantionUpgrades() {
       <div class="su-icon">${u.emoji}</div>
       <div class="su-body">
         <div class="su-name">${u.name}</div>
-        <div class="su-level">${isOwned ? '✓ Aktiv' : 'Einmalig — einmal kaufen'}</div>
+        <div class="su-level">${isOwned ? '✓ Active' : 'One-time — buy once'}</div>
         <div class="su-desc">${u.desc}</div>
-        <div class="su-cost su-cost-scantion">${isOwned ? '✓ Gekauft' : '⚡ ' + u.cost + ' Scantion Token' + (u.cost !== 1 ? 's' : '')}</div>
+        <div class="su-cost su-cost-scantion">${isOwned ? '✓ Purchased' : '⚡ ' + u.cost + ' Scantion Token' + (u.cost !== 1 ? 's' : '')}</div>
       </div>`;
     if (!isOwned) card.addEventListener('click', () => buyScantionUpgrade(u.id));
     list.appendChild(card);
@@ -2267,11 +2266,11 @@ function doFinalBossWin() {
   recordLeaderboardEntry({ runNumber: runNum, timeMs, timestamp: Date.now() });
 
   alert(
-    '🏆 GLÜCKWUNSCH! DU HAST DAS SPIEL GEWONNEN! 🏆\n\n' +
-    'Du hast den Final Boss besiegt!\n' +
-    'Du bist ein unsterblicher Cola-Gott!\n\n' +
-    'Run #' + runNum + ' — Zeit: ' + fmtTime(timeMs) + '\n\n' +
-    'Das Spiel wird jetzt zurückgesetzt — dein Rekord bleibt im Leaderboard!'
+    '🏆 CONGRATULATIONS! YOU HAVE WON THE GAME! 🏆\n\n' +
+    'You have defeated the Final Boss!\n' +
+    'You are an immortal Cola God!\n\n' +
+    'Run #' + runNum + ' — Time: ' + fmtTime(timeMs) + '\n\n' +
+    'The game will now reset — your record stays in the leaderboard!'
   );
 
   localStorage.removeItem(SAVE_KEY);
@@ -2288,7 +2287,7 @@ function doFinalBossWin() {
   };
   upgradesTab = 'fizz';
   renderBuildings(); renderSpecialUpgrades(); updateUI();
-  showToast('🏆 FINAL BOSS BESIEGT! Run #' + runNum + ' in ' + fmtTime(timeMs) + '!');
+  showToast('🏆 FINAL BOSS DEFEATED! Run #' + runNum + ' in ' + fmtTime(timeMs) + '!');
 }
 
 function buyScantionUpgrade(id) {
@@ -2302,7 +2301,7 @@ function buyScantionUpgrade(id) {
     doFinalBossWin();
     return;
   }
-  showToast('⚡ ' + u.name + ' freigeschaltet!');
+  showToast('⚡ ' + u.name + ' unlocked!');
   renderSpecialUpgrades();
   updateUI();
   autoSave();
@@ -2350,7 +2349,7 @@ function renderLeaderboard() {
 
   const sorted = board.slice().sort((a, b) => a.timeMs - b.timeMs);
   sorted.forEach((entry, i) => {
-    const date = new Date(entry.timestamp).toLocaleDateString('de-DE');
+    const date = new Date(entry.timestamp).toLocaleDateString('en-US');
     const tr   = document.createElement('tr');
     if (i === 0) tr.style.color = 'var(--gold)';
     tr.innerHTML =
