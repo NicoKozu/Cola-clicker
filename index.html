@@ -1963,7 +1963,8 @@ function updateScantionUI() {
   }
 
   const threshold = getScantionThreshold();
-  const eligible  = state.totalCola >= threshold;
+  const hasDonePres = state.totalPrestiges >= 1 || state.fizzTokens > 0;
+  const eligible  = hasDonePres && state.totalCola >= threshold;
   btnEl.style.display = eligible ? 'block' : 'none';
   if (eligible) {
     document.getElementById('scantion-earn-preview').textContent = calcScantionTokensEarned();
@@ -1973,6 +1974,7 @@ function updateScantionUI() {
 function doScantion() {
   const threshold = getScantionThreshold();
   if (state.totalCola < threshold) return;
+  if (state.totalPrestiges < 1 && state.fizzTokens <= 0) return;
   const earned = calcScantionTokensEarned();
   const newST  = (state.scantionTokens || 0) + earned;
   if (!confirm(
