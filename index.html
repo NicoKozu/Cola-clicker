@@ -2165,7 +2165,7 @@ function updatePrestigeUI() {
   const eligible  = state.totalCola >= threshold;
 
   document.getElementById('prestige-token-count').textContent =
-    '🔥 ' + tokens + ' Fizz Token' + (tokens !== 1 ? 's' : '');
+    '🔥 ' + fmt(tokens) + ' Fizz Token' + (tokens !== 1 ? 's' : '');
   document.getElementById('prestige-bonus').textContent =
     bonusPct > 0 ? '+' + bonusPct + '% Bonus' : 'No Bonus';
   const completedRuns = getLeaderboard().length;
@@ -2179,7 +2179,7 @@ function updatePrestigeUI() {
 
   const btnP = document.getElementById('btn-prestige');
   btnP.style.display = eligible ? 'block' : 'none';
-  document.getElementById('prestige-earn-preview').textContent = earned;
+  document.getElementById('prestige-earn-preview').textContent = fmt(earned);
 }
 
 async function doPrestige() {
@@ -2191,7 +2191,7 @@ async function doPrestige() {
   const fizzRate = state.scantionUpgrades.sq_fizz_catalyst ? 0.02 : 0.01;
   if (!await showConfirm(
     'Perform Prestige?\n\n' +
-    'You will receive ' + earned + ' Fizz Token(s).\n' +
+    'You will receive ' + fmt(earned) + ' Fizz Token' + (earned !== 1 ? 's' : '') + '.\n' +
     'New Bonus: +' + Math.round(newTotal * fizzRate * 100) + '% to all production.\n\n' +
     'Cola, buildings and upgrades will be reset.\n' +
     'Fizz Tokens are kept permanently!',
@@ -2221,7 +2221,7 @@ async function doPrestige() {
   autoSave();
   renderBuildings(); renderSpecialUpgrades(); updateUI();
   checkMilestones();
-  showToast('🔥 Prestige! +' + earned + ' Fizz Token' + (earned !== 1 ? 's' : '') + '! Bonus: +' + Math.round(newTotal * fizzRate * 100) + '%');
+  showToast('🔥 Prestige! +' + fmt(earned) + ' Fizz Token' + (earned !== 1 ? 's' : '') + '! Bonus: +' + Math.round(newTotal * fizzRate * 100) + '%');
 }
 
 // ── Scantion (Layer 2) ────────────────────────────────────
@@ -2257,7 +2257,7 @@ function updateScantionUI() {
   if (tokens > 0 || scantions > 0) {
     infoEl.style.display = 'flex';
     document.getElementById('scantion-token-count').textContent =
-      '⚡ ' + tokens + ' Scantion Token' + (tokens !== 1 ? 's' : '');
+      '⚡ ' + fmt(tokens) + ' Scantion Token' + (tokens !== 1 ? 's' : '');
     const echoBonus = (state.scantionUpgrades && state.scantionUpgrades.sq_echo)
       ? ' · +' + Math.round(scantions * 30) + '% Echo' : '';
     const tokenBonusPct = Math.round(tokens * 1);
@@ -2271,7 +2271,7 @@ function updateScantionUI() {
   const eligible  = (state.fizzTokens || 0) >= threshold;
   btnEl.style.display = eligible ? 'block' : 'none';
   if (eligible) {
-    document.getElementById('scantion-earn-preview').textContent = calcScantionTokensEarned();
+    document.getElementById('scantion-earn-preview').textContent = fmt(calcScantionTokensEarned());
   }
 }
 
@@ -2282,10 +2282,10 @@ async function doScantion() {
   const newST  = (state.scantionTokens || 0) + earned;
   if (!await showConfirm(
     'Perform SCANTION?\n\n' +
-    'You will receive ' + earned + ' Scantion Token' + (earned !== 1 ? 's' : '') + '.\n\n' +
+    'You will receive ' + fmt(earned) + ' Scantion Token' + (earned !== 1 ? 's' : '') + '.\n\n' +
     'EVERYTHING will be reset:\n' +
     '  • Cola, buildings, Prestige upgrades\n' +
-    '  • Fizz Tokens (' + state.fizzTokens + ') will be lost\n\n' +
+    '  • Fizz Tokens (' + fmt(state.fizzTokens) + ') will be lost\n\n' +
     'Scantion Tokens & upgrades are kept permanently!\n' +
     'Ready for Layer 2?',
     '⚡ Scantion!'
@@ -2313,7 +2313,7 @@ async function doScantion() {
   upgradesTab = 'fizz';
   renderBuildings(); renderSpecialUpgrades(); updateUI();
   checkMilestones();
-  showToast('⚡ SCANTION #' + state.totalScantions + '! +' + earned + ' Token' + (earned !== 1 ? 's' : '') + '! Welcome to Layer 2!');
+  showToast('⚡ SCANTION #' + state.totalScantions + '! +' + fmt(earned) + ' Token' + (earned !== 1 ? 's' : '') + '! Welcome to Layer 2!');
 }
 
 function renderScantionUpgrades() {
@@ -2335,7 +2335,7 @@ function renderScantionUpgrades() {
         <div class="su-name">${u.name}</div>
         <div class="su-level">${isOwned ? '✓ Active' : 'One-time — buy once'}</div>
         <div class="su-desc">${u.desc}</div>
-        <div class="su-cost su-cost-scantion">${isOwned ? '✓ Purchased' : '⚡ ' + u.cost + ' Scantion Token' + (u.cost !== 1 ? 's' : '')}</div>
+        <div class="su-cost su-cost-scantion">${isOwned ? '✓ Purchased' : '⚡ ' + fmt(u.cost) + ' Scantion Token' + (u.cost !== 1 ? 's' : '')}</div>
       </div>`;
     if (!isOwned) card.addEventListener('click', () => buyScantionUpgrade(u.id));
     list.appendChild(card);
