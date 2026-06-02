@@ -732,6 +732,52 @@
     .special-upgrade-card.scantion-owned { cursor: default; opacity: 0.65; }
     .special-upgrade-card.scantion-owned:hover { transform: none; border-color: var(--border); background: rgba(30,8,8,0.8); }
 
+    /* ── DEV ONLY — REMOVE BEFORE RELEASE ──────────────── */
+    #btn-dev-admin {
+      position: fixed; bottom: 16px; right: 16px; z-index: 1800;
+      background: rgba(30,8,8,0.92); border: 1px solid rgba(130,25,35,0.5);
+      border-radius: 8px; color: var(--muted); font-size: 0.65rem; font-weight: 800;
+      padding: 5px 10px; cursor: pointer; font-family: 'Nunito', sans-serif;
+      transition: all 0.15s; letter-spacing: 0.5px;
+    }
+    #btn-dev-admin:hover { border-color: var(--red); color: var(--cream); }
+    #dev-admin-panel {
+      position: fixed; bottom: 52px; right: 16px; z-index: 1800;
+      width: 264px;
+      background: linear-gradient(160deg, rgba(18,5,5,0.98), rgba(10,3,3,0.99));
+      border: 1px solid rgba(220,20,60,0.4); border-radius: 14px;
+      padding: 14px 16px; flex-direction: column; gap: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.85);
+      display: none;
+    }
+    #dev-admin-panel.open { display: flex; }
+    #dev-admin-header {
+      font-family: 'Righteous', cursive; font-size: 0.72rem;
+      letter-spacing: 2px; color: var(--red-l); text-transform: uppercase;
+      border-bottom: 1px solid rgba(220,20,60,0.25); padding-bottom: 8px;
+      margin-bottom: 2px;
+    }
+    .dev-row { display: flex; align-items: center; gap: 6px; }
+    .dev-row label {
+      font-size: 0.65rem; font-weight: 700; color: var(--muted);
+      width: 80px; flex-shrink: 0; font-family: 'Nunito', sans-serif;
+    }
+    .dev-row input {
+      flex: 1; background: rgba(40,6,10,0.85); border: 1px solid rgba(130,25,35,0.5);
+      border-radius: 6px; color: var(--cream); font-size: 0.72rem;
+      padding: 4px 7px; font-family: 'Nunito', sans-serif; min-width: 0; outline: none;
+    }
+    .dev-row input:focus { border-color: rgba(220,20,60,0.7); }
+    .dev-row input::placeholder { color: var(--muted); opacity: 0.6; }
+    .dev-btn {
+      background: linear-gradient(135deg, rgba(100,12,25,0.9), rgba(55,5,12,0.95));
+      border: 1px solid rgba(160,30,40,0.55); border-radius: 6px;
+      color: var(--cream); font-size: 0.72rem; font-weight: 800;
+      padding: 4px 10px; cursor: pointer; font-family: 'Nunito', sans-serif;
+      transition: all 0.12s; flex-shrink: 0;
+    }
+    .dev-btn:hover { border-color: var(--red); background: rgba(140,14,26,0.95); }
+
     /* ── Click Combo ─────────────────────────────────────── */
     #combo-display {
       width: 100%; padding: 2px 20px 6px;
@@ -982,6 +1028,33 @@
   </div>
   <div id="achievements-list"></div>
 </div>
+
+<!-- DEV ONLY — REMOVE BEFORE RELEASE -->
+<button id="btn-dev-admin">⚙ DEV</button>
+<div id="dev-admin-panel">
+  <div id="dev-admin-header">⚙ Dev Panel</div>
+  <div class="dev-row">
+    <label>Cola add</label>
+    <input type="number" id="dev-cola" placeholder="z.B. 1e14" min="0" />
+    <button class="dev-btn" id="dev-cola-btn">+</button>
+  </div>
+  <div class="dev-row">
+    <label>Fizz add</label>
+    <input type="number" id="dev-fizz" placeholder="z.B. 50" min="0" />
+    <button class="dev-btn" id="dev-fizz-btn">+</button>
+  </div>
+  <div class="dev-row">
+    <label>Scantion add</label>
+    <input type="number" id="dev-scantion" placeholder="z.B. 10" min="0" />
+    <button class="dev-btn" id="dev-scantion-btn">+</button>
+  </div>
+  <div class="dev-row">
+    <label>Prestiges set</label>
+    <input type="number" id="dev-prestiges" placeholder="z.B. 5" min="0" />
+    <button class="dev-btn" id="dev-prestiges-btn">=</button>
+  </div>
+</div>
+<!-- /DEV ONLY -->
 
 <div id="toast-container"></div>
 <div id="milestone-banner">
@@ -1654,6 +1727,41 @@ function showToast(msg) {
   document.getElementById('toast-container').appendChild(el);
   setTimeout(()=>el.remove(), 3800);
 }
+
+/* DEV ONLY — REMOVE BEFORE RELEASE */
+(function() {
+  function devRefresh() {
+    autoSave(); renderBuildings(); renderSpecialUpgrades(); updateUI(); checkMilestones();
+  }
+  document.getElementById('btn-dev-admin').addEventListener('click', () => {
+    document.getElementById('dev-admin-panel').classList.toggle('open');
+  });
+  document.getElementById('dev-cola-btn').addEventListener('click', () => {
+    const n = parseFloat(document.getElementById('dev-cola').value);
+    if (!isFinite(n) || n <= 0) return;
+    state.cola += n; state.totalCola += n;
+    showToast('⚙ DEV: +' + fmt(n) + ' Cola'); devRefresh();
+  });
+  document.getElementById('dev-fizz-btn').addEventListener('click', () => {
+    const n = parseFloat(document.getElementById('dev-fizz').value);
+    if (!isFinite(n) || n <= 0) return;
+    state.fizzTokens += n;
+    showToast('⚙ DEV: +' + fmt(n) + ' Fizz'); devRefresh();
+  });
+  document.getElementById('dev-scantion-btn').addEventListener('click', () => {
+    const n = parseFloat(document.getElementById('dev-scantion').value);
+    if (!isFinite(n) || n <= 0) return;
+    state.scantionTokens += n;
+    showToast('⚙ DEV: +' + fmt(n) + ' Scantion'); devRefresh();
+  });
+  document.getElementById('dev-prestiges-btn').addEventListener('click', () => {
+    const n = parseFloat(document.getElementById('dev-prestiges').value);
+    if (!isFinite(n) || n < 0) return;
+    state.totalPrestiges = Math.floor(n);
+    showToast('⚙ DEV: Prestiges = ' + state.totalPrestiges); devRefresh();
+  });
+})();
+/* /DEV ONLY */
 
 // ── Save / Load ───────────────────────────────────────────
 const SAVE_KEY = 'cola_clicker_v1';
