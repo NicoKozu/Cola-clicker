@@ -677,7 +677,7 @@
       font-size: 0.7rem; color: var(--muted);
     }
     #prestige-token-count { color: var(--gold); font-weight: 800; }
-    #prestige-bonus { color: #55cc55; font-weight: 700; }
+    #prestige-bonus { color: #ff9a00; font-weight: 700; }
     #prestige-run { color: var(--muted); }
 
     .btn-prestige {
@@ -1009,7 +1009,7 @@
     <div id="prestige-bar">
       <div id="prestige-info">
         <span id="prestige-token-count">🔥 0 Fizz Tokens</span>
-        <span id="prestige-bonus">×1.00</span>
+        <span id="prestige-bonus">×1.00 Bonus</span>
         <span id="prestige-run">Run #1</span>
       </div>
       <button id="btn-prestige" class="btn-prestige" style="display:none">
@@ -2166,7 +2166,7 @@ function updatePrestigeUI() {
 
   document.getElementById('prestige-token-count').textContent =
     '🔥 ' + fmt(tokens) + ' Fizz Token' + (tokens !== 1 ? 's' : '');
-  document.getElementById('prestige-bonus').textContent = '×' + totalMult.toFixed(2);
+  document.getElementById('prestige-bonus').textContent = '×' + totalMult.toFixed(2) + ' Bonus';
   const completedRuns = getLeaderboard().length;
   const runEl = document.getElementById('prestige-run');
   if (completedRuns > 0) {
@@ -2257,11 +2257,8 @@ function updateScantionUI() {
     infoEl.style.display = 'flex';
     document.getElementById('scantion-token-count').textContent =
       '⚡ ' + fmt(tokens) + ' Scantion Token' + (tokens !== 1 ? 's' : '');
-    const echoBonus = (state.scantionUpgrades && state.scantionUpgrades.sq_echo)
-      ? ' · +' + Math.round(scantions * 30) + '% Echo' : '';
-    const tokenBonusPct = Math.round(tokens * 1);
     document.getElementById('scantion-bonus').textContent =
-      tokens > 0 ? '+' + tokenBonusPct + '% Bonus' + (scantions > 0 ? ' · Scantion #' + scantions + echoBonus : '') : 'No Scantion Bonus';
+      tokens > 0 ? '×' + getScantionMult().toFixed(2) + ' Bonus' + (scantions > 0 ? ' · Scantion #' + scantions : '') : 'No Scantion Bonus';
   } else {
     infoEl.style.display = 'none';
   }
