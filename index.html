@@ -2108,16 +2108,6 @@ function doPrestige() {
   )) return;
 
   const runNumber = state.totalPrestiges + 1;
-  const timeMs    = Date.now() - state.runStartTime;
-
-  recordLeaderboardEntry({
-    runNumber,
-    timeMs,
-    colaAtPrestige:  state.totalCola,
-    tokensEarned:    earned,
-    fizzTokensTotal: newTotal,
-    timestamp:       Date.now(),
-  });
 
   state = {
     cola:0, totalCola:0, totalClicks:0,
