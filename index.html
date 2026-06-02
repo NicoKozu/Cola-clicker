@@ -750,7 +750,6 @@
       box-shadow: 0 8px 32px rgba(0,0,0,0.85);
       display: none;
     }
-    #dev-admin-panel.open { display: flex; }
     #dev-admin-header {
       font-family: 'Righteous', cursive; font-size: 0.72rem;
       letter-spacing: 2px; color: var(--red-l); text-transform: uppercase;
@@ -1734,7 +1733,8 @@ function showToast(msg) {
     autoSave(); renderBuildings(); renderSpecialUpgrades(); updateUI(); checkMilestones();
   }
   document.getElementById('btn-dev-admin').addEventListener('click', () => {
-    document.getElementById('dev-admin-panel').classList.toggle('open');
+    const p = document.getElementById('dev-admin-panel');
+    p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
   });
   document.getElementById('dev-cola-btn').addEventListener('click', () => {
     const n = parseFloat(document.getElementById('dev-cola').value);
