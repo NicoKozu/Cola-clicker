@@ -1009,7 +1009,7 @@
     <div id="prestige-bar">
       <div id="prestige-info">
         <span id="prestige-token-count">🔥 0 Fizz Tokens</span>
-        <span id="prestige-bonus">No Bonus</span>
+        <span id="prestige-bonus">×1.00</span>
         <span id="prestige-run">Run #1</span>
       </div>
       <button id="btn-prestige" class="btn-prestige" style="display:none">
@@ -2159,15 +2159,14 @@ function calcFizzTokensEarned() {
 
 function updatePrestigeUI() {
   const tokens    = state.fizzTokens;
-  const bonusPct  = Math.round((getPrestigeMultiplier() * getFizzUpgradeMultiplier() - 1) * 100);
+  const totalMult = getPrestigeMultiplier() * getFizzUpgradeMultiplier();
   const earned    = calcFizzTokensEarned();
   const threshold = getPrestigeThreshold();
   const eligible  = state.totalCola >= threshold;
 
   document.getElementById('prestige-token-count').textContent =
     '🔥 ' + fmt(tokens) + ' Fizz Token' + (tokens !== 1 ? 's' : '');
-  document.getElementById('prestige-bonus').textContent =
-    bonusPct > 0 ? '+' + bonusPct + '% Bonus' : 'No Bonus';
+  document.getElementById('prestige-bonus').textContent = '×' + totalMult.toFixed(2);
   const completedRuns = getLeaderboard().length;
   const runEl = document.getElementById('prestige-run');
   if (completedRuns > 0) {
@@ -2192,7 +2191,7 @@ async function doPrestige() {
   if (!await showConfirm(
     'Perform Prestige?\n\n' +
     'You will receive ' + fmt(earned) + ' Fizz Token' + (earned !== 1 ? 's' : '') + '.\n' +
-    'New Bonus: +' + Math.round(newTotal * fizzRate * 100) + '% to all production.\n\n' +
+    'New Bonus: ×' + (getFizzUpgradeMultiplier() * (1 + newTotal * fizzRate)).toFixed(2) + ' to all production.\n\n' +
     'Cola, buildings and upgrades will be reset.\n' +
     'Fizz Tokens are kept permanently!',
     '✨ Prestige!'
@@ -2221,7 +2220,7 @@ async function doPrestige() {
   autoSave();
   renderBuildings(); renderSpecialUpgrades(); updateUI();
   checkMilestones();
-  showToast('🔥 Prestige! +' + fmt(earned) + ' Fizz Token' + (earned !== 1 ? 's' : '') + '! Bonus: +' + Math.round(newTotal * fizzRate * 100) + '%');
+  showToast('🔥 Prestige! +' + fmt(earned) + ' Fizz Token' + (earned !== 1 ? 's' : '') + '! ×' + (getFizzUpgradeMultiplier() * (1 + newTotal * fizzRate)).toFixed(2));
 }
 
 // ── Scantion (Layer 2) ────────────────────────────────────
