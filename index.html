@@ -734,7 +734,6 @@
 
     /* ── DEV ONLY — REMOVE BEFORE RELEASE ──────────────── */
     #btn-dev-admin {
-      position: fixed; bottom: 16px; right: 16px; z-index: 1800;
       background: rgba(30,8,8,0.92); border: 1px solid rgba(130,25,35,0.5);
       border-radius: 8px; color: var(--muted); font-size: 0.65rem; font-weight: 800;
       padding: 5px 10px; cursor: pointer; font-family: 'Nunito', sans-serif;
@@ -742,15 +741,16 @@
     }
     #btn-dev-admin:hover { border-color: var(--red); color: var(--cream); }
     #dev-admin-panel {
-      position: fixed; bottom: 52px; right: 16px; z-index: 1800;
-      width: 264px;
-      background: linear-gradient(160deg, rgba(18,5,5,0.98), rgba(10,3,3,0.99));
-      border: 1px solid rgba(220,20,60,0.4); border-radius: 14px;
-      padding: 14px 16px; flex-direction: column; gap: 10px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.85);
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      z-index: 1600; width: 280px;
+      background: linear-gradient(160deg, rgba(18,5,5,0.99), rgba(10,3,3,0.99));
+      border: 1px solid rgba(220,20,60,0.4); border-radius: 16px;
+      padding: 16px 18px; flex-direction: column; gap: 10px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.9);
       display: none;
     }
     #dev-admin-header {
+      display: flex; align-items: center; justify-content: space-between;
       font-family: 'Righteous', cursive; font-size: 0.72rem;
       letter-spacing: 2px; color: var(--red-l); text-transform: uppercase;
       border-bottom: 1px solid rgba(220,20,60,0.25); padding-bottom: 8px;
@@ -839,6 +839,8 @@
       <button class="btn-small" id="btn-reset">🗑 Reset</button>
       <button class="btn-small" id="btn-achievements">🏅 Ziele</button>
       <button class="btn-small" id="btn-leaderboard">🏆 Scores</button>
+      <!-- DEV ONLY — REMOVE BEFORE RELEASE -->
+      <button class="btn-small" id="btn-dev-admin">⚙ DEV</button>
     </div>
   </div>
 
@@ -1029,9 +1031,11 @@
 </div>
 
 <!-- DEV ONLY — REMOVE BEFORE RELEASE -->
-<button id="btn-dev-admin">⚙ DEV</button>
 <div id="dev-admin-panel">
-  <div id="dev-admin-header">⚙ Dev Panel</div>
+  <div id="dev-admin-header">
+    <span>⚙ Dev Panel</span>
+    <button id="btn-close-dev" style="background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;padding:0 4px;line-height:1;">✕</button>
+  </div>
   <div class="dev-row">
     <label>Cola add</label>
     <input type="number" id="dev-cola" placeholder="z.B. 1e14" min="0" />
@@ -1727,42 +1731,6 @@ function showToast(msg) {
   setTimeout(()=>el.remove(), 3800);
 }
 
-/* DEV ONLY — REMOVE BEFORE RELEASE */
-(function() {
-  function devRefresh() {
-    autoSave(); renderBuildings(); renderSpecialUpgrades(); updateUI(); checkMilestones();
-  }
-  document.getElementById('btn-dev-admin').addEventListener('click', () => {
-    const p = document.getElementById('dev-admin-panel');
-    p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
-  });
-  document.getElementById('dev-cola-btn').addEventListener('click', () => {
-    const n = parseFloat(document.getElementById('dev-cola').value);
-    if (!isFinite(n) || n <= 0) return;
-    state.cola += n; state.totalCola += n;
-    showToast('⚙ DEV: +' + fmt(n) + ' Cola'); devRefresh();
-  });
-  document.getElementById('dev-fizz-btn').addEventListener('click', () => {
-    const n = parseFloat(document.getElementById('dev-fizz').value);
-    if (!isFinite(n) || n <= 0) return;
-    state.fizzTokens += n;
-    showToast('⚙ DEV: +' + fmt(n) + ' Fizz'); devRefresh();
-  });
-  document.getElementById('dev-scantion-btn').addEventListener('click', () => {
-    const n = parseFloat(document.getElementById('dev-scantion').value);
-    if (!isFinite(n) || n <= 0) return;
-    state.scantionTokens += n;
-    showToast('⚙ DEV: +' + fmt(n) + ' Scantion'); devRefresh();
-  });
-  document.getElementById('dev-prestiges-btn').addEventListener('click', () => {
-    const n = parseFloat(document.getElementById('dev-prestiges').value);
-    if (!isFinite(n) || n < 0) return;
-    state.totalPrestiges = Math.floor(n);
-    showToast('⚙ DEV: Prestiges = ' + state.totalPrestiges); devRefresh();
-  });
-})();
-/* /DEV ONLY */
-
 // ── Save / Load ───────────────────────────────────────────
 const SAVE_KEY = 'cola_clicker_v1';
 
@@ -2254,6 +2222,45 @@ document.getElementById('leaderboard-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('leaderboard-modal'))
     document.getElementById('leaderboard-modal').style.display = 'none';
 });
+
+/* DEV ONLY — REMOVE BEFORE RELEASE */
+(function() {
+  function devRefresh() {
+    autoSave(); renderBuildings(); renderSpecialUpgrades(); updateUI(); checkMilestones();
+  }
+  const devPanel = document.getElementById('dev-admin-panel');
+  document.getElementById('btn-dev-admin').addEventListener('click', () => {
+    devPanel.style.display = devPanel.style.display === 'flex' ? 'none' : 'flex';
+  });
+  document.getElementById('btn-close-dev').addEventListener('click', () => {
+    devPanel.style.display = 'none';
+  });
+  document.getElementById('dev-cola-btn').addEventListener('click', () => {
+    const n = parseFloat(document.getElementById('dev-cola').value);
+    if (!isFinite(n) || n <= 0) return;
+    state.cola += n; state.totalCola += n;
+    showToast('⚙ DEV: +' + fmt(n) + ' Cola'); devRefresh();
+  });
+  document.getElementById('dev-fizz-btn').addEventListener('click', () => {
+    const n = parseFloat(document.getElementById('dev-fizz').value);
+    if (!isFinite(n) || n <= 0) return;
+    state.fizzTokens += n;
+    showToast('⚙ DEV: +' + fmt(n) + ' Fizz'); devRefresh();
+  });
+  document.getElementById('dev-scantion-btn').addEventListener('click', () => {
+    const n = parseFloat(document.getElementById('dev-scantion').value);
+    if (!isFinite(n) || n <= 0) return;
+    state.scantionTokens += n;
+    showToast('⚙ DEV: +' + fmt(n) + ' Scantion'); devRefresh();
+  });
+  document.getElementById('dev-prestiges-btn').addEventListener('click', () => {
+    const n = parseFloat(document.getElementById('dev-prestiges').value);
+    if (!isFinite(n) || n < 0) return;
+    state.totalPrestiges = Math.floor(n);
+    showToast('⚙ DEV: Prestiges = ' + state.totalPrestiges); devRefresh();
+  });
+})();
+/* /DEV ONLY */
 
 document.addEventListener('keydown', e=>{
   if (e.key===' ') { e.preventDefault(); const r=clickZone.getBoundingClientRect(); doClick(r.left+r.width/2, r.top+r.height/2); }
