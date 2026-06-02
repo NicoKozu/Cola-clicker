@@ -1778,6 +1778,9 @@ function updateUI() {
   updateScantionUI();
   updateScantionProgress();
   updateComboDisplay();
+
+  document.getElementById('btn-leaderboard').style.display =
+    getLeaderboard().length > 0 ? '' : 'none';
 }
 
 function renderBuildings() {
