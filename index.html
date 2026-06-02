@@ -1158,18 +1158,20 @@ const FIZZ_UPGRADES = [
 const SCANTION_UPGRADES = [
   { id:'sq_quantum',       name:'Quantum Carbonation',      emoji:'⚡', cost:1,
     desc:'Verdoppelt die gesamte Produktion. Cola existiert in allen Zuständen gleichzeitig.' },
-  { id:'sq_fizz_catalyst', name:'Fizz Katalysator',         emoji:'🧪', cost:2,
+  { id:'sq_fizz_catalyst', name:'Fizz Katalysator',         emoji:'🧪', cost:10,
     desc:'Fizz Tokens geben +5% statt +2% Produktionsbonus.' },
-  { id:'sq_synergy',       name:'Gebäude-Synergie',         emoji:'🔗', cost:2,
+  { id:'sq_synergy',       name:'Gebäude-Synergie',         emoji:'🔗', cost:100,
     desc:'Jeder einzigartige Gebäudetyp (≥1 besessen) gibt +5% auf alle Produktion.' },
-  { id:'sq_click',         name:'Click-Resonanz',           emoji:'👆', cost:2,
+  { id:'sq_click',         name:'Click-Resonanz',           emoji:'👆', cost:1000,
     desc:'Jeder Klick erzeugt zusätzlich 0,5% der aktuellen Cola/s.' },
-  { id:'sq_vault',         name:'Temporaler Tresor',        emoji:'⏳', cost:3,
+  { id:'sq_vault',         name:'Temporaler Tresor',        emoji:'⏳', cost:10000,
     desc:'Offline-Cap ×3 und Offline-Rate +50%.' },
-  { id:'sq_velocity',      name:'Prestige-Geschwindigkeit', emoji:'🌀', cost:3,
+  { id:'sq_velocity',      name:'Prestige-Geschwindigkeit', emoji:'🌀', cost:100000,
     desc:'Jedes Prestige in diesem Scantion-Run gibt +5% auf alle Produktion (stapelt sich).' },
-  { id:'sq_echo',          name:'Scantion-Echo',            emoji:'♾️', cost:5,
+  { id:'sq_echo',          name:'Scantion-Echo',            emoji:'♾️', cost:1000000,
     desc:'Jeder abgeschlossene Scantion gibt permanent +30% auf alle Produktion (stapelt sich).' },
+  { id:'sq_final_boss', name:'Final Boss', emoji:'👑', cost:1000000000,
+    desc:'Du hast alles erreicht. Betätige den Final Boss und beende das Spiel als unsterblicher Cola-Gott.' },
 ];
 
 const BUILDINGS_MAP = Object.fromEntries(BUILDINGS.map(b => [b.id, b]));
@@ -1186,12 +1188,12 @@ let state = {
   lifetimeCola:0, lifetimeClicks:0,
   fizzUpgrades:{ fizz_boost:0, click_infusion:0, milestone_1k:0, milestone_10k:0, milestone_100k:0, milestone_1m:0, milestone_10m:0, milestone_100m:0, milestone_1b:0 },
   scantionTokens:0, totalScantions:0, prestiges_this_scantion:0,
-  scantionUpgrades:{ sq_quantum:false, sq_fizz_catalyst:false, sq_synergy:false, sq_click:false, sq_vault:false, sq_velocity:false, sq_echo:false },
+  scantionUpgrades:{ sq_quantum:false, sq_fizz_catalyst:false, sq_synergy:false, sq_click:false, sq_vault:false, sq_velocity:false, sq_echo:false, sq_final_boss:false },
 };
 
 function getScantionMult() {
   const su = state.scantionUpgrades;
-  let mult = 1;
+  let mult = 1 + (state.scantionTokens || 0) * 0.01;
   if (su.sq_quantum)  mult *= 2;
   if (su.sq_echo)     mult *= Math.pow(1.3, state.totalScantions || 0);
   if (su.sq_velocity) mult *= (1 + (state.prestiges_this_scantion || 0) * 0.05);
@@ -1841,7 +1843,7 @@ function updatePrestigeProgress() {
 }
 
 function getPrestigeMultiplier() {
-  const rate = (state.scantionUpgrades && state.scantionUpgrades.sq_fizz_catalyst) ? 0.05 : 0.02;
+  const rate = (state.scantionUpgrades && state.scantionUpgrades.sq_fizz_catalyst) ? 0.02 : 0.01;
   return 1 + state.fizzTokens * rate;
 }
 
@@ -1954,7 +1956,7 @@ function doPrestige() {
   const earned = calcFizzTokensEarned();
   const newTotal = state.fizzTokens + earned;
   const nextThreshold = 1e12 * Math.sqrt(newTotal + 1);
-  const fizzRate = state.scantionUpgrades.sq_fizz_catalyst ? 0.05 : 0.02;
+  const fizzRate = state.scantionUpgrades.sq_fizz_catalyst ? 0.02 : 0.01;
   if (!confirm(
     'Prestige durchführen?\n\n' +
     'Du erhältst ' + earned + ' Fizz Token(s).\n' +
@@ -2035,8 +2037,9 @@ function updateScantionUI() {
       '⚡ ' + tokens + ' Scantion Token' + (tokens !== 1 ? 's' : '');
     const echoBonus = (state.scantionUpgrades && state.scantionUpgrades.sq_echo)
       ? ' · +' + Math.round(scantions * 30) + '% Echo' : '';
+    const tokenBonusPct = Math.round(tokens * 1);
     document.getElementById('scantion-bonus').textContent =
-      scantions > 0 ? 'Scantion #' + scantions + echoBonus : 'Kein Scantion-Bonus';
+      tokens > 0 ? '+' + tokenBonusPct + '% Bonus' + (scantions > 0 ? ' · Scantion #' + scantions + echoBonus : '') : 'Kein Scantion-Bonus';
   } else {
     infoEl.style.display = 'none';
   }
@@ -2116,6 +2119,45 @@ function renderScantionUpgrades() {
   });
 }
 
+function doFinalBossWin() {
+  const timeMs = Date.now() - state.runStartTime;
+  recordLeaderboardEntry({
+    runNumber:       state.totalPrestiges + 1,
+    timeMs,
+    colaAtPrestige:  state.totalCola,
+    tokensEarned:    0,
+    fizzTokensTotal: state.fizzTokens,
+    timestamp:       Date.now(),
+    finalBoss:       true,
+    scantionTokens:  (state.scantionTokens || 0) + 1000000000,
+  });
+
+  alert(
+    '🏆 GLÜCKWUNSCH! DU HAST DAS SPIEL GEWONNEN! 🏆\n\n' +
+    'Du hast den Final Boss besiegt!\n' +
+    'Du bist ein unsterblicher Cola-Gott!\n\n' +
+    'Zeit: ' + fmtTime(timeMs) + '\n' +
+    'Scantion Tokens: ' + fmt((state.scantionTokens || 0) + 1000000000) + '\n\n' +
+    'Das Spiel wird jetzt zurückgesetzt — dein Rekord bleibt im Leaderboard!'
+  );
+
+  localStorage.removeItem(SAVE_KEY);
+  state = {
+    cola:0, totalCola:0, totalClicks:0,
+    buildings:        Object.fromEntries(BUILDINGS.map(b => [b.id, 0])),
+    milestones:       {},
+    clickLevel:0, offlineLevel:0,
+    fizzTokens:0, totalPrestiges:0, runStartTime:Date.now(),
+    lifetimeCola:0, lifetimeClicks:0,
+    fizzUpgrades:     Object.fromEntries(FIZZ_UPGRADES.map(u => [u.id, 0])),
+    scantionTokens:0, totalScantions:0, prestiges_this_scantion:0,
+    scantionUpgrades: Object.fromEntries(SCANTION_UPGRADES.map(u => [u.id, false])),
+  };
+  upgradesTab = 'fizz';
+  renderBuildings(); renderSpecialUpgrades(); updateUI();
+  showToast('🏆 FINAL BOSS BESIEGT! Neues Spiel gestartet!');
+}
+
 function buyScantionUpgrade(id) {
   const u = SCANTION_UPGRADES.find(u => u.id === id);
   if (!u) return;
@@ -2123,6 +2165,10 @@ function buyScantionUpgrade(id) {
   if ((state.scantionTokens || 0) < u.cost) return;
   state.scantionTokens -= u.cost;
   state.scantionUpgrades[id] = true;
+  if (id === 'sq_final_boss') {
+    doFinalBossWin();
+    return;
+  }
   showToast('⚡ ' + u.name + ' freigeschaltet!');
   renderSpecialUpgrades();
   updateUI();
@@ -2172,13 +2218,24 @@ function renderLeaderboard() {
   board.forEach((entry, i) => {
     const date = new Date(entry.timestamp).toLocaleDateString('de-DE');
     const tr   = document.createElement('tr');
-    tr.innerHTML =
-      '<td>' + (i + 1) + '</td>' +
-      '<td>#' + entry.runNumber + '</td>' +
-      '<td>' + fmtTime(entry.timeMs) + '</td>' +
-      '<td>' + fmt(entry.colaAtPrestige) + ' 🥤</td>' +
-      '<td>+' + entry.tokensEarned + ' (' + entry.fizzTokensTotal + ' gesamt)</td>' +
-      '<td>' + date + '</td>';
+    if (entry.finalBoss) {
+      tr.style.background = 'linear-gradient(90deg, rgba(255,215,0,0.08), rgba(255,215,0,0.03))';
+      tr.innerHTML =
+        '<td>' + (i + 1) + '</td>' +
+        '<td style="color:var(--gold);font-weight:900">👑 FINAL BOSS</td>' +
+        '<td>' + fmtTime(entry.timeMs) + '</td>' +
+        '<td>' + fmt(entry.colaAtPrestige) + ' 🥤</td>' +
+        '<td style="color:var(--gold)">⚡ ' + fmt(entry.scantionTokens || 0) + ' Scantion</td>' +
+        '<td>' + date + '</td>';
+    } else {
+      tr.innerHTML =
+        '<td>' + (i + 1) + '</td>' +
+        '<td>#' + entry.runNumber + '</td>' +
+        '<td>' + fmtTime(entry.timeMs) + '</td>' +
+        '<td>' + fmt(entry.colaAtPrestige) + ' 🥤</td>' +
+        '<td>+' + entry.tokensEarned + ' (' + entry.fizzTokensTotal + ' gesamt)</td>' +
+        '<td>' + date + '</td>';
+    }
     tbody.appendChild(tr);
   });
 }
