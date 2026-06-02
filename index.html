@@ -121,8 +121,10 @@
     #center {
       display: flex; flex-direction: column; align-items: center;
       background: radial-gradient(ellipse at 50% 22%, rgba(80,8,16,0.75), rgba(10,3,3,0.96) 65%);
-      position: relative; overflow: hidden;
+      position: relative; overflow-x: hidden; overflow-y: auto;
+      scrollbar-width: none;
     }
+    #center::-webkit-scrollbar { display: none; }
 
     #game-header {
       width: 100%; text-align: center;
@@ -155,7 +157,8 @@
 
     /* ── Click zone ─────────────────────────────────────── */
     #click-zone {
-      flex: 1; display: flex; align-items: center; justify-content: center;
+      flex: 1; min-height: 200px;
+      display: flex; align-items: center; justify-content: center;
       position: relative; width: 100%;
     }
 
@@ -180,7 +183,7 @@
 
     #cola-btn {
       position: relative;
-      width: clamp(200px, 20vw, 270px);
+      width: clamp(160px, 20vw, 270px);
       aspect-ratio: 160 / 220;
       border: none; background: none; outline: none;
       transition: transform 0.09s cubic-bezier(0.25,0.46,0.45,0.94);
@@ -440,13 +443,22 @@
     #milestone-sub { font-size: 0.78rem; color: rgba(255,248,220,0.75); margin-top: 6px; }
 
     /* ── Responsive ─────────────────────────────────────── */
+    @media (max-width: 1100px) {
+      #app { grid-template-columns: 240px 1fr 255px; }
+    }
     @media (max-width: 920px) {
-      #app { grid-template-columns: 215px 1fr 235px; }
+      #app { grid-template-columns: 200px 1fr 218px; }
+      #game-header { padding: 10px 14px 2px; }
+      #stats-bar { padding: 6px 14px 2px; }
+      #cola-count { font-size: clamp(1.6rem, 4vw, 3rem); }
+      #cps-display { font-size: 0.8rem; }
+      #bottom-stats { padding: 6px 8px 10px; }
+      #prestige-progress-wrap, #scantion-progress-wrap { padding: 0 12px 10px; }
     }
     @media (max-width: 680px) {
       html, body { overflow-y: auto; height: auto; }
       #app { display: flex; flex-direction: column; min-height: 100vh; height: auto; }
-      #center { min-height: 440px; order: 1; }
+      #center { min-height: 440px; order: 1; overflow-y: visible; }
       #buildings-panel { order: 2; max-height: 320px; border-left: none; border-top: 1px solid var(--border); }
       #upgrades-panel  { order: 3; max-height: 300px; border-right: none; border-top: 1px solid var(--border); }
     }
@@ -538,8 +550,11 @@
       font-size: 0.62rem; color: var(--muted); margin-top: 2px;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
+    @media (max-width: 1100px) {
+      #achievements-modal { left: calc(240px + 12px); }
+    }
     @media (max-width: 920px) {
-      #achievements-modal { left: calc(215px + 12px); }
+      #achievements-modal { left: calc(200px + 12px); }
     }
     @media (max-width: 680px) {
       #achievements-modal { left: 8px; top: 8px; width: calc(100vw - 16px); max-height: 58vh; }
@@ -583,8 +598,11 @@
     #leaderboard-body-wrap::-webkit-scrollbar { width: 4px; }
     #leaderboard-body-wrap::-webkit-scrollbar-track { background: transparent; }
     #leaderboard-body-wrap::-webkit-scrollbar-thumb { background: rgba(140,30,30,0.45); border-radius: 2px; }
+    @media (max-width: 1100px) {
+      #leaderboard-modal { left: calc(240px + 12px); }
+    }
     @media (max-width: 920px) {
-      #leaderboard-modal { left: calc(215px + 12px); }
+      #leaderboard-modal { left: calc(200px + 12px); }
     }
     @media (max-width: 680px) {
       #leaderboard-modal { left: 8px; top: 8px; width: calc(100vw - 16px); max-height: 58vh; }
@@ -638,8 +656,11 @@
       text-align: center; transition: color 0.14s;
     }
     #btn-impressum:hover { color: var(--muted); }
+    @media (max-width: 1100px) {
+      #impressum-modal { left: calc(240px + 12px); }
+    }
     @media (max-width: 920px) {
-      #impressum-modal { left: calc(215px + 12px); }
+      #impressum-modal { left: calc(200px + 12px); }
     }
     @media (max-width: 680px) {
       #impressum-modal { left: 8px; top: 8px; width: calc(100vw - 16px); }
@@ -1082,7 +1103,7 @@
     </div>
 
     <div id="prestige-progress-wrap">
-      <div id="prestige-progress-label">Progress to Prestige <span class="prestige-goal-tag">(Goal for Philipp and Chris)</span></div>
+      <div id="prestige-progress-label">Progress to Prestige</div>
       <div id="prestige-progress-bar-outer">
         <div id="prestige-progress-bar-inner"></div>
       </div>
