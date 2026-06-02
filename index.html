@@ -1214,6 +1214,18 @@
 </div>
 <!-- /DEV ONLY -->
 
+<div id="confirm-modal" class="modal-overlay" style="display:none">
+  <div class="modal-box" style="width:min(460px,92vw); max-height:unset">
+    <div id="confirm-modal-body"
+         style="padding:28px 28px 12px; white-space:pre-line;
+                font-size:0.88rem; line-height:1.7; color:var(--text)"></div>
+    <div style="display:flex; gap:10px; padding:12px 24px 22px; justify-content:flex-end">
+      <button id="confirm-modal-cancel" class="btn-small" style="flex:0 0 auto; padding:8px 18px">Cancel</button>
+      <button id="confirm-modal-ok" class="btn-prestige" style="padding:8px 22px; font-size:0.82rem">Confirm</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast-container"></div>
 <div id="milestone-banner">
   <div id="milestone-title"></div>
@@ -1939,8 +1951,50 @@ function loadGame() {
   } catch(e) { showToast('⚠️ Load failed.'); }
 }
 
-function resetGame() {
-  if (!confirm('Reset ALL progress including Fizz Tokens, Prestige AND the Leaderboard? This cannot be undone!')) return;
+function showConfirm(msg, okLabel = 'Confirm') {
+  return new Promise(resolve => {
+    const modal  = document.getElementById('confirm-modal');
+    const body   = document.getElementById('confirm-modal-body');
+    const okBtn  = document.getElementById('confirm-modal-ok');
+    const canBtn = document.getElementById('confirm-modal-cancel');
+    body.textContent     = msg;
+    okBtn.textContent    = okLabel;
+    canBtn.style.display = '';
+    modal.style.display  = 'flex';
+    const done = result => {
+      modal.style.display = 'none';
+      okBtn.removeEventListener('click', onOk);
+      canBtn.removeEventListener('click', onCancel);
+      resolve(result);
+    };
+    const onOk     = () => done(true);
+    const onCancel = () => done(false);
+    okBtn.addEventListener('click', onOk);
+    canBtn.addEventListener('click', onCancel);
+  });
+}
+
+function showAlert(msg, okLabel = 'OK') {
+  return new Promise(resolve => {
+    const modal  = document.getElementById('confirm-modal');
+    const body   = document.getElementById('confirm-modal-body');
+    const okBtn  = document.getElementById('confirm-modal-ok');
+    const canBtn = document.getElementById('confirm-modal-cancel');
+    body.textContent     = msg;
+    okBtn.textContent    = okLabel;
+    canBtn.style.display = 'none';
+    modal.style.display  = 'flex';
+    const onOk = () => {
+      modal.style.display = 'none';
+      okBtn.removeEventListener('click', onOk);
+      resolve();
+    };
+    okBtn.addEventListener('click', onOk);
+  });
+}
+
+async function resetGame() {
+  if (!await showConfirm('Reset ALL progress including Fizz Tokens, Prestige AND the Leaderboard? This cannot be undone!', '🗑 Reset')) return;
   localStorage.removeItem(SAVE_KEY);
   localStorage.removeItem(LEADERBOARD_KEY);
   state = {
@@ -2118,20 +2172,21 @@ function updatePrestigeUI() {
   document.getElementById('prestige-earn-preview').textContent = earned;
 }
 
-function doPrestige() {
+async function doPrestige() {
   const threshold = getPrestigeThreshold();
   if (state.totalCola < threshold) return;
   const earned = calcFizzTokensEarned();
   const newTotal = state.fizzTokens + earned;
   const nextThreshold = 1e12 * Math.sqrt(newTotal + 1);
   const fizzRate = state.scantionUpgrades.sq_fizz_catalyst ? 0.02 : 0.01;
-  if (!confirm(
+  if (!await showConfirm(
     'Perform Prestige?\n\n' +
     'You will receive ' + earned + ' Fizz Token(s).\n' +
     'New Bonus: +' + Math.round(newTotal * fizzRate * 100) + '% to all production.\n' +
     'Next Goal: ' + fmt(nextThreshold) + '\n\n' +
     'Cola, buildings and upgrades will be reset.\n' +
-    'Fizz Tokens are kept permanently!'
+    'Fizz Tokens are kept permanently!',
+    '✨ Prestige!'
   )) return;
 
   const runNumber = state.totalPrestiges + 1;
@@ -2211,19 +2266,20 @@ function updateScantionUI() {
   }
 }
 
-function doScantion() {
+async function doScantion() {
   const threshold = getScantionThreshold();
   if ((state.fizzTokens || 0) < threshold) return;
   const earned = calcScantionTokensEarned();
   const newST  = (state.scantionTokens || 0) + earned;
-  if (!confirm(
+  if (!await showConfirm(
     'Perform SCANTION?\n\n' +
     'You will receive ' + earned + ' Scantion Token' + (earned !== 1 ? 's' : '') + '.\n\n' +
     'EVERYTHING will be reset:\n' +
     '  • Cola, buildings, Prestige upgrades\n' +
     '  • Fizz Tokens (' + state.fizzTokens + ') will be lost\n\n' +
     'Scantion Tokens & upgrades are kept permanently!\n' +
-    'Ready for Layer 2?'
+    'Ready for Layer 2?',
+    '⚡ Scantion!'
   )) return;
 
   state = {
@@ -2277,17 +2333,18 @@ function renderScantionUpgrades() {
   });
 }
 
-function doFinalBossWin() {
+async function doFinalBossWin() {
   const timeMs  = Date.now() - (state.gameStartTime || state.runStartTime || Date.now());
   const runNum  = getLeaderboard().length + 1;
   recordLeaderboardEntry({ runNumber: runNum, timeMs, timestamp: Date.now() });
 
-  alert(
+  await showAlert(
     '🏆 CONGRATULATIONS! YOU HAVE WON THE GAME! 🏆\n\n' +
     'You have defeated the Final Boss!\n' +
     'You are an immortal Cola God!\n\n' +
     'Run #' + runNum + ' — Time: ' + fmtTime(timeMs) + '\n\n' +
-    'The game will now reset — your record stays in the leaderboard!'
+    'The game will now reset — your record stays in the leaderboard!',
+    '🏆 Claim Victory!'
   );
 
   localStorage.removeItem(SAVE_KEY);
