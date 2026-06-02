@@ -590,6 +590,61 @@
       #leaderboard-modal { left: 8px; top: 8px; width: calc(100vw - 16px); max-height: 58vh; }
     }
 
+    /* ── Impressum modal ───────────────────────────────── */
+    #impressum-modal {
+      position: fixed;
+      top: 70px;
+      left: calc(265px + 14px);
+      z-index: 1500;
+      width: 300px;
+      background: linear-gradient(160deg, rgba(18,5,5,0.97), rgba(10,3,3,0.98));
+      border: 1px solid rgba(255,215,0,0.35);
+      border-radius: 16px;
+      display: flex; flex-direction: column;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.85), 0 0 30px rgba(255,215,0,0.05);
+      overflow: hidden;
+    }
+    #impressum-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,215,0,0.18);
+      flex-shrink: 0;
+    }
+    #impressum-title {
+      font-family: 'Righteous', cursive;
+      font-size: 0.88rem; color: var(--gold); letter-spacing: 2px;
+      flex: 1;
+    }
+    #btn-close-impressum {
+      background: none; border: 1px solid rgba(220,20,60,0.4);
+      border-radius: 8px; color: var(--muted); padding: 3px 8px;
+      cursor: pointer; font-size: 0.8rem; transition: all 0.14s; flex-shrink: 0;
+    }
+    #btn-close-impressum:hover { background: rgba(220,20,60,0.2); color: var(--cream); }
+    #impressum-body {
+      padding: 16px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    #impressum-body strong { color: var(--cream); }
+    #impressum-body a { color: var(--gold); text-decoration: none; }
+    #impressum-body a:hover { text-decoration: underline; }
+    #btn-impressum {
+      width: 100%; padding: 5px 4px; margin-top: 2px;
+      border: none; background: none;
+      color: rgba(140,100,100,0.6); font-size: 0.6rem;
+      font-family: 'Nunito', sans-serif; cursor: pointer;
+      text-align: center; transition: color 0.14s;
+    }
+    #btn-impressum:hover { color: var(--muted); }
+    @media (max-width: 920px) {
+      #impressum-modal { left: calc(215px + 12px); }
+    }
+    @media (max-width: 680px) {
+      #impressum-modal { left: 8px; top: 8px; width: calc(100vw - 16px); }
+    }
+
     /* ── Prestige bar ───────────────────────────────────── */
     #prestige-bar {
       width: 100%; padding: 4px 20px 2px;
@@ -905,6 +960,7 @@
       <!-- DEV ONLY — REMOVE BEFORE RELEASE -->
       <button class="btn-small" id="btn-dev-admin">⚙ DEV</button>
       <a id="btn-kofi" href="https://ko-fi.com/L5K120OT29" target="_blank" rel="noopener">☕ Support auf Ko-fi</a>
+      <button id="btn-impressum">Impressum</button>
     </div>
   </div>
 
@@ -1078,6 +1134,25 @@
     <div id="leaderboard-empty" style="display:none">
       Noch kein Final Boss besiegt. Sammle 1 Mrd. Scantion Tokens und kaufe das letzte Upgrade!
     </div>
+  </div>
+</div>
+
+<div id="impressum-modal" style="display:none">
+  <div id="impressum-header">
+    <span id="impressum-title">📋 Impressum</span>
+    <button id="btn-close-impressum">✕</button>
+  </div>
+  <div id="impressum-body">
+    <strong>Angaben gemäß § 5 TMG</strong><br><br>
+    Nico Kozuschek<br>
+    <br>
+    <strong>Kontakt</strong><br>
+    E-Mail: <a href="mailto:nico.kozuschek@web.de">nico.kozuschek@web.de</a><br>
+    <br>
+    <strong>Datenschutz</strong><br>
+    Dieses Spiel speichert den Spielstand ausschließlich lokal in deinem Browser
+    (localStorage). Es werden keine personenbezogenen Daten erhoben, gespeichert
+    oder weitergegeben.
   </div>
 </div>
 
@@ -1469,7 +1544,8 @@ document.addEventListener('click', e => {
       !e.target.closest('.modal-overlay') &&
       !e.target.closest('#dev-admin-panel') &&
       !e.target.closest('#leaderboard-modal') &&
-      !e.target.closest('#achievements-modal')) doClick(e.clientX, e.clientY);
+      !e.target.closest('#achievements-modal') &&
+      !e.target.closest('#impressum-modal')) doClick(e.clientX, e.clientY);
 });
 
 document.addEventListener('touchend', e => {
@@ -1478,7 +1554,8 @@ document.addEventListener('touchend', e => {
       !e.target.closest('.modal-overlay') &&
       !e.target.closest('#dev-admin-panel') &&
       !e.target.closest('#leaderboard-modal') &&
-      !e.target.closest('#achievements-modal')) {
+      !e.target.closest('#achievements-modal') &&
+      !e.target.closest('#impressum-modal')) {
     e.preventDefault();
     const t = e.changedTouches[0];
     doClick(t.clientX, t.clientY);
@@ -2326,6 +2403,15 @@ document.getElementById('btn-leaderboard').addEventListener('click', () => {
 
 document.getElementById('btn-close-leaderboard').addEventListener('click', () => {
   document.getElementById('leaderboard-modal').style.display = 'none';
+});
+
+document.getElementById('btn-impressum').addEventListener('click', () => {
+  const modal = document.getElementById('impressum-modal');
+  modal.style.display = modal.style.display === 'none' ? 'flex' : 'none';
+});
+
+document.getElementById('btn-close-impressum').addEventListener('click', () => {
+  document.getElementById('impressum-modal').style.display = 'none';
 });
 
 /* DEV ONLY — REMOVE BEFORE RELEASE */
