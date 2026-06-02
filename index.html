@@ -454,13 +454,22 @@
       #cps-display { font-size: 0.8rem; }
       #bottom-stats { padding: 6px 8px 10px; }
       #prestige-progress-wrap, #scantion-progress-wrap { padding: 0 12px 10px; }
+      /* Narrow panels: tighten header, cards, icons */
+      .panel-title { padding: 10px 10px; gap: 6px; }
+      .panel-title-text { font-size: 0.72rem; letter-spacing: 1px; }
+      .buy-mult-btn { padding: 2px 4px; }
+      .special-upgrade-card { padding: 10px 10px; margin: 8px 6px; gap: 10px; }
+      .su-icon { font-size: 1.7rem; }
+      .su-name { font-size: 0.82rem; }
+      .building-card { padding: 8px 10px; gap: 8px; }
+      .building-icon { width: 40px; height: 40px; font-size: 1.3rem; }
     }
     @media (max-width: 680px) {
       html, body { overflow-y: auto; height: auto; }
       #app { display: flex; flex-direction: column; min-height: 100vh; height: auto; }
       #center { min-height: 440px; order: 1; overflow-y: visible; }
-      #buildings-panel { order: 2; max-height: 320px; border-left: none; border-top: 1px solid var(--border); }
-      #upgrades-panel  { order: 3; max-height: 300px; border-right: none; border-top: 1px solid var(--border); }
+      #buildings-panel { order: 2; max-height: 380px; border-left: none; border-top: 1px solid var(--border); }
+      #upgrades-panel  { order: 3; max-height: 340px; border-right: none; border-top: 1px solid var(--border); }
     }
 
     /* ── Achievements Modal ──────────────────────────────── */
@@ -673,7 +682,7 @@
       flex-shrink: 0;
     }
     #prestige-info {
-      display: flex; gap: 14px; align-items: center;
+      display: flex; gap: 8px 14px; align-items: center; flex-wrap: wrap;
       font-size: 0.7rem; color: var(--muted);
     }
     #prestige-token-count { color: var(--gold); font-weight: 800; }
@@ -795,7 +804,7 @@
 
     /* ── Scantion styles ─────────────────────────────────── */
     #scantion-info {
-      display: flex; gap: 14px; align-items: center;
+      display: flex; gap: 8px 14px; align-items: center; flex-wrap: wrap;
       font-size: 0.7rem; color: var(--muted);
     }
     #scantion-token-count { color: #5599ff; font-weight: 800; }
