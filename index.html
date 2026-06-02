@@ -1401,17 +1401,19 @@ function doClick(clientX, clientY) {
 document.addEventListener('gesturestart', e => e.preventDefault(), { passive: false });
 document.addEventListener('gesturechange', e => e.preventDefault(), { passive: false });
 
-// Whole screen is clickable — ignore clicks inside panels, prestige bar, or modals
+// Whole screen is clickable — ignore clicks inside panels, prestige bar, modals, or dev panel
 document.addEventListener('click', e => {
   if (!e.target.closest('.panel') &&
       !e.target.closest('#prestige-bar') &&
-      !e.target.closest('.modal-overlay')) doClick(e.clientX, e.clientY);
+      !e.target.closest('.modal-overlay') &&
+      !e.target.closest('#dev-admin-panel')) doClick(e.clientX, e.clientY);
 });
 
 document.addEventListener('touchend', e => {
   if (!e.target.closest('.panel') &&
       !e.target.closest('#prestige-bar') &&
-      !e.target.closest('.modal-overlay')) {
+      !e.target.closest('.modal-overlay') &&
+      !e.target.closest('#dev-admin-panel')) {
     e.preventDefault();
     const t = e.changedTouches[0];
     doClick(t.clientX, t.clientY);
@@ -2270,7 +2272,7 @@ document.getElementById('leaderboard-modal').addEventListener('click', e => {
 /* /DEV ONLY */
 
 document.addEventListener('keydown', e=>{
-  if (e.key===' ') { e.preventDefault(); const r=clickZone.getBoundingClientRect(); doClick(r.left+r.width/2, r.top+r.height/2); }
+  if (e.key===' ' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); const r=clickZone.getBoundingClientRect(); doClick(r.left+r.width/2, r.top+r.height/2); }
 });
 
 // ── Init ──────────────────────────────────────────────────
