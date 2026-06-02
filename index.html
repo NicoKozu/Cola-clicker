@@ -765,6 +765,7 @@
       flex: 1; background: rgba(40,6,10,0.85); border: 1px solid rgba(130,25,35,0.5);
       border-radius: 6px; color: var(--cream); font-size: 0.72rem;
       padding: 4px 7px; font-family: 'Nunito', sans-serif; min-width: 0; outline: none;
+      user-select: text; -webkit-user-select: text;
     }
     .dev-row input:focus { border-color: rgba(220,20,60,0.7); }
     .dev-row input::placeholder { color: var(--muted); opacity: 0.6; }
@@ -1037,24 +1038,24 @@
     <button id="btn-close-dev" style="background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;padding:0 4px;line-height:1;">✕</button>
   </div>
   <div class="dev-row">
-    <label>Cola add</label>
-    <input type="number" id="dev-cola" placeholder="z.B. 1e14" min="0" />
-    <button class="dev-btn" id="dev-cola-btn">+</button>
+    <label>Cola</label>
+    <input type="text" id="dev-cola" placeholder="z.B. 1e14" />
+    <button class="dev-btn" id="dev-cola-btn">→</button>
   </div>
   <div class="dev-row">
-    <label>Fizz add</label>
-    <input type="number" id="dev-fizz" placeholder="z.B. 50" min="0" />
-    <button class="dev-btn" id="dev-fizz-btn">+</button>
+    <label>Fizz</label>
+    <input type="text" id="dev-fizz" placeholder="z.B. 50" />
+    <button class="dev-btn" id="dev-fizz-btn">→</button>
   </div>
   <div class="dev-row">
-    <label>Scantion add</label>
-    <input type="number" id="dev-scantion" placeholder="z.B. 10" min="0" />
-    <button class="dev-btn" id="dev-scantion-btn">+</button>
+    <label>Scantion</label>
+    <input type="text" id="dev-scantion" placeholder="z.B. 10" />
+    <button class="dev-btn" id="dev-scantion-btn">→</button>
   </div>
   <div class="dev-row">
-    <label>Prestiges set</label>
-    <input type="number" id="dev-prestiges" placeholder="z.B. 5" min="0" />
-    <button class="dev-btn" id="dev-prestiges-btn">=</button>
+    <label>Prestiges</label>
+    <input type="text" id="dev-prestiges" placeholder="z.B. 5" />
+    <button class="dev-btn" id="dev-prestiges-btn">→</button>
   </div>
 </div>
 <!-- /DEV ONLY -->
@@ -2228,6 +2229,12 @@ document.getElementById('leaderboard-modal').addEventListener('click', e => {
   function devRefresh() {
     autoSave(); renderBuildings(); renderSpecialUpgrades(); updateUI(); checkMilestones();
   }
+  function devBind(inputId, btnId, apply) {
+    const inp = document.getElementById(inputId);
+    const btn = document.getElementById(btnId);
+    btn.addEventListener('click', () => apply(inp.value));
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') apply(inp.value); });
+  }
   const devPanel = document.getElementById('dev-admin-panel');
   document.getElementById('btn-dev-admin').addEventListener('click', () => {
     devPanel.style.display = devPanel.style.display === 'flex' ? 'none' : 'flex';
@@ -2235,26 +2242,26 @@ document.getElementById('leaderboard-modal').addEventListener('click', e => {
   document.getElementById('btn-close-dev').addEventListener('click', () => {
     devPanel.style.display = 'none';
   });
-  document.getElementById('dev-cola-btn').addEventListener('click', () => {
-    const n = parseFloat(document.getElementById('dev-cola').value);
+  devBind('dev-cola', 'dev-cola-btn', val => {
+    const n = parseFloat(val);
     if (!isFinite(n) || n <= 0) return;
     state.cola += n; state.totalCola += n;
     showToast('⚙ DEV: +' + fmt(n) + ' Cola'); devRefresh();
   });
-  document.getElementById('dev-fizz-btn').addEventListener('click', () => {
-    const n = parseFloat(document.getElementById('dev-fizz').value);
+  devBind('dev-fizz', 'dev-fizz-btn', val => {
+    const n = parseFloat(val);
     if (!isFinite(n) || n <= 0) return;
     state.fizzTokens += n;
     showToast('⚙ DEV: +' + fmt(n) + ' Fizz'); devRefresh();
   });
-  document.getElementById('dev-scantion-btn').addEventListener('click', () => {
-    const n = parseFloat(document.getElementById('dev-scantion').value);
+  devBind('dev-scantion', 'dev-scantion-btn', val => {
+    const n = parseFloat(val);
     if (!isFinite(n) || n <= 0) return;
     state.scantionTokens += n;
     showToast('⚙ DEV: +' + fmt(n) + ' Scantion'); devRefresh();
   });
-  document.getElementById('dev-prestiges-btn').addEventListener('click', () => {
-    const n = parseFloat(document.getElementById('dev-prestiges').value);
+  devBind('dev-prestiges', 'dev-prestiges-btn', val => {
+    const n = parseFloat(val);
     if (!isFinite(n) || n < 0) return;
     state.totalPrestiges = Math.floor(n);
     showToast('⚙ DEV: Prestiges = ' + state.totalPrestiges); devRefresh();
