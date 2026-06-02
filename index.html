@@ -1778,9 +1778,6 @@ function updateUI() {
   updateScantionUI();
   updateScantionProgress();
   updateComboDisplay();
-
-  document.getElementById('btn-leaderboard').style.display =
-    getLeaderboard().length > 0 ? '' : 'none';
 }
 
 function renderBuildings() {
@@ -2086,8 +2083,14 @@ function updatePrestigeUI() {
     '🔥 ' + tokens + ' Fizz Token' + (tokens !== 1 ? 's' : '');
   document.getElementById('prestige-bonus').textContent =
     bonusPct > 0 ? '+' + bonusPct + '% Bonus' : 'No Bonus';
-  document.getElementById('prestige-run').textContent =
-    'Run #' + (state.totalPrestiges + 1) + ' · Goal: ' + fmt(threshold);
+  const completedRuns = getLeaderboard().length;
+  const runEl = document.getElementById('prestige-run');
+  if (completedRuns > 0) {
+    runEl.textContent = 'Run #' + (completedRuns + 1);
+    runEl.style.display = '';
+  } else {
+    runEl.style.display = 'none';
+  }
 
   const btnP = document.getElementById('btn-prestige');
   btnP.style.display = eligible ? 'block' : 'none';
