@@ -998,7 +998,7 @@
 <div id="leaderboard-modal" class="modal-overlay" style="display:none">
   <div class="modal-box">
     <div class="modal-header">
-      <span class="modal-title">🏆 Beste Prestige-Runs</span>
+      <span class="modal-title">🏆 Final Boss — Beste Zeiten</span>
       <button id="btn-close-leaderboard" class="modal-close">✕</button>
     </div>
     <div class="modal-body">
@@ -1008,15 +1008,13 @@
             <th>#</th>
             <th>Run</th>
             <th>Zeit</th>
-            <th>Cola verdient</th>
-            <th>Tokens</th>
             <th>Datum</th>
           </tr>
         </thead>
         <tbody id="leaderboard-body"></tbody>
       </table>
       <div id="leaderboard-empty" style="display:none">
-        Noch keine Prestige-Runs. Sammle genug Cola und klicke Prestige!
+        Noch kein Final Boss besiegt. Sammle 1 Mrd. Scantion Tokens und kaufe das letzte Upgrade!
       </div>
     </div>
   </div>
@@ -1184,7 +1182,7 @@ let state = {
               planet:0, star:0, galaxy:0, nebula:0, constellation:0, universe:0, dimension:0, multiverse:0, bigbang:0, void:0 },
   milestones:{},
   clickLevel:0, offlineLevel:0,
-  fizzTokens:0, totalPrestiges:0, runStartTime:Date.now(),
+  fizzTokens:0, totalPrestiges:0, runStartTime:Date.now(), gameStartTime:Date.now(),
   lifetimeCola:0, lifetimeClicks:0,
   fizzUpgrades:{ fizz_boost:0, click_infusion:0, milestone_1k:0, milestone_10k:0, milestone_100k:0, milestone_1m:0, milestone_10m:0, milestone_100m:0, milestone_1b:0 },
   scantionTokens:0, totalScantions:0, prestiges_this_scantion:0,
@@ -1753,6 +1751,7 @@ function _applyState(saved) {
   state.fizzTokens     = saved.fizzTokens     || 0;
   state.totalPrestiges = saved.totalPrestiges || 0;
   state.runStartTime   = saved.runStartTime   || Date.now();
+  state.gameStartTime  = saved.gameStartTime  || saved.runStartTime || Date.now();
   state.lifetimeCola   = saved.lifetimeCola   || 0;
   state.lifetimeClicks = saved.lifetimeClicks || 0;
   state.clickLevel     = saved.clickLevel     || 0;
@@ -1779,14 +1778,15 @@ function loadGame() {
 }
 
 function resetGame() {
-  if (!confirm('Reset ALL progress including Fizz Tokens and Prestige? This cannot be undone!')) return;
+  if (!confirm('Reset ALL progress including Fizz Tokens, Prestige AND the Leaderboard? This cannot be undone!')) return;
   localStorage.removeItem(SAVE_KEY);
+  localStorage.removeItem(LEADERBOARD_KEY);
   state = {
     cola:0, totalCola:0, totalClicks:0,
     buildings:        Object.fromEntries(BUILDINGS.map(b => [b.id, 0])),
     milestones:       {},
     clickLevel:0, offlineLevel:0,
-    fizzTokens:0, totalPrestiges:0, runStartTime:Date.now(),
+    fizzTokens:0, totalPrestiges:0, runStartTime:Date.now(), gameStartTime:Date.now(),
     lifetimeCola:0, lifetimeClicks:0,
     fizzUpgrades:     Object.fromEntries(FIZZ_UPGRADES.map(u => [u.id, 0])),
     scantionTokens:0, totalScantions:0, prestiges_this_scantion:0,
@@ -1986,6 +1986,7 @@ function doPrestige() {
     fizzTokens:       newTotal,
     totalPrestiges:   runNumber,
     runStartTime:     Date.now(),
+    gameStartTime:    state.gameStartTime,
     lifetimeCola:     state.lifetimeCola + state.totalCola,
     lifetimeClicks:   state.lifetimeClicks + state.totalClicks,
     fizzUpgrades:     state.fizzUpgrades,
@@ -2075,6 +2076,7 @@ function doScantion() {
     fizzTokens:       0,
     totalPrestiges:   0,
     runStartTime:     Date.now(),
+    gameStartTime:    state.gameStartTime,
     lifetimeCola:     state.lifetimeCola + state.totalCola,
     lifetimeClicks:   state.lifetimeClicks + state.totalClicks,
     fizzUpgrades:     Object.fromEntries(FIZZ_UPGRADES.map(u => [u.id, 0])),
@@ -2118,24 +2120,15 @@ function renderScantionUpgrades() {
 }
 
 function doFinalBossWin() {
-  const timeMs = Date.now() - state.runStartTime;
-  recordLeaderboardEntry({
-    runNumber:       state.totalPrestiges + 1,
-    timeMs,
-    colaAtPrestige:  state.totalCola,
-    tokensEarned:    0,
-    fizzTokensTotal: state.fizzTokens,
-    timestamp:       Date.now(),
-    finalBoss:       true,
-    scantionTokens:  (state.scantionTokens || 0) + 1000000000,
-  });
+  const timeMs  = Date.now() - (state.gameStartTime || state.runStartTime || Date.now());
+  const runNum  = getLeaderboard().length + 1;
+  recordLeaderboardEntry({ runNumber: runNum, timeMs, timestamp: Date.now() });
 
   alert(
     '🏆 GLÜCKWUNSCH! DU HAST DAS SPIEL GEWONNEN! 🏆\n\n' +
     'Du hast den Final Boss besiegt!\n' +
     'Du bist ein unsterblicher Cola-Gott!\n\n' +
-    'Zeit: ' + fmtTime(timeMs) + '\n' +
-    'Scantion Tokens: ' + fmt((state.scantionTokens || 0) + 1000000000) + '\n\n' +
+    'Run #' + runNum + ' — Zeit: ' + fmtTime(timeMs) + '\n\n' +
     'Das Spiel wird jetzt zurückgesetzt — dein Rekord bleibt im Leaderboard!'
   );
 
@@ -2145,7 +2138,7 @@ function doFinalBossWin() {
     buildings:        Object.fromEntries(BUILDINGS.map(b => [b.id, 0])),
     milestones:       {},
     clickLevel:0, offlineLevel:0,
-    fizzTokens:0, totalPrestiges:0, runStartTime:Date.now(),
+    fizzTokens:0, totalPrestiges:0, runStartTime:Date.now(), gameStartTime:Date.now(),
     lifetimeCola:0, lifetimeClicks:0,
     fizzUpgrades:     Object.fromEntries(FIZZ_UPGRADES.map(u => [u.id, 0])),
     scantionTokens:0, totalScantions:0, prestiges_this_scantion:0,
@@ -2153,7 +2146,7 @@ function doFinalBossWin() {
   };
   upgradesTab = 'fizz';
   renderBuildings(); renderSpecialUpgrades(); updateUI();
-  showToast('🏆 FINAL BOSS BESIEGT! Neues Spiel gestartet!');
+  showToast('🏆 FINAL BOSS BESIEGT! Run #' + runNum + ' in ' + fmtTime(timeMs) + '!');
 }
 
 function buyScantionUpgrade(id) {
@@ -2213,27 +2206,16 @@ function renderLeaderboard() {
   empty.style.display = 'none';
   tbody.innerHTML = '';
 
-  board.forEach((entry, i) => {
+  const sorted = board.slice().sort((a, b) => a.timeMs - b.timeMs);
+  sorted.forEach((entry, i) => {
     const date = new Date(entry.timestamp).toLocaleDateString('de-DE');
     const tr   = document.createElement('tr');
-    if (entry.finalBoss) {
-      tr.style.background = 'linear-gradient(90deg, rgba(255,215,0,0.08), rgba(255,215,0,0.03))';
-      tr.innerHTML =
-        '<td>' + (i + 1) + '</td>' +
-        '<td style="color:var(--gold);font-weight:900">👑 FINAL BOSS</td>' +
-        '<td>' + fmtTime(entry.timeMs) + '</td>' +
-        '<td>' + fmt(entry.colaAtPrestige) + ' 🥤</td>' +
-        '<td style="color:var(--gold)">⚡ ' + fmt(entry.scantionTokens || 0) + ' Scantion</td>' +
-        '<td>' + date + '</td>';
-    } else {
-      tr.innerHTML =
-        '<td>' + (i + 1) + '</td>' +
-        '<td>#' + entry.runNumber + '</td>' +
-        '<td>' + fmtTime(entry.timeMs) + '</td>' +
-        '<td>' + fmt(entry.colaAtPrestige) + ' 🥤</td>' +
-        '<td>+' + entry.tokensEarned + ' (' + entry.fizzTokensTotal + ' gesamt)</td>' +
-        '<td>' + date + '</td>';
-    }
+    if (i === 0) tr.style.color = 'var(--gold)';
+    tr.innerHTML =
+      '<td>' + (i + 1) + '</td>' +
+      '<td>Run #' + entry.runNumber + '</td>' +
+      '<td>' + fmtTime(entry.timeMs) + '</td>' +
+      '<td>' + date + '</td>';
     tbody.appendChild(tr);
   });
 }
