@@ -385,6 +385,57 @@
       background: var(--cream); cursor: pointer;
       border: none; box-shadow: 0 1px 5px rgba(0,0,0,0.7);
     }
+    #code-panel {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 5px);
+      left: 0; right: 0;
+      background: linear-gradient(160deg, rgba(18,5,5,0.98), rgba(10,3,3,0.99));
+      border: 1px solid rgba(130,25,35,0.5);
+      border-radius: 10px;
+      padding: 14px 16px;
+      box-shadow: 0 -6px 20px rgba(0,0,0,0.75);
+      z-index: 50;
+    }
+    .code-row {
+      display: flex; align-items: center; gap: 8px;
+    }
+    #code-input {
+      flex: 1; height: 30px;
+      background: rgba(30,8,8,0.9);
+      border: 1px solid rgba(160,35,35,0.5);
+      border-radius: 7px;
+      color: var(--cream);
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.78rem;
+      padding: 0 10px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    #code-input:focus { border-color: rgba(220,20,60,0.7); }
+    #code-input::placeholder { color: var(--muted); }
+    #code-submit {
+      height: 30px; padding: 0 12px;
+      background: linear-gradient(135deg, rgba(180,20,40,0.85), rgba(100,10,20,0.9));
+      border: 1px solid rgba(220,20,60,0.4);
+      border-radius: 7px;
+      color: var(--cream); font-size: 0.8rem; font-weight: 700;
+      cursor: pointer; transition: all 0.13s;
+      font-family: 'Nunito', sans-serif;
+    }
+    #code-submit:hover { background: linear-gradient(135deg, rgba(220,20,60,0.9), rgba(140,10,25,0.95)); }
+    #code-feedback {
+      margin-top: 8px;
+      min-height: 14px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      font-family: 'Nunito', sans-serif;
+      text-align: center;
+      transition: opacity 0.3s;
+    }
+    #code-feedback.ok  { color: #55dd55; }
+    #code-feedback.err { color: #dd4444; }
+
     #btn-kofi {
       width: 100%; padding: 7px 4px;
       border: 1px solid rgba(255,164,0,0.4);
@@ -1035,6 +1086,14 @@
       <button class="btn-small" id="btn-achievements">🏅 Goals</button>
       <button class="btn-small" id="btn-leaderboard">🏆 Scores</button>
       <button class="btn-small" id="btn-sound">🔊 Sound</button>
+      <button class="btn-small" id="btn-code">🎟 Code</button>
+      <div id="code-panel">
+        <div class="code-row">
+          <input type="text" id="code-input" placeholder="Code eingeben…" autocomplete="off" spellcheck="false">
+          <button id="code-submit">✔</button>
+        </div>
+        <div id="code-feedback"></div>
+      </div>
       <a id="btn-kofi" href="https://ko-fi.com/L5K120OT29" target="_blank" rel="noopener">☕ Support on Ko-fi</a>
       <button id="btn-impressum">Legal Notice</button>
     </div>
@@ -2666,6 +2725,47 @@ document.getElementById('btn-close-impressum').addEventListener('click', () => {
   slider.addEventListener('input', () => applyVolume(parseInt(slider.value, 10)));
   slider.addEventListener('change', () => { if (soundVolume > 0) playUnlockSound(); });
 
+  panel.addEventListener('click', e => e.stopPropagation());
+  document.addEventListener('click', () => { panel.style.display = 'none'; });
+})();
+
+// ── Code panel ───────────────────────────────────────────
+(function() {
+  const btn      = document.getElementById('btn-code');
+  const panel    = document.getElementById('code-panel');
+  const input    = document.getElementById('code-input');
+  const submit   = document.getElementById('code-submit');
+  const feedback = document.getElementById('code-feedback');
+
+  function setFeedback(msg, type) {
+    feedback.textContent = msg;
+    feedback.className = type;
+    clearTimeout(feedback._t);
+    feedback._t = setTimeout(() => { feedback.textContent = ''; feedback.className = ''; }, 3000);
+  }
+
+  function redeem() {
+    const raw = input.value.trim();
+    const m   = raw.match(/^p(\d+)$/i);
+    if (!m) { setFeedback('Ungültiger Code.', 'err'); return; }
+    const amount = parseInt(m[1], 10);
+    if (amount <= 0) { setFeedback('Ungültiger Code.', 'err'); return; }
+    state.cola      += amount;
+    state.totalCola += amount;
+    updateUI();
+    autoSave();
+    input.value = '';
+    setFeedback('+' + fmt(amount) + ' 🥤 erhalten!', 'ok');
+  }
+
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    if (panel.style.display === 'block') input.focus();
+  });
+
+  submit.addEventListener('click', e => { e.stopPropagation(); redeem(); });
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.stopPropagation(); redeem(); } });
   panel.addEventListener('click', e => e.stopPropagation());
   document.addEventListener('click', () => { panel.style.display = 'none'; });
 })();
