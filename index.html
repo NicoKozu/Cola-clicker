@@ -630,6 +630,34 @@
       background: linear-gradient(135deg, rgba(32,5,55,0.85), rgba(20,3,35,0.92));
       border-color: rgba(190,80,255,0.45);
     }
+    .achievement-card.ach-cps {
+      background: linear-gradient(135deg, rgba(55,30,5,0.85), rgba(35,18,3,0.92));
+      border-color: rgba(255,200,0,0.45);
+    }
+    .achievement-card.ach-fizz {
+      background: linear-gradient(135deg, rgba(55,5,30,0.85), rgba(35,3,18,0.92));
+      border-color: rgba(255,80,160,0.45);
+    }
+    .achievement-card.ach-scantion {
+      background: linear-gradient(135deg, rgba(5,40,55,0.85), rgba(3,25,35,0.92));
+      border-color: rgba(0,200,255,0.45);
+    }
+    .achievement-card.ach-meta {
+      background: linear-gradient(135deg, rgba(40,40,5,0.85), rgba(25,25,3,0.92));
+      border-color: rgba(200,200,0,0.45);
+    }
+    .ach-bonus {
+      flex-shrink: 0; font-size: 0.58rem; font-weight: 700;
+      padding: 2px 5px; border-radius: 6px; margin-left: auto;
+      background: rgba(50,15,15,0.4); color: rgba(140,70,70,0.7);
+      border: 1px solid rgba(80,20,20,0.4); letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+    .ach-bonus.ach-bonus-earned {
+      background: rgba(10,60,10,0.5); color: #7fff7f;
+      border-color: rgba(0,180,60,0.5);
+      text-shadow: 0 0 6px rgba(0,255,80,0.4);
+    }
     .ach-num {
       width: 24px; height: 24px; border-radius: 50%;
       background: rgba(255,215,0,0.15); border: 1px solid rgba(255,215,0,0.35);
@@ -1398,29 +1426,117 @@ const BUILDINGS = [
 ];
 
 const MILESTONES = [
-  { id:'m1',   threshold:100,   title:'🥤 First Sip!',         sub:'You collected 100 cola!' },
-  { id:'m2',   threshold:1000,  title:'🎉 Cola Enthusiast',    sub:'Reached 1,000 cola!' },
-  { id:'m3',   threshold:10000, title:'🏭 Cola Industrialist', sub:'10,000 cola produced!' },
-  { id:'m4',   threshold:1e6,   title:'💰 Cola Millionaire',   sub:'A million cola!' },
-  { id:'m5',   threshold:1e9,   title:'🌍 Cola Billionaire',   sub:'One BILLION cola!' },
-  { id:'m6',   threshold:1e12,  title:'🚀 Cola Trillionaire',  sub:'A trillion cola! Unreal.' },
-  { id:'m_c1', type:'clicks',   val:100,   title:'👆 Click Happy',   sub:'100 total clicks!' },
-  { id:'m_c2', type:'clicks',   val:1000,  title:'🤜 Click Warrior', sub:'1,000 clicks! Impressive.' },
-  { id:'m_c3', type:'clicks',   val:10000, title:'⚡ Click Legend',  sub:'10,000 clicks! Your finger is a weapon.' },
-  { id:'m_b1', type:'buildings',val:1,   title:'🛒 First Building',sub:'Bought your first producer!' },
-  { id:'m_b2', type:'buildings',val:10,  title:'🏘️ Small Empire',  sub:'10 buildings owned!' },
-  { id:'m_b3', type:'buildings',val:50,  title:'🏙️ Cola City',     sub:'50 buildings owned!' },
-  { id:'m_b4', type:'buildings', val:100, title:'🌆 Megalopolis',       sub:'100 buildings! You are unstoppable.' },
-  { id:'m_b5', type:'buildings', val:200, title:'🌏 Cola Continent',    sub:'200 Buildings! Absolutely unstoppable.' },
-  { id:'m7',    threshold:1e15,            title:'🌌 Cola Quadrillionaire', sub:'One Quadrillion Cola! Unimaginable.' },
-  { id:'m8',    threshold:1e18,            title:'⚡ Cola Quintillionaire', sub:'1.00e18 Cola! The numbers are getting absurd.' },
-  { id:'m9',    threshold:1e24,            title:'☄️ Cola God',             sub:'1.00e24 Cola! You are beyond all logic.' },
-  { id:'m10',   threshold:1e30,            title:'🌌 Cola Creator',         sub:'1.00e30 Cola! The universe belongs to you.' },
-  { id:'m_c4',  type:'clicks', val:100000, title:'🔥 Click Overlord',       sub:'100,000 Clicks! Your finger is immortal.' },
-  { id:'m_p1',  type:'prestige', val:1,    title:'🔥 First Prestige',       sub:'You have ascended for the first time!' },
-  { id:'m_p5',  type:'prestige', val:5,    title:'🏆 Prestige Master',      sub:'Five ascensions. You ARE the Cola.' },
-  { id:'m_p10', type:'prestige', val:10,   title:'⚡ Prestige Legend',      sub:'Ten ascensions. A true Cola Legend.' },
-  { id:'m_p25', type:'prestige', val:25,   title:'🌌 Prestige Deity',       sub:'25 ascensions. The universe bows before you.' },
+  // ── Cola production milestones ──────────────────────────────
+  { id:'m1',   threshold:100,   title:'🥤 First Sip!',              sub:'You collected 100 cola!' },
+  { id:'m2',   threshold:1000,  title:'🎉 Cola Enthusiast',         sub:'Reached 1,000 cola!' },
+  { id:'m3',   threshold:10000, title:'🏭 Cola Industrialist',      sub:'10,000 cola produced!' },
+  { id:'m4',   threshold:1e6,   title:'💰 Cola Millionaire',        sub:'A million cola!' },
+  { id:'m5',   threshold:1e9,   title:'🌍 Cola Billionaire',        sub:'One BILLION cola!' },
+  { id:'m6',   threshold:1e12,  title:'🚀 Cola Trillionaire',       sub:'A trillion cola! Unreal.' },
+  { id:'m7',   threshold:1e15,  title:'🌌 Cola Quadrillionaire',    sub:'One Quadrillion Cola! Unimaginable.' },
+  { id:'m8',   threshold:1e18,  title:'⚡ Cola Quintillionaire',    sub:'1.00e18 Cola! The numbers are getting absurd.' },
+  { id:'m9',   threshold:1e24,  title:'☄️ Cola God',                sub:'1.00e24 Cola! You are beyond all logic.' },
+  { id:'m10',  threshold:1e30,  title:'🌌 Cola Creator',            sub:'1.00e30 Cola! The universe belongs to you.' },
+  { id:'m11',  threshold:1e36,  title:'🔱 Cola Transcendent',       sub:'1.00e36 Cola! Transcendence achieved.' },
+  { id:'m12',  threshold:1e42,  title:'💠 Cola Infinite',           sub:'1.00e42 Cola! Infinity itself bows.' },
+  { id:'m13',  threshold:1e48,  title:'🌀 Cola Eternal',            sub:'1.00e48 Cola! Time means nothing to you.' },
+  { id:'m14',  threshold:1e54,  title:'🔮 Cola Omnipotent',         sub:'1.00e54 Cola! All power is yours.' },
+  { id:'m15',  threshold:1e60,  title:'👁️ Cola Absolute',           sub:'1.00e60 Cola! The absolute maximum... almost.' },
+  { id:'m16',  threshold:1e70,  title:'🌊 Cola Beyond',             sub:'1.00e70 Cola! Beyond all comprehension.' },
+  { id:'m17',  threshold:1e80,  title:'💫 Cola Singularity',        sub:'1.00e80 Cola! A singularity of sweetness.' },
+  { id:'m18',  threshold:1e90,  title:'🌟 Cola Genesis',            sub:'1.00e90 Cola! You birthed universes.' },
+  { id:'m19',  threshold:1e100, title:'♾️ Cola Googol',             sub:'1.00e100 Cola! A googol. You win.' },
+  // ── Click milestones ─────────────────────────────────────────
+  { id:'m_c1', type:'clicks', val:100,     title:'👆 Click Happy',      sub:'100 total clicks!' },
+  { id:'m_c2', type:'clicks', val:1000,    title:'🤜 Click Warrior',    sub:'1,000 clicks! Impressive.' },
+  { id:'m_c3', type:'clicks', val:10000,   title:'⚡ Click Legend',     sub:'10,000 clicks! Your finger is a weapon.' },
+  { id:'m_c4', type:'clicks', val:100000,  title:'🔥 Click Overlord',   sub:'100,000 Clicks! Your finger is immortal.' },
+  { id:'m_c5', type:'clicks', val:1000000, title:'🌌 Click Ascendant',  sub:'1,000,000 Clicks! Truly legendary.' },
+  { id:'m_c6', type:'clicks', val:1e7,     title:'💥 Click God',        sub:'10,000,000 Clicks! A deity of clicking.' },
+  // ── Total buildings milestones ────────────────────────────────
+  { id:'m_b1', type:'buildings', val:1,    title:'🛒 First Building',   sub:'Bought your first producer!' },
+  { id:'m_b2', type:'buildings', val:10,   title:'🏘️ Small Empire',     sub:'10 buildings owned!' },
+  { id:'m_b3', type:'buildings', val:50,   title:'🏙️ Cola City',        sub:'50 buildings owned!' },
+  { id:'m_b4', type:'buildings', val:100,  title:'🌆 Megalopolis',      sub:'100 buildings! You are unstoppable.' },
+  { id:'m_b5', type:'buildings', val:200,  title:'🌏 Cola Continent',   sub:'200 Buildings! Absolutely unstoppable.' },
+  { id:'m_b6', type:'buildings', val:500,  title:'🚀 Cola Superpower',  sub:'500 buildings! A true cola superpower.' },
+  { id:'m_b7', type:'buildings', val:1000, title:'⭐ Cola Colossus',    sub:'1,000 buildings! Colossal production.' },
+  { id:'m_b8', type:'buildings', val:5000, title:'🌌 Cola Cosmos',      sub:'5,000 buildings! The cosmos produces cola.' },
+  // ── Per-building 10 milestones ────────────────────────────────
+  { id:'mb_vending_10',       type:'building_type', bId:'vending',       val:10, title:'🥤 Vending Veteran',        sub:'Own 10 Vending Machines!' },
+  { id:'mb_factory_10',       type:'building_type', bId:'factory',       val:10, title:'🏭 Factory Foreman',         sub:'Own 10 Cola Factories!' },
+  { id:'mb_plantation_10',    type:'building_type', bId:'plantation',    val:10, title:'🌿 Plantation Baron',        sub:'Own 10 Cola Plantations!' },
+  { id:'mb_bottling_10',      type:'building_type', bId:'bottling',      val:10, title:'🍾 Bottling Boss',           sub:'Own 10 Bottling Plants!' },
+  { id:'mb_empire_10',        type:'building_type', bId:'empire',        val:10, title:'👑 Empire Builder',          sub:'Own 10 Cola Empires!' },
+  { id:'mb_lab_10',           type:'building_type', bId:'lab',           val:10, title:'🧬 Lab Director',            sub:'Own 10 Research Labs!' },
+  { id:'mb_satellite_10',     type:'building_type', bId:'satellite',     val:10, title:'🛰️ Satellite Commander',     sub:'Own 10 Cola Satellites!' },
+  { id:'mb_planet_10',        type:'building_type', bId:'planet',        val:10, title:'🪐 Planet Collector',        sub:'Own 10 Cola Planets!' },
+  { id:'mb_star_10',          type:'building_type', bId:'star',          val:10, title:'⭐ Star Hoarder',            sub:'Own 10 Cola Stars!' },
+  { id:'mb_galaxy_10',        type:'building_type', bId:'galaxy',        val:10, title:'🌌 Galaxy Farmer',           sub:'Own 10 Cola Galaxies!' },
+  { id:'mb_nebula_10',        type:'building_type', bId:'nebula',        val:10, title:'🌠 Nebula Tender',           sub:'Own 10 Cola Nebulae!' },
+  { id:'mb_constellation_10', type:'building_type', bId:'constellation', val:10, title:'✨ Constellation Keeper',    sub:'Own 10 Cola Constellations!' },
+  { id:'mb_universe_10',      type:'building_type', bId:'universe',      val:10, title:'🔮 Universe Warden',         sub:'Own 10 Cola Universes!' },
+  { id:'mb_dimension_10',     type:'building_type', bId:'dimension',     val:10, title:'🌀 Dimension Drifter',       sub:'Own 10 Cola Dimensions!' },
+  { id:'mb_multiverse_10',    type:'building_type', bId:'multiverse',    val:10, title:'♾️ Multiverse Maestro',      sub:'Own 10 Cola Multiverses!' },
+  { id:'mb_bigbang_10',       type:'building_type', bId:'bigbang',       val:10, title:'💥 Big Bang Broker',         sub:'Own 10 Cola Big Bangs!' },
+  { id:'mb_void_10',          type:'building_type', bId:'void',          val:10, title:'⚫ Void Walker',             sub:'Own 10 Cola Voids!' },
+  // ── Per-building 100 milestones ───────────────────────────────
+  { id:'mb_vending_100',       type:'building_type', bId:'vending',       val:100, title:'🥤 Vending Magnate',       sub:'Own 100 Vending Machines!' },
+  { id:'mb_factory_100',       type:'building_type', bId:'factory',       val:100, title:'🏭 Factory Tycoon',         sub:'Own 100 Cola Factories!' },
+  { id:'mb_plantation_100',    type:'building_type', bId:'plantation',    val:100, title:'🌿 Plantation Lord',        sub:'Own 100 Cola Plantations!' },
+  { id:'mb_bottling_100',      type:'building_type', bId:'bottling',      val:100, title:'🍾 Bottling Overlord',      sub:'Own 100 Bottling Plants!' },
+  { id:'mb_empire_100',        type:'building_type', bId:'empire',        val:100, title:'👑 Empire Sovereign',       sub:'Own 100 Cola Empires!' },
+  { id:'mb_lab_100',           type:'building_type', bId:'lab',           val:100, title:'🧬 Lab Legend',             sub:'Own 100 Research Labs!' },
+  { id:'mb_satellite_100',     type:'building_type', bId:'satellite',     val:100, title:'🛰️ Satellite Admiral',      sub:'Own 100 Cola Satellites!' },
+  { id:'mb_planet_100',        type:'building_type', bId:'planet',        val:100, title:'🪐 Planet Sovereign',       sub:'Own 100 Cola Planets!' },
+  { id:'mb_star_100',          type:'building_type', bId:'star',          val:100, title:'⭐ Star Sovereign',         sub:'Own 100 Cola Stars!' },
+  { id:'mb_galaxy_100',        type:'building_type', bId:'galaxy',        val:100, title:'🌌 Galaxy Sovereign',       sub:'Own 100 Cola Galaxies!' },
+  { id:'mb_nebula_100',        type:'building_type', bId:'nebula',        val:100, title:'🌠 Nebula Sovereign',       sub:'Own 100 Cola Nebulae!' },
+  { id:'mb_constellation_100', type:'building_type', bId:'constellation', val:100, title:'✨ Constellation Sovereign',sub:'Own 100 Cola Constellations!' },
+  { id:'mb_universe_100',      type:'building_type', bId:'universe',      val:100, title:'🔮 Universe Sovereign',     sub:'Own 100 Cola Universes!' },
+  { id:'mb_dimension_100',     type:'building_type', bId:'dimension',     val:100, title:'🌀 Dimension Sovereign',    sub:'Own 100 Cola Dimensions!' },
+  { id:'mb_multiverse_100',    type:'building_type', bId:'multiverse',    val:100, title:'♾️ Multiverse Sovereign',   sub:'Own 100 Cola Multiverses!' },
+  { id:'mb_bigbang_100',       type:'building_type', bId:'bigbang',       val:100, title:'💥 Big Bang Sovereign',     sub:'Own 100 Cola Big Bangs!' },
+  { id:'mb_void_100',          type:'building_type', bId:'void',          val:100, title:'⚫ Void Sovereign',         sub:'Own 100 Cola Voids!' },
+  // ── All buildings 100 ─────────────────────────────────────────
+  { id:'mb_all_100', type:'all_buildings_100', title:'💯 Century Fleet',        sub:'Own at least 100 of every building type!' },
+  // ── Prestige milestones ───────────────────────────────────────
+  { id:'m_p1',  type:'prestige', val:1,   title:'🔥 First Prestige',    sub:'You have ascended for the first time!' },
+  { id:'m_p5',  type:'prestige', val:5,   title:'🏆 Prestige Master',   sub:'Five ascensions. You ARE the Cola.' },
+  { id:'m_p10', type:'prestige', val:10,  title:'⚡ Prestige Legend',   sub:'Ten ascensions. A true Cola Legend.' },
+  { id:'m_p25', type:'prestige', val:25,  title:'🌌 Prestige Deity',    sub:'25 ascensions. The universe bows before you.' },
+  { id:'m_p50', type:'prestige', val:50,  title:'💠 Prestige Immortal', sub:'50 ascensions. Immortality confirmed.' },
+  { id:'m_p100',type:'prestige', val:100, title:'👑 Prestige Supreme',  sub:'100 ascensions. You are the Cola Supreme.' },
+  { id:'m_p200',type:'prestige', val:200, title:'♾️ Prestige Infinite', sub:'200 ascensions. Infinity is your playground.' },
+  // ── CPS milestones ────────────────────────────────────────────
+  { id:'m_cps1',  type:'cps', val:1e4,  title:'⚡ Cola Sprinkler',    sub:'Reach 10,000 Cola/s!' },
+  { id:'m_cps2',  type:'cps', val:1e8,  title:'🌊 Cola Torrent',      sub:'Reach 1.00e8 Cola/s!' },
+  { id:'m_cps3',  type:'cps', val:1e12, title:'🚀 Cola Rocket',       sub:'Reach 1.00e12 Cola/s!' },
+  { id:'m_cps4',  type:'cps', val:1e16, title:'💫 Cola Nova',         sub:'Reach 1.00e16 Cola/s!' },
+  { id:'m_cps5',  type:'cps', val:1e20, title:'🌌 Cola Pulsar',       sub:'Reach 1.00e20 Cola/s!' },
+  { id:'m_cps6',  type:'cps', val:1e24, title:'⭐ Cola Quasar',       sub:'Reach 1.00e24 Cola/s!' },
+  { id:'m_cps7',  type:'cps', val:1e28, title:'🔮 Cola Wormhole',     sub:'Reach 1.00e28 Cola/s!' },
+  { id:'m_cps8',  type:'cps', val:1e32, title:'♾️ Cola Infinity',     sub:'Reach 1.00e32 Cola/s!' },
+  // ── Fizz token milestones ─────────────────────────────────────
+  { id:'m_f1', type:'fizz', val:10,     title:'🔥 Fizz Initiate',     sub:'Earn 10 Fizz Tokens!' },
+  { id:'m_f2', type:'fizz', val:100,    title:'🔥 Fizz Adept',        sub:'Earn 100 Fizz Tokens!' },
+  { id:'m_f3', type:'fizz', val:1000,   title:'🔥 Fizz Expert',       sub:'Earn 1,000 Fizz Tokens!' },
+  { id:'m_f4', type:'fizz', val:10000,  title:'🔥 Fizz Master',       sub:'Earn 10,000 Fizz Tokens!' },
+  { id:'m_f5', type:'fizz', val:100000, title:'🔥 Fizz Grandmaster',  sub:'Earn 100,000 Fizz Tokens!' },
+  { id:'m_f6', type:'fizz', val:1e6,    title:'🔥 Fizz Deity',        sub:'Earn 1,000,000 Fizz Tokens!' },
+  { id:'m_f7', type:'fizz', val:1e7,    title:'🔥 Fizz Absolute',     sub:'Earn 10,000,000 Fizz Tokens!' },
+  // ── Scantion milestones ───────────────────────────────────────
+  { id:'m_s1',  type:'scantion', val:1,  title:'🌀 First Scantion',   sub:'Completed your first Scantion!' },
+  { id:'m_s3',  type:'scantion', val:3,  title:'🌀 Scantion Adept',   sub:'Three Scantions completed!' },
+  { id:'m_s5',  type:'scantion', val:5,  title:'🌀 Scantion Master',  sub:'Five Scantions! Reality is yours.' },
+  { id:'m_s10', type:'scantion', val:10, title:'🌀 Scantion Legend',  sub:'Ten Scantions. Beyond comprehension.' },
+  { id:'m_s20', type:'scantion', val:20, title:'🌀 Scantion Deity',   sub:'Twenty Scantions! You transcend all.' },
+  { id:'m_s50', type:'scantion', val:50, title:'🌀 Scantion Eternal', sub:'Fifty Scantions. Eternity achieved.' },
+  // ── Meta achievement milestones ───────────────────────────────
+  { id:'m_a10', type:'achievements', val:10, title:'🏅 Achievement Seeker',    sub:'Unlock 10 achievements!' },
+  { id:'m_a25', type:'achievements', val:25, title:'🏅 Achievement Hunter',    sub:'Unlock 25 achievements!' },
+  { id:'m_a50', type:'achievements', val:50, title:'🏅 Achievement Master',    sub:'Unlock 50 achievements!' },
+  { id:'m_a75', type:'achievements', val:75, title:'🏅 Achievement Legend',    sub:'Unlock 75 achievements!' },
 ];
 
 const CPS_LEVELS = [
@@ -1497,11 +1613,11 @@ function getBuildingCps(bId) {
   const b = BUILDINGS_MAP[bId];
   const cnt = state.buildings[bId] || 0;
   if (!cnt) return 0;
-  return b.baseCps * cnt * getPrestigeMultiplier() * getFizzUpgradeMultiplier() * getScantionMult() * getScantionSynergyMult();
+  return b.baseCps * cnt * getPrestigeMultiplier() * getFizzUpgradeMultiplier() * getScantionMult() * getScantionSynergyMult() * getAchievementMultiplier();
 }
 
 function getTotalCps() {
-  const mult = getPrestigeMultiplier() * getFizzUpgradeMultiplier() * getScantionMult() * getScantionSynergyMult();
+  const mult = getPrestigeMultiplier() * getFizzUpgradeMultiplier() * getScantionMult() * getScantionSynergyMult() * getAchievementMultiplier();
   return BUILDINGS.reduce((s, b) => {
     const cnt = state.buildings[b.id] || 0;
     return cnt ? s + b.baseCps * cnt * mult : s;
@@ -1511,7 +1627,7 @@ function getTotalCps() {
 function getColasPerClick(cpsHint) {
   const clickMult = Math.pow(2, state.clickLevel);
   const comboMult = clickComboLevel > 0 ? CPS_LEVELS[clickComboLevel - 1].mult : 1;
-  let cpc = clickMult * getPrestigeMultiplier() * getFizzUpgradeMultiplier() * getFizzClickMultiplier() * comboMult * getScantionMult();
+  let cpc = clickMult * getPrestigeMultiplier() * getFizzUpgradeMultiplier() * getFizzClickMultiplier() * comboMult * getScantionMult() * getAchievementMultiplier();
   if (state.scantionUpgrades.sq_click) {
     cpc += (cpsHint !== undefined ? cpsHint : getTotalCps()) * 0.005;
   }
@@ -2032,13 +2148,21 @@ function renderBuildings() {
 let milestoneQueue = [], milestoneShowing = false;
 
 function checkMilestones() {
+  const currentCps = getTotalCps();
+  const currentAchCount = getUnlockedAchievementCount();
   MILESTONES.forEach(m=>{
     if (state.milestones[m.id]) return;
     let triggered = false;
-    if (!m.type                       && state.totalCola     >= m.threshold)  triggered = true;
-    if (m.type==='clicks'             && state.totalClicks   >= m.val)        triggered = true;
-    if (m.type==='buildings'          && totalBuildingCount() >= m.val)        triggered = true;
-    if (m.type==='prestige'           && state.totalPrestiges >= m.val)        triggered = true;
+    if (!m.type                          && state.totalCola      >= m.threshold) triggered = true;
+    if (m.type==='clicks'                && state.totalClicks    >= m.val)       triggered = true;
+    if (m.type==='buildings'             && totalBuildingCount() >= m.val)       triggered = true;
+    if (m.type==='prestige'              && state.totalPrestiges >= m.val)       triggered = true;
+    if (m.type==='building_type'         && (state.buildings[m.bId]||0) >= m.val) triggered = true;
+    if (m.type==='all_buildings_100'     && BUILDINGS.every(b => (state.buildings[b.id]||0) >= 100)) triggered = true;
+    if (m.type==='cps'                   && currentCps           >= m.val)       triggered = true;
+    if (m.type==='fizz'                  && state.fizzTokens     >= m.val)       triggered = true;
+    if (m.type==='scantion'              && state.totalScantions >= m.val)       triggered = true;
+    if (m.type==='achievements'          && currentAchCount      >= m.val)       triggered = true;
     if (triggered) {
       state.milestones[m.id] = true;
       milestoneQueue.push(m);
@@ -2061,10 +2185,16 @@ function renderAchievements() {
     const card = document.createElement('div');
     let colorClass = '';
     if (isUnlocked) {
-      if (!m.type)                 colorClass = 'ach-cola';
-      else if (m.type === 'clicks')    colorClass = 'ach-click';
-      else if (m.type === 'buildings') colorClass = 'ach-building';
-      else if (m.type === 'prestige')  colorClass = 'ach-prestige';
+      if (!m.type)                          colorClass = 'ach-cola';
+      else if (m.type === 'clicks')         colorClass = 'ach-click';
+      else if (m.type === 'buildings')      colorClass = 'ach-building';
+      else if (m.type === 'building_type')  colorClass = 'ach-building';
+      else if (m.type === 'all_buildings_100') colorClass = 'ach-building';
+      else if (m.type === 'prestige')       colorClass = 'ach-prestige';
+      else if (m.type === 'cps')            colorClass = 'ach-cps';
+      else if (m.type === 'fizz')           colorClass = 'ach-fizz';
+      else if (m.type === 'scantion')       colorClass = 'ach-scantion';
+      else if (m.type === 'achievements')   colorClass = 'ach-meta';
     }
     card.className = 'achievement-card ' + (isUnlocked ? 'unlocked ' + colorClass : 'locked');
     card.innerHTML =
@@ -2072,10 +2202,13 @@ function renderAchievements() {
       '<div class="ach-body">' +
         '<div class="ach-title">' + (isUnlocked ? m.title : '???') + '</div>' +
         '<div class="ach-sub">'  + (isUnlocked ? m.sub   : '...')  + '</div>' +
-      '</div>';
+      '</div>' +
+      '<div class="ach-bonus' + (isUnlocked ? ' ach-bonus-earned' : '') + '">+1%</div>';
     list.appendChild(card);
   });
-  document.getElementById('achievements-count').textContent = unlockedCount + ' / ' + MILESTONES.length;
+  const bonusPct = unlockedCount;
+  document.getElementById('achievements-count').textContent =
+    unlockedCount + ' / ' + MILESTONES.length + ' — Bonus: +' + bonusPct + '%';
 }
 
 function drainMilestoneQueue() {
@@ -2285,6 +2418,15 @@ function getFizzUpgradeMultiplier() {
 
 function getFizzClickMultiplier() {
   return 1 + (state.fizzUpgrades.click_infusion || 0) * 0.10;
+}
+
+function getAchievementMultiplier() {
+  const count = MILESTONES.filter(m => state.milestones[m.id]).length;
+  return 1 + count * 0.01;
+}
+
+function getUnlockedAchievementCount() {
+  return MILESTONES.filter(m => state.milestones[m.id]).length;
 }
 
 function getFizzUpgradeCost(id) {
