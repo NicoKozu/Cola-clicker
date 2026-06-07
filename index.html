@@ -1561,6 +1561,7 @@ let lastTick = Date.now();
 let tickAcc  = 0;
 
 function tick() {
+  requestAnimationFrame(tick);
   const now = Date.now();
   const dt  = Math.min((now - lastTick)/1000, 1);
   lastTick  = now;
@@ -1571,10 +1572,12 @@ function tick() {
 
   updateClickCombo(dt);
   tickAcc += dt;
-  if (tickAcc >= 0.1) { tickAcc = 0; updateUI(); }
+  if (tickAcc >= 0.1) {
+    tickAcc = 0;
+    try { updateUI(); } catch(e) { console.error('[tick] updateUI error:', e); }
+  }
 
-  checkMilestones();
-  requestAnimationFrame(tick);
+  try { checkMilestones(); } catch(e) { console.error('[tick] checkMilestones error:', e); }
 }
 
 // ── Click Combo ───────────────────────────────────────────
